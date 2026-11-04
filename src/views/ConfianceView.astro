@@ -1,0 +1,73 @@
+---
+import Page from '../layouts/Page.astro';
+import BeforeAfter from '../components/BeforeAfter.astro';
+import Icon from '../components/Icon.astro';
+import Txt from '../components/Txt.astro';
+import type { Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+import { getPage } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { data } = await getPage('confiance', lang);
+---
+
+<Page lang={lang} routeKey="confiance" title={data.title} description={data.description} h1={data.h1} lead={data.lead} crumbs={[{ label: t(lang, 'nav.confiance') }]}>
+  <section class="section section--surface" aria-labelledby="h-commitments">
+    <div class="container">
+      <div class="section__head"><h2 id="h-commitments">{data.commitments.h2}</h2></div>
+      <ul class="cards cards--3" role="list">
+        {
+          data.commitments.items.map((c) => (
+            <li class="card card--white reveal">
+              <span class="icon-tile"><Icon name={c.icon} /></span>
+              <p class="commitment">{c.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-health">
+    <div class="container prose">
+      <h2 id="h-health">{data.health.h2}</h2>
+      {data.health.paragraphs.map((p) => <p><Txt text={p} /></p>)}
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="h-rprp">
+    <div class="container">
+      <div class="callout">
+        <Icon name="user-round" />
+        <div class="stack">
+          <h2 id="h-rprp">{data.rprp.h2}</h2>
+          <p>{data.rprp.text}</p>
+          <p><strong><Txt text={data.rprp.contact} /></strong></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-ba">
+    <div class="container">
+      <div class="section__head">
+        <h2 id="h-ba">{data.beforeAfter.h2}</h2>
+        <p>{data.beforeAfter.lead}</p>
+      </div>
+      <BeforeAfter lang={lang} id="ba-confiance" />
+    </div>
+  </section>
+</Page>
+
+<style>
+  @layer components {
+    .commitment {
+      color: var(--color-text) !important;
+      font-weight: var(--fw-semibold);
+    }
+  }
+</style>

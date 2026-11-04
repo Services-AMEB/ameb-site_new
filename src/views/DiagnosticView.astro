@@ -1,0 +1,175 @@
+---
+import Page from '../layouts/Page.astro';
+import Card from '../components/Card.astro';
+import FAQ from '../components/FAQ.astro';
+import ContactForm from '../components/ContactForm.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import Txt from '../components/Txt.astro';
+import type { Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+import { getPage } from '../lib/content';
+import { faqLd } from '../lib/seo';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { data } = await getPage('diagnostic', lang);
+---
+
+<Page
+  lang={lang}
+  routeKey="diagnostic"
+  title={data.title}
+  description={data.description}
+  h1={data.h1}
+  lead={data.lead}
+  crumbs={[{ label: t(lang, 'nav.diagnostic') }]}
+  cta={false}
+  jsonLd={[faqLd(data.faq)]}
+>
+  <section class="strong-band price" aria-labelledby="h-price">
+    <div class="container price__grid">
+      <div class="stack">
+        <h2 id="h-price">{data.price.h2}</h2>
+        <p class="price__amount"><Txt text={data.price.amount} /></p>
+      </div>
+      <ul class="price__facts" role="list">
+        <li><Icon name="check" /><span><Txt text={data.price.credit} /></span></li>
+        <li><Icon name="timer" /><span><Txt text={data.price.duration} /></span></li>
+        <li><Icon name="info" /><span>{data.price.note}</span></li>
+        <li>
+          <Button href="#reserver" variant="light" icon="arrow-right" track="cta_diagnostic" placement="diagnostic-price">
+            {t(lang, 'cta.diagnostic')}
+          </Button>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-deliverables">
+    <div class="container">
+      <div class="section__head"><h2 id="h-deliverables">{data.deliverables.h2}</h2></div>
+      <div class="cards cards--4">
+        {data.deliverables.items.map((d) => <Card title={d.title} text={d.text} icon={d.icon} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface" aria-labelledby="h-process">
+    <div class="container">
+      <div class="section__head"><h2 id="h-process">{data.process.h2}</h2></div>
+      <ol class="process" role="list">
+        {
+          data.process.steps.map((s, i) => (
+            <li class="process__item reveal">
+              <span class="steps__num" aria-hidden="true">{i + 1}</span>
+              <p>{s}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-funding">
+    <div class="container">
+      <div class="callout">
+        <Icon name="building-2" />
+        <div>
+          <h2 id="h-funding">{data.funding.title}</h2>
+          <p><Txt text={data.funding.text} /></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="reserver" aria-labelledby="h-form">
+    <div class="container split">
+      <div class="stack">
+        <h2 id="h-form">{data.form.h2}</h2>
+        <p class="lead">{data.form.lead}</p>
+      </div>
+      <ContactForm lang={lang} kind="diagnostic" />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-faq">
+    <div class="container">
+      <div class="section__head"><h2 id="h-faq">{t(lang, 'service.faq')}</h2></div>
+      <FAQ items={data.faq} />
+    </div>
+  </section>
+</Page>
+
+<style>
+  @layer components {
+    .price {
+      padding-block: var(--sp-12);
+    }
+
+    .price__grid {
+      display: grid;
+      gap: var(--sp-8);
+
+      @media (min-width: 900px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: center;
+      }
+    }
+
+    .price__amount {
+      font-family: var(--font-display);
+      font-weight: var(--fw-bold);
+      font-size: var(--fs-2xl);
+      line-height: var(--lh-tight);
+    }
+
+    .price .tbc {
+      background: var(--white);
+    }
+
+    .price__facts {
+      display: grid;
+      gap: var(--sp-4);
+
+      & li {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: var(--sp-3);
+        align-items: start;
+      }
+
+      & li:last-child {
+        display: block;
+        margin-block-start: var(--sp-2);
+      }
+
+      & svg {
+        color: var(--jade-100);
+      }
+    }
+
+    .process {
+      display: grid;
+      gap: var(--sp-4);
+
+      @media (min-width: 900px) {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--gutter);
+      }
+    }
+
+    .process__item {
+      display: grid;
+      gap: var(--sp-3);
+      align-content: start;
+      padding: var(--sp-6);
+      background: var(--bg);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-md);
+    }
+  }
+</style>

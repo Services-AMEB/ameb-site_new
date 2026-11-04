@@ -1,0 +1,43 @@
+---
+/** Pages légales (langage simple, corps Markdown). */
+import Page from '../layouts/Page.astro';
+import Txt from '../components/Txt.astro';
+import { render } from 'astro:content';
+import type { Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+import { getPage } from '../lib/content';
+import { formatDate } from '../lib/dates';
+
+interface Props {
+  lang: Lang;
+  page: 'confidentialite' | 'accessibilite' | 'mentions-legales';
+}
+
+const { lang, page } = Astro.props;
+const { entry, data } = await getPage(page, lang);
+const { Content } = await render(entry);
+---
+
+<Page lang={lang} routeKey={page} title={data.title} description={data.description} h1={data.h1} lead={data.lead} crumbs={[{ label: data.h1 }]} cta={false}>
+  <p slot="head-extra" class="cluster prose-meta">
+    <span class="badge"><Txt text={data.review} /></span>
+    <span class="muted">{t(lang, 'common.updated')} <time datetime={data.updated.toISOString().slice(0, 10)}>{formatDate(data.updated, lang)}</time></span>
+  </p>
+  <div class="container section prose-page">
+    <div class="prose">
+      <Content />
+    </div>
+  </div>
+</Page>
+
+<style>
+  @layer components {
+    .prose-page {
+      padding-block-start: 0;
+    }
+
+    .prose-meta {
+      font-size: var(--fs-sm);
+    }
+  }
+</style>

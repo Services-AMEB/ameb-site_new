@@ -1,0 +1,15 @@
+---
+import ServiceView from '../../views/ServiceView.astro';
+import { childRoutes, slugOf } from '../../i18n/routes';
+
+export function getStaticPaths() {
+  return childRoutes('services').map((key) => ({
+    params: { slug: slugOf(key, 'fr') },
+    props: { key: key.slice('services/'.length) },
+  }));
+}
+
+const { key } = Astro.props;
+---
+
+<ServiceView lang="fr" serviceKey={key} />

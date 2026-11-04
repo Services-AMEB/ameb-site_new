@@ -1,0 +1,23 @@
+---
+import Page from '../layouts/Page.astro';
+import Card from '../components/Card.astro';
+import type { Lang } from '../i18n/routes';
+import { url } from '../i18n/routes';
+import { t } from '../i18n/ui';
+import { getPage } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { data } = await getPage('outils', lang);
+---
+
+<Page lang={lang} routeKey="outils" title={data.title} description={data.description} h1={data.h1} lead={data.lead} crumbs={[{ label: t(lang, 'nav.outils') }]}>
+  <section class="section section--surface" aria-label={data.h1}>
+    <div class="container cards cards--2">
+      {data.tools.map((tool) => <Card level="h2" title={tool.title} text={tool.text} icon={tool.icon} href={url(tool.route, lang)} more={t(lang, 'cta.learnMore')} variant="white" />)}
+    </div>
+  </section>
+</Page>

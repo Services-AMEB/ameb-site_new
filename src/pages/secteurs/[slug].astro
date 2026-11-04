@@ -1,0 +1,15 @@
+---
+import SecteurView from '../../views/SecteurView.astro';
+import { childRoutes, slugOf } from '../../i18n/routes';
+
+export function getStaticPaths() {
+  return childRoutes('secteurs').map((key) => ({
+    params: { slug: slugOf(key, 'fr') },
+    props: { key: key.slice('secteurs/'.length) },
+  }));
+}
+
+const { key } = Astro.props;
+---
+
+<SecteurView lang="fr" sectorKey={key} />
