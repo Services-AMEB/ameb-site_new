@@ -1,0 +1,10 @@
+{
+  "id": "msp",
+  "nodes": [
+    { "icon": "ticket", "fr": "Billet de soutien", "en": "Support ticket" },
+    { "icon": "workflow", "fr": "Script automatisé", "en": "Automated script" },
+    { "icon": "book-open", "fr": "Documentation à jour", "en": "Up-to-date documentation" },
+    { "icon": "timer", "fr": "Temps facturé", "en": "Time billed" },
+    { "icon": "chart-column", "fr": "Rapport client", "en": "Client report" }
+  ]
+}

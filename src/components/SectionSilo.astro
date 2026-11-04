@@ -1,0 +1,320 @@
+---
+/**
+ * Concept A — « Le plan qui se connecte » (accueil).
+ * Desktop (≥ 1024 px, mouvement permis, animation-timeline pris en charge) : section de 400vh,
+ * scène collante pilotée par le défilement (view-timeline --silo), aucun écouteur scroll, 0 Ko de JS requis.
+ * Sinon : 4 cartes empilées avec une mini-scène figée à la fin de chaque étape.
+ * Bouton pause : arrête toute animation de la page (html[data-motion="paused"], mémorisé).
+ */
+import SiloScene from './SiloScene.astro';
+import Sprite from './icons/Sprite.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { url, type Lang } from '../i18n/routes';
+import { t, type UiKey } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const steps = [1, 2, 3, 4] as const;
+---
+
+<section class="silo" aria-labelledby="silo-title">
+  <Sprite />
+  <div class="container">
+    <h2 id="silo-title" class="silo__title">{t(lang, 'silo.heading')}</h2>
+  </div>
+  <div class="container silo__stage">
+    <ol class="silo__steps" role="list" aria-label={t(lang, 'silo.stepsLabel')}>
+      {
+        steps.map((n) => (
+          <li class="silo__step">
+            <div class="silo__text">
+              <p class="silo__num" aria-hidden="true">
+                {String(n).padStart(2, '0')}
+              </p>
+              <h3>{t(lang, `silo.step${n}` as UiKey)}</h3>
+              <p class="silo__copy">{t(lang, `silo.scene${n}` as UiKey)}</p>
+              {n === 4 && (
+                <Button href={url('diagnostic', lang)} icon="arrow-right" track="cta_diagnostic" placement="silo">
+                  {t(lang, 'cta.diagnostic')}
+                </Button>
+              )}
+            </div>
+            <div class="silo__mini">
+              <SiloScene lang={lang} state={n} />
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+    <div class="silo__sticky">
+      <div class="silo__frame">
+        <SiloScene lang={lang} state="live" />
+      </div>
+      <ol class="silo__progress" role="list" aria-hidden="true">
+        {
+          steps.map((n) => (
+            <li style={`--n: ${n - 1}`}>
+              <span class="silo__bar" />
+              {t(lang, `silo.step${n}` as UiKey)}
+            </li>
+          ))
+        }
+      </ol>
+      <div class="silo__sticky-controls">
+        <button type="button" class="btn btn--ghost btn--sm" data-motion-toggle data-label-pause={t(lang, 'silo.pause')} data-label-play={t(lang, 'silo.play')}>
+          <span class="silo__icon-pause"><Icon name="pause" /></span>
+          <span class="silo__icon-play"><Icon name="play" /></span>
+          <span data-motion-label>{t(lang, 'silo.pause')}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="container silo__controls">
+    <button type="button" class="btn btn--ghost btn--sm" data-motion-toggle data-label-pause={t(lang, 'silo.pause')} data-label-play={t(lang, 'silo.play')}>
+      <span class="silo__icon-pause"><Icon name="pause" /></span>
+      <span class="silo__icon-play"><Icon name="play" /></span>
+      <span data-motion-label>{t(lang, 'silo.pause')}</span>
+    </button>
+  </div>
+</section>
+
+<style>
+  @layer components {
+    .silo {
+      padding-block: var(--section-space);
+      background: var(--surface);
+      border-block: var(--border-w) solid var(--line);
+    }
+
+    .silo__title {
+      margin-block-end: var(--sp-8);
+      max-inline-size: 20ch;
+    }
+
+    .silo__steps {
+      display: grid;
+      gap: var(--sp-6);
+      counter-reset: silo;
+    }
+
+    .silo__step {
+      display: grid;
+      gap: var(--sp-6);
+      padding: var(--sp-6);
+      background: var(--bg);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+
+      @media (min-width: 768px) {
+        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+        align-items: center;
+      }
+    }
+
+    .silo__text {
+      display: grid;
+      gap: var(--sp-3);
+      justify-items: start;
+    }
+
+    .silo__num {
+      font-family: var(--font-display);
+      font-weight: var(--fw-bold);
+      font-size: var(--fs-sm);
+      color: var(--jade-900);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .silo__copy {
+      font-size: var(--fs-md);
+      color: var(--color-text-2);
+    }
+
+    .silo__step h3 {
+      font-size: var(--fs-xl);
+    }
+
+    .silo__mini {
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      padding: var(--sp-3);
+    }
+
+    .silo__sticky {
+      display: none;
+    }
+
+    .silo__controls {
+      margin-block-start: var(--sp-6);
+    }
+
+    .silo__icon-pause,
+    .silo__icon-play {
+      display: inline-flex;
+    }
+
+    .silo__icon-play,
+    :global(html[data-motion="paused"]) .silo__icon-pause {
+      display: none;
+    }
+
+    :global(html[data-motion="paused"]) .silo__icon-play {
+      display: inline-flex;
+    }
+
+    .silo__progress {
+      display: flex;
+      gap: var(--sp-4);
+      justify-content: center;
+      font-size: var(--fs-xs);
+      font-weight: var(--fw-semibold);
+      color: var(--color-text-2);
+
+      & li {
+        display: grid;
+        gap: var(--sp-2);
+        justify-items: center;
+      }
+    }
+
+    .silo__bar {
+      display: block;
+      inline-size: var(--sp-12);
+      block-size: var(--sp-1);
+      border-radius: var(--radius-round);
+      background: var(--jade-600);
+    }
+
+    /* ---- Récit collant au défilement (desktop, mouvement permis, pris en charge) ---- */
+    @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+      @supports (animation-timeline: view()) {
+        .silo__stage {
+          display: grid;
+          grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+          gap: var(--gutter);
+          block-size: 400vh;
+          view-timeline: --silo block;
+          view-timeline-inset: var(--header-h) 0;
+        }
+
+        .silo__steps {
+          gap: 0;
+        }
+
+        .silo__step {
+          display: grid;
+          grid-template-columns: 1fr;
+          min-block-size: 100vh;
+          align-content: center;
+          padding: 0;
+          background: transparent;
+          border: 0;
+        }
+
+        .silo__mini {
+          display: none;
+        }
+
+        .silo__sticky {
+          position: sticky;
+          inset-block-start: var(--header-h);
+          block-size: calc(100vh - var(--header-h));
+          display: grid;
+          align-content: center;
+          gap: var(--sp-6);
+        }
+
+        .silo__frame {
+          padding: var(--sp-4);
+          background: var(--bg);
+          border: var(--border-w) solid var(--line);
+          border-radius: var(--radius-lg);
+          box-shadow: var(--shadow-1);
+        }
+
+        .silo__controls {
+          display: none;
+        }
+
+        .silo__sticky-controls {
+          display: flex;
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  @layer motion {
+    @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+      @supports (animation-timeline: view()) {
+        .silo__bar {
+          animation: silo-step linear both;
+          animation-duration: var(--dur-timeline);
+          animation-timeline: --silo;
+          animation-range: contain calc(var(--n) * 25%) contain calc(var(--n) * 25% + 25%);
+        }
+      }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      @supports (animation-timeline: view()) {
+        .silo__step {
+          animation: reveal linear both;
+          animation-duration: var(--dur-timeline);
+          animation-timeline: view();
+          animation-range: entry 0% entry 60%;
+        }
+
+        @media (min-width: 1024px) {
+          .silo__step {
+            animation: none;
+          }
+        }
+      }
+    }
+
+    @keyframes silo-step {
+      0% {
+        opacity: .25;
+      }
+
+      5%,
+      95% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: .25;
+      }
+    }
+  }
+</style>
+
+<script>
+  // Bouton pause : arrête (ou reprend) toute animation de la page, choix mémorisé.
+  const root = document.documentElement;
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-motion-toggle]')) {
+    const label = button.querySelector('[data-motion-label]');
+    const sync = () => {
+      const paused = root.dataset.motion === 'paused';
+      if (label) label.textContent = (paused ? button.dataset.labelPlay : button.dataset.labelPause) ?? '';
+    };
+    sync();
+    button.addEventListener('click', () => {
+      const paused = root.dataset.motion !== 'paused';
+      if (paused) root.dataset.motion = 'paused';
+      else delete root.dataset.motion;
+      try {
+        if (paused) localStorage.setItem('ameb-motion', 'paused');
+        else localStorage.removeItem('ameb-motion');
+      } catch {
+        /* stockage indisponible : la pause vaut pour cette page */
+      }
+      sync();
+    });
+  }
+</script>

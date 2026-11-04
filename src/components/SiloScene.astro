@@ -1,0 +1,857 @@
+---
+/**
+ * Scène SVG du concept A (viewBox 1200×720). Aucun <text> : libellés en HTML positionné.
+ * state = « live » (animée au défilement par SectionSilo, état final par défaut)
+ *       ou 1 à 4 (mini-scène figée à la fin de l'étape correspondante).
+ * Les coordonnées finales sont celles de l'état « connecté »; --dx/--dy/--r donnent l'état dispersé.
+ */
+import type { Lang } from '../i18n/routes';
+import { t, type UiKey } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  state: 'live' | 1 | 2 | 3 | 4;
+}
+
+const { lang, state } = Astro.props;
+const live = state === 'live';
+const id = (name: string) => (live ? name : undefined);
+
+const W = 1200;
+const H = 720;
+const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(3)}%`;
+
+const islands = [
+  { key: 'ventes', x: 60, y: 60, dx: 40, dy: 34, r: -4, alert: true, dup: true },
+  { key: 'finances', x: 60, y: 308, dx: 118, dy: -14, r: 3, alert: false, dup: false },
+  { key: 'service', x: 60, y: 556, dx: 34, dy: -46, r: -2, alert: true, dup: true },
+  { key: 'operations', x: 900, y: 60, dx: -64, dy: 52, r: 3, alert: false, dup: false },
+  { key: 'marketing', x: 900, y: 308, dx: -126, dy: 22, r: -3, alert: true, dup: false },
+  { key: 'direction', x: 900, y: 556, dx: -42, dy: -34, r: 2, alert: false, dup: false },
+] as const;
+const IW = 240;
+const IH = 104;
+
+const links = [
+  'M300 112C380 112 380 290 440 290',
+  'M300 360C360 360 380 360 440 360',
+  'M300 608C380 608 380 430 440 430',
+  'M900 112C820 112 820 290 760 290',
+  'M900 360C840 360 820 360 760 360',
+  'M900 608C820 608 820 430 760 430',
+];
+/** Point milieu de chaque lien (position de repli des jetons sans offset-path). */
+const mids = [
+  [370, 201],
+  [370, 360],
+  [370, 519],
+  [830, 201],
+  [830, 360],
+  [830, 519],
+];
+const loopTokens = [0, 2, 3, 5, 1];
+
+const tiles = [
+  { x: 462, y: 236, kind: 'bars' },
+  { x: 606, y: 236, kind: 'line' },
+  { x: 462, y: 344, kind: 'progress' },
+  { x: 606, y: 344, kind: 'bars2' },
+] as const;
+
+const aiPaths = ['M600 158C520 158 380 112 300 112', 'M600 158C680 158 820 112 900 112', 'M600 158C600 180 600 196 600 210'];
+
+const labels: { key: UiKey; x: number; y: number; cls: string; style?: string }[] = [
+  ...islands.map((i) => ({
+    key: `silo.islands.${i.key}` as UiKey,
+    x: i.x + IW / 2,
+    y: i.y + IH / 2 + 22,
+    cls: 'silo-label silo-label--island',
+    style: `--dx: ${i.dx}; --dy: ${i.dy}; --r: ${i.r}deg`,
+  })),
+  { key: 'silo.hub', x: 600, y: 482, cls: 'silo-label silo-label--hub' },
+  { key: 'silo.delay', x: 664, y: 618, cls: 'silo-label silo-label--delay' },
+  { key: 'silo.ai', x: 600, y: 130, cls: 'silo-label silo-label--ai' },
+  { key: 'silo.alert', x: 624, y: 640, cls: 'silo-label silo-label--alert' },
+];
+---
+
+<div class="silo-scene" data-state={String(state)} aria-hidden={live ? undefined : 'true'}>
+  <svg
+    class="silo-svg"
+    viewBox={`0 0 ${W} ${H}`}
+    width={W}
+    height={H}
+    role={live ? 'img' : undefined}
+    aria-labelledby={live ? 'silo-desc' : undefined}
+    focusable="false"
+  >
+    {live && <desc id="silo-desc">{t(lang, 'silo.desc')}</desc>}
+
+    <g id={id('links')} class="s-links">
+      {links.map((d, i) => <path class="s-link" d={d} pathLength="1" style={`--i: ${i}`} />)}
+    </g>
+
+    <g id={id('hub')} class="s-hub">
+      <rect x="440" y="210" width="320" height="300" rx="16" />
+      <use class="s-hub__db" href="#ic-db" x="568" y="300" width="64" height="64" />
+    </g>
+
+    <g id={id('dashboard')} class="s-dashboard">
+      {
+        tiles.map((tile, i) => (
+          <g class="s-tile" style={`--i: ${i}`}>
+            <rect class="s-tile__box" x={tile.x} y={tile.y} width="132" height="96" rx="10" />
+            {tile.kind === 'bars' && (
+              <g class="s-tile__chart">
+                <rect x={tile.x + 20} y={tile.y + 52} width="16" height="28" rx="3" />
+                <rect x={tile.x + 46} y={tile.y + 40} width="16" height="40" rx="3" />
+                <rect x={tile.x + 72} y={tile.y + 30} width="16" height="50" rx="3" />
+                <rect x={tile.x + 98} y={tile.y + 18} width="16" height="62" rx="3" />
+              </g>
+            )}
+            {tile.kind === 'line' && (
+              <path
+                class="s-tile__line"
+                d={`M${tile.x + 16} ${tile.y + 72}L${tile.x + 44} ${tile.y + 56}L${tile.x + 70} ${tile.y + 62}L${tile.x + 96} ${tile.y + 36}L${tile.x + 118} ${tile.y + 24}`}
+              />
+            )}
+            {tile.kind === 'progress' && (
+              <g class="s-tile__chart">
+                <rect class="s-tile__track" x={tile.x + 16} y={tile.y + 28} width="100" height="12" rx="6" />
+                <rect x={tile.x + 16} y={tile.y + 28} width="74" height="12" rx="6" />
+                <rect class="s-tile__track" x={tile.x + 16} y={tile.y + 56} width="100" height="12" rx="6" />
+                <rect x={tile.x + 16} y={tile.y + 56} width="52" height="12" rx="6" />
+              </g>
+            )}
+            {tile.kind === 'bars2' && (
+              <g class="s-tile__chart">
+                <circle class="s-tile__track-c" cx={tile.x + 66} cy={tile.y + 48} r="28" />
+                <circle class="s-tile__arc" cx={tile.x + 66} cy={tile.y + 48} r="28" pathLength="1" />
+              </g>
+            )}
+          </g>
+        ))
+      }
+    </g>
+
+    <g id={id('islands')} class="s-islands">
+      {
+        islands.map((i) => (
+          <g class="s-island" style={`--dx: ${i.dx}; --dy: ${i.dy}; --r: ${i.r}deg`}>
+            <rect class="s-island__box" x={i.x} y={i.y} width={IW} height={IH} rx="12" />
+            <rect class="s-island__bar" x={i.x + 20} y={i.y + 22} width="72" height="10" rx="5" />
+            {i.alert && <circle class="s-island__alert" cx={i.x + IW - 18} cy={i.y + 18} r="9" />}
+            {i.dup && (
+              <g class="s-island__dup">
+                <use href="#ic-card" x={i.x + IW - 74} y={i.y + 40} width="44" height="44" />
+                <use class="s-island__dup2" href="#ic-card" x={i.x + IW - 74} y={i.y + 40} width="44" height="44" />
+              </g>
+            )}
+          </g>
+        ))
+      }
+    </g>
+
+    <g id={id('noise')} class="s-noise">
+      <use class="s-noise__item" style="--k: 0" href="#ic-sheet" x="500" y="270" width="64" height="64" />
+      <use class="s-noise__item" style="--k: 1" href="#ic-sheet" x="568" y="300" width="64" height="64" />
+      <use class="s-noise__item" style="--k: 2" href="#ic-sheet" x="636" y="270" width="64" height="64" />
+      <use class="s-noise__item" style="--k: 3" href="#ic-mail" x="470" y="440" width="56" height="56" />
+      <use class="s-noise__item" style="--k: 4" href="#ic-mail" x="690" y="160" width="56" height="56" />
+      <use class="s-noise__fall" href="#ic-mail" x="790" y="196" width="56" height="56" />
+      <use class="s-noise__clock" href="#ic-clock" x="548" y="590" width="56" height="56" />
+    </g>
+
+    <g id={id('ai')} class="s-ai">
+      <circle class="s-ai__badge" cx="600" cy="130" r="28" />
+      {
+        aiPaths.map((p, i) => (
+          <circle
+            class="s-ai__tok"
+            r="7"
+            transform="translate(600 158)"
+            style={`--p: path('${p}'); --i: ${i}`}
+          />
+        ))
+      }
+    </g>
+
+    <g id={id('alert')} class="s-alert">
+      <rect x="350" y="612" width="500" height="56" rx="12" />
+      <use href="#ic-check" x="362" y="622" width="36" height="36" />
+    </g>
+
+    <g id={id('tokens')} class="s-tokens">
+      {
+        loopTokens.map((li, i) => (
+          <circle
+            class="s-tok"
+            r="5"
+            transform={`translate(${mids[li]?.[0]} ${mids[li]?.[1]})`}
+            style={`--p: path('${links[li]}'); --i: ${i}`}
+          />
+        ))
+      }
+    </g>
+  </svg>
+
+  <div class="silo-labels" aria-hidden="true">
+    {
+      labels.map((l) => (
+        <span class={l.cls} style={`left: ${pct(l.x, W)}; top: ${pct(l.y, H)};${l.style ? ` ${l.style}` : ''}`}>
+          {t(lang, l.key)}
+        </span>
+      ))
+    }
+    <span class="silo-label silo-label--retype" style={`left: ${pct(600, W)}; top: ${pct(238, H)}`}>
+      {t(lang, 'silo.retype')}
+    </span>
+  </div>
+</div>
+
+<style>
+  @property --retype {
+    syntax: "<integer>";
+    inherits: true;
+    initial-value: 4;
+  }
+
+  @layer components {
+    .silo-scene {
+      --u: calc(100cqi / 1200);
+
+      position: relative;
+      aspect-ratio: 5 / 3;
+      container-type: inline-size;
+      inline-size: 100%;
+    }
+
+    .silo-svg {
+      position: absolute;
+      inset: 0;
+      inline-size: 100%;
+      block-size: 100%;
+      overflow: visible;
+    }
+
+    /* ---- État final (scène 4) : valeur par défaut ---- */
+    .s-link {
+      fill: none;
+      stroke: var(--jade-600);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 0;
+    }
+
+    .s-hub {
+      transform-box: fill-box;
+      transform-origin: center;
+
+      & rect {
+        fill: var(--jade-050);
+        stroke: var(--jade-600);
+        stroke-width: 2;
+      }
+    }
+
+    .s-hub__db {
+      color: var(--jade-900);
+      opacity: 0;
+    }
+
+    .s-tile {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .s-tile__box {
+      fill: var(--bg);
+      stroke: var(--line);
+      stroke-width: 2;
+    }
+
+    .s-tile__chart rect {
+      fill: var(--jade-600);
+    }
+
+    .s-tile__chart .s-tile__track {
+      fill: var(--jade-100);
+    }
+
+    .s-tile__line {
+      fill: none;
+      stroke: var(--jade-600);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .s-tile__track-c,
+    .s-tile__arc {
+      fill: none;
+      stroke-width: 10;
+    }
+
+    .s-tile__track-c {
+      stroke: var(--jade-100);
+    }
+
+    .s-tile__arc {
+      stroke: var(--jade-600);
+      stroke-dasharray: .68 1;
+      transform: rotate(-90deg);
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .s-island {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .s-island__box {
+      fill: var(--jade-600);
+    }
+
+    .s-island__bar {
+      fill: var(--white);
+      opacity: .45;
+    }
+
+    .s-island__alert,
+    .s-island__dup,
+    .s-noise use {
+      opacity: 0;
+    }
+
+    .s-island__alert {
+      fill: var(--alert);
+    }
+
+    .s-island__dup {
+      color: var(--white);
+    }
+
+    .s-noise use {
+      color: var(--slate-600);
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .s-noise .s-noise__clock {
+      color: var(--alert);
+    }
+
+    .s-ai__badge {
+      fill: var(--jade-900);
+    }
+
+    .s-ai__tok {
+      fill: var(--jade-600);
+      opacity: 0;
+    }
+
+    .s-alert {
+      & rect {
+        fill: var(--jade-100);
+        stroke: var(--jade-600);
+        stroke-width: 2;
+      }
+
+      & use {
+        color: var(--jade-900);
+      }
+    }
+
+    .s-tok {
+      fill: var(--jade-900);
+      stroke: var(--white);
+      stroke-width: 2;
+    }
+
+    /* ---- Libellés HTML positionnés ---- */
+    .silo-labels {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .silo-label {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      font-family: var(--font-display);
+      font-weight: var(--fw-semibold);
+      font-size: clamp(var(--fs-2xs), calc(var(--u) * 22), var(--fs-xs));
+      line-height: var(--lh-tight);
+      color: var(--jade-900);
+    }
+
+    /* Chaque libellé a son propre fond : contraste vérifiable (axe) quel que soit le tracé SVG dessous. */
+    .silo-label--island,
+    .silo-label--hub,
+    .silo-label--ai,
+    .silo-label--alert,
+    .silo-label--delay {
+      padding: var(--sp-1) var(--sp-2);
+      border-radius: var(--radius-sm);
+    }
+
+    .silo-label--island {
+      font-size: clamp(var(--fs-2xs), calc(var(--u) * 26), var(--fs-sm));
+      background: var(--white);
+      color: var(--slate-800);
+    }
+
+    .silo-label--hub {
+      background: var(--jade-050);
+    }
+
+    .silo-label--ai {
+      background: var(--jade-900);
+      color: var(--white);
+      border-radius: var(--radius-round);
+    }
+
+    .silo-label--alert {
+      background: var(--jade-100);
+    }
+
+    .silo-label--delay {
+      background: var(--white);
+      color: var(--alert);
+      opacity: 0;
+    }
+
+    .silo-label--retype {
+      padding: var(--sp-1) var(--sp-3);
+      border-radius: var(--radius-round);
+      background: var(--alert);
+      color: var(--white);
+      opacity: 0;
+
+      &::after {
+        counter-reset: retype var(--retype);
+        content: counter(retype);
+      }
+    }
+
+    /* Mini-scènes : libellés masqués quand la scène est trop petite */
+    @container (width < 520px) {
+      .silo-labels {
+        display: none;
+      }
+    }
+
+    /* ---- Mini-scènes figées (fin des étapes 1 à 3) ---- */
+    .silo-scene:is([data-state="1"], [data-state="2"]) {
+      & .s-island {
+        transform: translate(calc(var(--dx) * 1px), calc(var(--dy) * 1px)) rotate(var(--r));
+      }
+
+      & .s-island__box {
+        fill: var(--slate-600);
+      }
+
+      & .s-island__alert,
+      & .s-island__dup,
+      & .s-noise__item,
+      & .silo-label--retype {
+        opacity: 1;
+      }
+
+      & .s-link {
+        stroke-dashoffset: 1;
+      }
+
+      & .s-hub,
+      & .s-dashboard,
+      & .s-ai,
+      & .s-alert,
+      & .s-tokens,
+      & .silo-label--hub,
+      & .silo-label--ai,
+      & .silo-label--alert {
+        opacity: 0;
+      }
+
+      & .silo-label--island {
+        transform: translate(-50%, -50%) translate(calc(var(--dx) * var(--u)), calc(var(--dy) * var(--u))) rotate(var(--r));
+      }
+    }
+
+    .silo-scene[data-state="2"] {
+      & .s-noise__fall,
+      & .s-noise__clock,
+      & .silo-label--delay {
+        opacity: 1;
+      }
+
+      & .s-island__dup2 {
+        transform: translate(10px, 10px);
+      }
+
+      & .silo-label--retype {
+        --retype: 8;
+      }
+    }
+
+    .silo-scene[data-state="3"] {
+      & .s-dashboard,
+      & .s-ai,
+      & .s-alert,
+      & .s-tokens,
+      & .silo-label--ai,
+      & .silo-label--alert {
+        opacity: 0;
+      }
+
+      & .s-hub__db {
+        opacity: 1;
+      }
+    }
+  }
+
+  @layer motion {
+    /* Jetons : offset-path si pris en charge (sinon position fixe sur chaque lien) */
+    @supports (offset-path: path("M0 0")) {
+      .s-tok,
+      .s-ai__tok {
+        offset-path: var(--p);
+        offset-rotate: 0deg;
+        offset-distance: 50%;
+        transform: none;
+      }
+
+      .s-ai__tok {
+        offset-distance: 100%;
+      }
+    }
+
+    @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+      @supports (animation-timeline: view()) {
+        .silo-scene[data-state="live"] {
+          & .s-island,
+          & .s-island__box,
+          & .silo-label--island {
+            animation: s-align linear both;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 45% contain 65%;
+          }
+
+          & .s-island__box {
+            animation-name: s-fill;
+          }
+
+          & .silo-label--island {
+            animation-name: s-align-label;
+          }
+
+          & .s-island__alert {
+            animation: s-in linear both, s-out linear forwards;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 8% contain 20%, contain 45% contain 52%;
+          }
+
+          & .s-island__dup {
+            animation: s-in linear both, s-out linear forwards;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 2% contain 12%, contain 50% contain 60%;
+          }
+
+          & .s-island__dup2 {
+            animation: s-shift linear both;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 25% contain 40%;
+          }
+
+          & .s-noise__item {
+            animation: s-in linear both, s-fold linear forwards;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range:
+              contain calc(2% + var(--k) * 3%) contain calc(8% + var(--k) * 3%),
+              contain 45% contain 55%;
+          }
+
+          & .s-noise__fall {
+            animation: s-fall linear both, s-out linear forwards;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 25% contain 35%, contain 45% contain 52%;
+          }
+
+          & .s-noise__clock,
+          & .silo-label--delay {
+            animation: s-in linear both, s-out linear forwards;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 30% contain 38%, contain 45% contain 52%;
+          }
+
+          & .silo-label--retype {
+            animation: s-pulse linear both, s-count linear both, s-out linear forwards;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 4% contain 20%, contain 25% contain 45%, contain 45% contain 52%;
+          }
+
+          & .s-hub {
+            animation: s-pop linear both;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 50% contain 60%;
+          }
+
+          & .silo-label--hub {
+            animation: s-in linear both;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 52% contain 60%;
+          }
+
+          & .s-hub__db {
+            animation: s-in linear both, s-out linear forwards;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 55% contain 60%, contain 75% contain 80%;
+          }
+
+          & .s-link {
+            animation: s-trace linear both;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain calc(55% + var(--i) * 2.5%) contain calc(61% + var(--i) * 2.5%);
+          }
+
+          & .s-tile {
+            animation: s-assemble linear both;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain calc(76% + var(--i) * 3%) contain calc(84% + var(--i) * 3%);
+          }
+
+          & .s-ai,
+          & .silo-label--ai {
+            animation: s-in linear both;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 78% contain 84%;
+          }
+
+          & .s-alert,
+          & .silo-label--alert {
+            animation: s-in linear both;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 88% contain 95%;
+          }
+
+          & .s-tokens {
+            animation: s-in linear both;
+            animation-duration: var(--dur-timeline);
+            animation-timeline: --silo;
+            animation-range: contain 90% contain 97%;
+          }
+        }
+
+        @supports (offset-path: path("M0 0")) {
+          .silo-scene[data-state="live"] {
+            & .s-ai__tok {
+              animation: s-ai-move linear both;
+              animation-duration: var(--dur-timeline);
+              animation-timeline: --silo;
+              animation-range: contain 82% contain 95%;
+            }
+
+            /* Boucle des jetons (2,4 s) : bouton pause dans SectionSilo */
+            & .s-tok {
+              animation: s-loop var(--dur-loop) linear infinite;
+              animation-delay: calc(var(--i) * var(--dur-loop) / -5);
+            }
+          }
+        }
+      }
+    }
+
+    @keyframes s-align {
+      from {
+        transform: translate(calc(var(--dx) * 1px), calc(var(--dy) * 1px)) rotate(var(--r));
+      }
+
+      to {
+        transform: none;
+      }
+    }
+
+    @keyframes s-align-label {
+      from {
+        transform: translate(-50%, -50%) translate(calc(var(--dx) * var(--u)), calc(var(--dy) * var(--u))) rotate(var(--r));
+      }
+
+      to {
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    @keyframes s-fill {
+      from {
+        fill: var(--slate-600);
+      }
+
+      to {
+        fill: var(--jade-600);
+      }
+    }
+
+    @keyframes s-in {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes s-out {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+    @keyframes s-fold {
+      from {
+        opacity: 1;
+        transform: none;
+      }
+
+      to {
+        opacity: 0;
+        transform: scale(.6);
+      }
+    }
+
+    @keyframes s-shift {
+      from {
+        transform: none;
+      }
+
+      to {
+        transform: translate(10px, 10px);
+      }
+    }
+
+    @keyframes s-fall {
+      from {
+        opacity: 0;
+        transform: translateY(-60px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @keyframes s-pulse {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.8);
+      }
+
+      30%,
+      65%,
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      48%,
+      82% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.08);
+      }
+    }
+
+    @keyframes s-count {
+      from {
+        --retype: 4;
+      }
+
+      to {
+        --retype: 8;
+      }
+    }
+
+    @keyframes s-pop {
+      from {
+        opacity: 0;
+        transform: scale(.8);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @keyframes s-trace {
+      from {
+        stroke-dashoffset: 1;
+      }
+
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes s-assemble {
+      from {
+        opacity: 0;
+        transform: translateY(var(--reveal-shift));
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @keyframes s-ai-move {
+      0% {
+        opacity: 1;
+        offset-distance: 0%;
+      }
+
+      85% {
+        opacity: 1;
+        offset-distance: 100%;
+      }
+
+      100% {
+        opacity: 0;
+        offset-distance: 100%;
+      }
+    }
+
+    @keyframes s-loop {
+      from {
+        offset-distance: 0%;
+      }
+
+      to {
+        offset-distance: 100%;
+      }
+    }
+  }
+</style>
