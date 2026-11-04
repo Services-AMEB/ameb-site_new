@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { loadEnv } from 'vite';
 import { LOCALES, NOINDEX_ROUTES, ROUTES, HTML_LANG, findRoute } from './src/i18n/routes.ts';
@@ -22,6 +22,13 @@ export default defineConfig({
   compressHTML: true,
   prefetch: false,
   devToolbar: { enabled: false },
+
+  // SITE_ENV=dev (préproduction) : noindex sur toutes les pages et robots.txt « Disallow: / ».
+  env: {
+    schema: {
+      SITE_ENV: envField.enum({ context: 'server', access: 'public', values: ['production', 'dev'], default: 'production' }),
+    },
+  },
 
   i18n: {
     locales: [...LOCALES],

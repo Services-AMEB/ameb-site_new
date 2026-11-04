@@ -3,7 +3,7 @@
  * Variables (réglages du projet Pages) : TURNSTILE_SECRET, N8N_WEBHOOK_URL, N8N_WEBHOOK_SECRET.
  * Voir docs/decisions/ADR-004-api-contact.md.
  */
-import { handleContact, type ContactEnv } from '../../src/server/contact';
+import { handleContact, type ContactEnv } from '../../src/server/contact.ts';
 
 type Context = { request: Request; env: ContactEnv };
 

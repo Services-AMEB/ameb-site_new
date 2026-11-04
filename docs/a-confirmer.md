@@ -31,6 +31,7 @@ Tout `[À CONFIRMER]` affiché sur le site est inscrit ici, avec la page concern
 | 20 | Libellés illustratifs de la scène silo (« Ressaisie × 4 → × 8 », « +3 jours ») : chiffres d'illustration, pas des résultats | Accueil | Houssam | Phase 1 | À valider |
 | 21 | Date du dernier test manuel clavier et lecteur d'écran; courriel et délai de réponse pour signaler un obstacle | /accessibilite/ | Houssam | Phase 5 | Ouvert |
 | 22 | Volumes de recherche des mots-clés (titres et descriptions SEO à ajuster) | Toutes les pages | Houssam | Phase 0 | Ouvert |
+| 23 | Compte Cloudflare : création des Workers `ameb-site-dev` et `ameb-site`, sous-domaine workers.dev, secrets par environnement (README, « Déployer ») | Configuration | Houssam | Avant le premier déploiement dev | Ouvert |
 
 ## 2. Marqueurs dans le contenu
 

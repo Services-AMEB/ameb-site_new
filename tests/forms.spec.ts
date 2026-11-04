@@ -4,6 +4,9 @@ import { createHmac } from 'node:crypto';
 
 const MOCK = 'http://localhost:4399';
 
+// Le webhook simulé est partagé : ces tests s'exécutent l'un après l'autre.
+test.describe.configure({ mode: 'serial' });
+
 test.beforeEach(async () => {
   const api = await request.newContext();
   await api.post(`${MOCK}/reset`);

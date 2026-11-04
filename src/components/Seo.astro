@@ -2,6 +2,7 @@
 /** Balises SEO : title, description, canonical, hreflang, Open Graph, JSON-LD. */
 import { HTML_LANG, OG_LOCALE, ROUTES, type Lang, type RouteKey } from '../i18n/routes';
 import { absolute, fullTitle, ogImagePath } from '../lib/seo';
+import { SITE_ENV } from 'astro:env/server';
 
 interface Props {
   lang: Lang;
@@ -13,7 +14,9 @@ interface Props {
   jsonLd?: Record<string, unknown>[];
 }
 
-const { lang, routeKey, title, description, noindex = false, ogType = 'website', jsonLd = [] } = Astro.props;
+const { lang, routeKey, title, description, noindex: noindexPage = false, ogType = 'website', jsonLd = [] } = Astro.props;
+// Préproduction : jamais indexée.
+const noindex = noindexPage || SITE_ENV === 'dev';
 const site = Astro.site;
 const pageTitle = fullTitle(title, lang);
 const canonical = absolute(ROUTES[routeKey][lang], site);

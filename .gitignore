@@ -9,3 +9,7 @@ playwright-report/
 .lighthouseci/
 *.log
 .DS_Store
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.wrangler/

@@ -14,6 +14,8 @@ Référence : `docs/brief.md` (fait foi) et `docs/plan-implementation.md`. Déci
 - `npm run test:lh` — Lighthouse CI mobile (8 URL, ≥ 95 ×4, budgets)
 - `npm run verify:dist` — liens, ancres, budgets gzip, H1 unique, parité H2, typographie FR
 - `npm run a-confirmer` — régénère `docs/a-confirmer.md` (la CI vérifie qu'il est à jour)
+- `npm run cf:dev` — build de préproduction + `wrangler dev` (runtime Cloudflare local; secrets dans `.dev.vars`)
+- `npm run deploy:dev` / `npm run deploy` — Worker « ameb-site-dev » (noindex) / « ameb-site » (production)
 
 ## Règles absolues (brief §1)
 1. Jamais le nom de l'éditeur (voir `docs/interdits.txt`), aucun de ses produits, aucun nom de client ni de concurrent dans `src/` ou `public/`.
@@ -35,7 +37,7 @@ Référence : `docs/brief.md` (fait foi) et `docs/plan-implementation.md`. Déci
 - URL : `src/i18n/routes.ts` (table unique FR ↔ EN; ajouter une page = ajouter une clé).
 - Pages : `src/pages/**` (3 lignes) → vues `src/views/*View.astro` partagées par les deux langues.
 - Composants : `src/components/` (SectionSilo + SiloScene = concept A, FlowLine = B, BeforeAfter = C).
-- API : `functions/api/contact.ts` (Pages Function) → `src/server/contact.ts` (Turnstile → zod → n8n signé HMAC).
+- API : `worker/index.ts` (Cloudflare Workers, `wrangler.jsonc`) ou `functions/api/contact.ts` (Pages) → `src/server/contact.ts` (Turnstile → zod → n8n signé HMAC).
 - Styles : `@layer reset, tokens, base, layout, components, utilities, motion`. Styles de composant : toujours dans `@layer components` ou `@layer motion`.
 
 ## Pièges connus

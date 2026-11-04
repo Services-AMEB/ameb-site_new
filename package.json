@@ -21,7 +21,11 @@
     "verify:dist": "node scripts/check-dist.ts",
     "validate:html": "html-validate \"dist/**/*.html\"",
     "a-confirmer": "node scripts/a-confirmer.ts",
-    "prepare": "git config core.hooksPath .githooks || true"
+    "prepare": "git config core.hooksPath .githooks || true",
+    "build:dev": "SITE_ENV=dev astro build",
+    "cf:dev": "npm run build:dev && npx --yes wrangler@4.151.3 dev --env dev",
+    "deploy:dev": "npm run build:dev && npx --yes wrangler@4.151.3 deploy --env dev",
+    "deploy": "npm run build && npx --yes wrangler@4.151.3 deploy --env=\"\""
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "0.4.4",
