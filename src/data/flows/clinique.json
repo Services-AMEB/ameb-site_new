@@ -1,0 +1,10 @@
+{
+  "id": "clinique",
+  "nodes": [
+    { "icon": "calendar-check", "fr": "Prise de rendez-vous", "en": "Appointment booking" },
+    { "icon": "file-text", "fr": "Dossier créé", "en": "Record created" },
+    { "icon": "receipt", "fr": "Facturation", "en": "Billing" },
+    { "icon": "mail", "fr": "Rappels", "en": "Reminders" },
+    { "icon": "handshake", "fr": "Suivi post-visite", "en": "Post-visit follow-up" }
+  ]
+}

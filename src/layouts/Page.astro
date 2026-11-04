@@ -1,0 +1,40 @@
+---
+/** Gabarit de page intérieure : fil d'Ariane, en-tête de page (H1 + chapeau), CTA final. */
+import Base from './Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import FinalCta from '../components/FinalCta.astro';
+import type { Lang, RouteKey } from '../i18n/routes';
+import { breadcrumbLd, type Crumb } from '../lib/seo';
+import { t } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  routeKey: RouteKey;
+  title: string;
+  description: string;
+  h1: string;
+  lead?: string;
+  crumbs?: Crumb[];
+  noindex?: boolean;
+  cta?: boolean;
+  ogType?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>[];
+}
+
+const { lang, routeKey, h1, lead, crumbs = [], cta = true, jsonLd = [], ...rest } = Astro.props;
+const fullCrumbs: Crumb[] = [{ label: t(lang, 'nav.home'), key: 'home' }, ...crumbs];
+const ld = [breadcrumbLd(fullCrumbs, lang, Astro.site), ...jsonLd];
+---
+
+<Base lang={lang} routeKey={routeKey} jsonLd={ld} {...rest}>
+  <slot name="head" slot="head" />
+  <div class="container page-head">
+    <Breadcrumb lang={lang} crumbs={fullCrumbs} />
+    <slot name="eyebrow" />
+    <h1>{h1}</h1>
+    {lead && <p class="lead">{lead}</p>}
+    <slot name="head-extra" />
+  </div>
+  <slot />
+  {cta && <FinalCta lang={lang} />}
+</Base>

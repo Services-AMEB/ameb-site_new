@@ -1,0 +1,56 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from './icons/lucide';
+
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'light';
+  size?: 'md' | 'sm';
+  icon?: IconName;
+  iconStart?: IconName;
+  type?: 'button' | 'submit' | 'reset';
+  /** Événement d'analytics (src/lib/track.ts). */
+  track?: string;
+  placement?: string;
+  external?: boolean;
+  class?: string;
+  [key: `data-${string}`]: string | undefined;
+  [key: `aria-${string}`]: string | undefined;
+  id?: string;
+  disabled?: boolean;
+}
+
+const {
+  href,
+  variant = 'primary',
+  size = 'md',
+  icon,
+  iconStart,
+  type = 'button',
+  track,
+  placement,
+  external = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const classes = ['btn', `btn--${variant}`, size === 'sm' && 'btn--sm', className];
+const trackAttrs = track ? { 'data-track': track, 'data-track-placement': placement } : {};
+const extAttrs = external ? { target: '_blank', rel: 'noopener' } : {};
+---
+
+{
+  href ? (
+    <a href={href} class:list={classes} {...trackAttrs} {...extAttrs} {...rest}>
+      {iconStart && <Icon name={iconStart} />}
+      <slot />
+      {icon && <Icon name={icon} />}
+    </a>
+  ) : (
+    <button type={type} class:list={classes} {...trackAttrs} {...rest}>
+      {iconStart && <Icon name={iconStart} />}
+      <slot />
+      {icon && <Icon name={icon} />}
+    </button>
+  )
+}

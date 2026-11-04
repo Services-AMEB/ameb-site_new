@@ -1,0 +1,11 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "runners": ["htmlcs", "axe"],
+    "timeout": 60000,
+    "wait": 300,
+    "chromeLaunchConfig": { "args": ["--no-sandbox", "--force-prefers-reduced-motion"] },
+    "ignore": ["color-contrast-enhanced"]
+  },
+  "urls": []
+}

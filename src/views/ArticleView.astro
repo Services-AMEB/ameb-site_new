@@ -1,0 +1,30 @@
+---
+import Article from '../layouts/Article.astro';
+import { render } from 'astro:content';
+import type { Lang, RouteKey } from '../i18n/routes';
+import { getOne } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  articleKey: string;
+}
+
+const { lang, articleKey } = Astro.props;
+const entry = await getOne('blogue', articleKey, lang);
+const { Content } = await render(entry);
+const d = entry.data;
+---
+
+<Article
+  lang={lang}
+  routeKey={`ressources/${articleKey}` as RouteKey}
+  title={d.title}
+  description={d.description}
+  h1={d.h1}
+  lead={d.lead}
+  date={d.date}
+  updated={d.updated}
+  readingMinutes={d.readingMinutes}
+>
+  <Content />
+</Article>

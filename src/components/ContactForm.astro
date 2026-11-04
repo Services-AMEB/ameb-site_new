@@ -1,0 +1,167 @@
+---
+/**
+ * Formulaire de 4 champs (nom, courriel, organisation, message) → POST /api/contact.
+ * Validation à la sortie du champ; Turnstile chargé à la première interaction seulement.
+ */
+import Icon from './Icon.astro';
+import { url, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  kind: 'diagnostic' | 'contact';
+  id?: string;
+}
+
+const { lang, kind, id = `form-${kind}` } = Astro.props;
+const sitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY?.trim() ?? '';
+const orgRequired = kind === 'diagnostic';
+const messageLabel = kind === 'diagnostic' ? t(lang, 'form.messageDiagnostic') : t(lang, 'form.message');
+const f = (name: string) => `${id}-${name}`;
+---
+
+<form class="contact-form" id={id} data-contact-form data-kind={kind} data-lang={lang} data-sitekey={sitekey} data-generic-error={t(lang, 'form.error')} novalidate>
+  <div class="form-status form-status--error" role="alert" data-status-error hidden>
+    <Icon name="circle-alert" />
+    <span data-status-text>{t(lang, 'form.errorSummary')}</span>
+  </div>
+
+  <div class="field">
+    <label for={f('name')}>{t(lang, 'form.name')}</label>
+    <input class="input" id={f('name')} name="name" type="text" autocomplete="name" required maxlength="120" data-rules="required" data-error={t(lang, 'form.errors.name')} aria-describedby={`${f('name')}-error`} />
+    <p class="field__error" id={`${f('name')}-error`} hidden><Icon name="circle-alert" /><span data-error-text></span></p>
+  </div>
+
+  <div class="field">
+    <label for={f('email')}>{t(lang, 'form.email')}</label>
+    <input class="input" id={f('email')} name="email" type="email" autocomplete="email" inputmode="email" required maxlength="254" data-rules="required email" data-error={t(lang, 'form.errors.email')} aria-describedby={`${f('email')}-error`} />
+    <p class="field__error" id={`${f('email')}-error`} hidden><Icon name="circle-alert" /><span data-error-text></span></p>
+  </div>
+
+  <div class="field">
+    <label for={f('organization')}>
+      {t(lang, 'form.organization')}
+      {!orgRequired && <span class="field__hint"> {t(lang, 'form.optional')}</span>}
+    </label>
+    <input class="input" id={f('organization')} name="organization" type="text" autocomplete="organization" maxlength="160" required={orgRequired} data-rules={orgRequired ? 'required' : undefined} data-error={t(lang, 'form.errors.organization')} aria-describedby={`${f('organization')}-error`} />
+    <p class="field__error" id={`${f('organization')}-error`} hidden><Icon name="circle-alert" /><span data-error-text></span></p>
+  </div>
+
+  <div class="field">
+    <label for={f('message')}>{messageLabel}</label>
+    <textarea class="input" id={f('message')} name="message" rows="4" required maxlength={kind === 'diagnostic' ? 1000 : 2000} data-rules="required" data-error={t(lang, 'form.errors.message')} aria-describedby={`${f('message')}-error`}></textarea>
+    <p class="field__error" id={`${f('message')}-error`} hidden><Icon name="circle-alert" /><span data-error-text></span></p>
+  </div>
+
+  <div class="visually-hidden" aria-hidden="true">
+    <label for={f('website')}>Site web</label>
+    <input id={f('website')} name="website" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div data-turnstile></div>
+
+  <div class="contact-form__actions">
+    <button type="submit" class="btn btn--primary" data-submit data-label={t(lang, 'form.submit')} data-sending={t(lang, 'form.sending')}>
+      {t(lang, 'form.submit')}
+    </button>
+  </div>
+
+  <div class="form-status form-status--success" role="status" data-status-success hidden>
+    <Icon name="circle-check" />
+    <span>{t(lang, 'form.success')}</span>
+    <span class="dot-pop" aria-hidden="true"></span>
+  </div>
+
+  <p class="form-privacy">
+    {t(lang, 'form.privacy')} <a href={url('confidentialite', lang)}>{t(lang, 'form.privacyLink')}</a>.
+  </p>
+  <noscript><p class="form-privacy">{t(lang, 'form.noscript')}</p></noscript>
+</form>
+
+<style>
+  @layer components {
+    .contact-form {
+      display: grid;
+      gap: var(--sp-6);
+      max-inline-size: var(--measure);
+      padding: var(--sp-8);
+      background: var(--bg);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+    }
+
+
+    .dot-pop {
+      display: inline-block;
+      inline-size: var(--sp-3);
+      block-size: var(--sp-3);
+      border-radius: var(--radius-round);
+      background: var(--jade-600);
+      margin-block-start: var(--sp-2);
+    }
+  }
+</style>
+
+<script>
+  import { postContact, setupTurnstile, validateField, wireValidation, setFieldError } from '../lib/forms';
+  import { track } from '../lib/track';
+
+  for (const form of document.querySelectorAll<HTMLFormElement>('[data-contact-form]')) {
+    const lang = form.dataset.lang === 'en' ? 'en' : 'fr';
+    const kind = form.dataset.kind ?? 'contact';
+    const fields = wireValidation(form);
+    const getToken = setupTurnstile(form, lang);
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]');
+    const errorBox = form.querySelector<HTMLElement>('[data-status-error]');
+    const errorText = errorBox?.querySelector('[data-status-text]');
+    const successBox = form.querySelector<HTMLElement>('[data-status-success]');
+    const summary = errorText?.textContent ?? '';
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (successBox) successBox.hidden = true;
+      const invalid = fields.filter((f) => !validateField(f));
+      if (invalid.length) {
+        if (errorBox && errorText) {
+          errorText.textContent = summary;
+          errorBox.hidden = false;
+        }
+        invalid[0]?.focus();
+        return;
+      }
+      if (errorBox) errorBox.hidden = true;
+      if (submit) {
+        submit.disabled = true;
+        submit.textContent = submit.dataset.sending ?? '';
+      }
+      const data = Object.fromEntries(new FormData(form).entries());
+      const token = await getToken();
+      const res = await postContact({ ...data, kind, lang, token, page: location.pathname });
+      if (submit) {
+        submit.disabled = false;
+        submit.textContent = submit.dataset.label ?? '';
+      }
+      if (res.ok) {
+        form.reset();
+        if (successBox) {
+          successBox.hidden = false;
+          successBox.focus?.();
+        }
+        if (kind === 'diagnostic') track('form_diagnostic_submit');
+        window.turnstile?.reset();
+        return;
+      }
+      if (res.fields) {
+        for (const [name, message] of Object.entries(res.fields)) {
+          const el = form.querySelector<HTMLElement>(`[name="${name}"]`);
+          if (el) setFieldError(el, message);
+        }
+      }
+      if (errorBox && errorText) {
+        errorText.textContent = res.message ?? form.dataset.genericError ?? '';
+        errorBox.hidden = false;
+      }
+      window.turnstile?.reset();
+    });
+  }
+</script>

@@ -1,0 +1,138 @@
+---
+import Page from '../layouts/Page.astro';
+import Icon from '../components/Icon.astro';
+import Txt from '../components/Txt.astro';
+import { url, type Lang, type RouteKey } from '../i18n/routes';
+import { t } from '../i18n/ui';
+import { getOne } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  caseKey: string;
+}
+
+const { lang, caseKey } = Astro.props;
+const routeKey = `realisations/${caseKey}` as RouteKey;
+const { data } = await getOne('cas', caseKey, lang);
+const sector = await getOne('secteurs', data.sector, lang);
+---
+
+<Page
+  lang={lang}
+  routeKey={routeKey}
+  title={data.title}
+  description={data.description}
+  h1={data.h1}
+  lead={data.lead}
+  crumbs={[{ label: t(lang, 'nav.realisations'), key: 'realisations' }, { label: data.name }]}
+>
+  <div class="container case" data-case-view>
+    <dl class="case__facts">
+      <div>
+        <dt>{t(lang, 'common.sector')}</dt>
+        <dd>
+          <a href={url(`secteurs/${data.sector}` as RouteKey, lang)}>{sector.data.name}</a> · {data.sectorLabel}
+        </dd>
+      </div>
+      <div>
+        <dt>{t(lang, 'common.size')}</dt>
+        <dd><Txt text={data.size} /></dd>
+      </div>
+    </dl>
+
+    <section aria-labelledby="h-before" class="case__block">
+      <h2 id="h-before">{t(lang, 'common.before')}</h2>
+      <ul class="case__list">
+        {data.before.map((b) => <li>{b}</li>)}
+      </ul>
+    </section>
+
+    <section aria-labelledby="h-system" class="case__block">
+      <h2 id="h-system">{t(lang, 'common.system')}</h2>
+      <ul class="checklist">
+        {data.system.map((s) => <li><Icon name="check" /><span>{s}</span></li>)}
+      </ul>
+    </section>
+
+    <section aria-labelledby="h-results" class="case__block">
+      <h2 id="h-results">{t(lang, 'common.results')}</h2>
+      <ul class="case__results" role="list">
+        {data.results.map((r) => <li class="card"><p><Txt text={r} /></p></li>)}
+      </ul>
+    </section>
+
+    <section aria-labelledby="h-delay" class="case__block">
+      <h2 id="h-delay">{t(lang, 'common.delay')}</h2>
+      <p><Txt text={data.delay} /></p>
+    </section>
+
+    <p class="case__note"><Icon name="eye-off" /> {t(lang, 'common.anonymized')}</p>
+  </div>
+</Page>
+
+<script>
+  import { track } from '../lib/track';
+  if (document.querySelector('[data-case-view]')) track('case_view', { page: location.pathname });
+</script>
+
+<style>
+  @layer components {
+    .case {
+      display: grid;
+      gap: var(--sp-12);
+      padding-block-end: var(--section-space);
+    }
+
+    .case__facts {
+      display: grid;
+      gap: var(--sp-4);
+      padding: var(--sp-6);
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      max-inline-size: var(--measure);
+
+      @media (min-width: 640px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      & dt {
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-sm);
+        color: var(--color-text-2);
+      }
+
+      & dd {
+        margin: 0;
+      }
+    }
+
+    .case__block {
+      display: grid;
+      gap: var(--sp-4);
+      max-inline-size: var(--measure);
+    }
+
+    .case__list {
+      display: grid;
+      gap: var(--sp-2);
+      padding-inline-start: var(--sp-6);
+    }
+
+    .case__results {
+      display: grid;
+      gap: var(--sp-4);
+
+      @media (min-width: 640px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .case__note {
+      display: flex;
+      gap: var(--sp-2);
+      align-items: center;
+      color: var(--color-text-2);
+      font-size: var(--fs-sm);
+    }
+  }
+</style>

@@ -1,0 +1,10 @@
+{
+  "id": "services-pros",
+  "nodes": [
+    { "icon": "inbox", "fr": "Demande entrante", "en": "Incoming request" },
+    { "icon": "bot", "fr": "Tri par IA", "en": "AI triage" },
+    { "icon": "file-text", "fr": "Devis", "en": "Quote" },
+    { "icon": "folder-kanban", "fr": "Projet", "en": "Project" },
+    { "icon": "receipt", "fr": "Facture", "en": "Invoice" }
+  ]
+}

@@ -1,0 +1,217 @@
+---
+/** Guide de style (noindex) : jetons et composants. */
+import Page from '../layouts/Page.astro';
+import Button from '../components/Button.astro';
+import Card from '../components/Card.astro';
+import CaseCard from '../components/CaseCard.astro';
+import Steps from '../components/Steps.astro';
+import FAQ from '../components/FAQ.astro';
+import FlowLine from '../components/FlowLine.astro';
+import BeforeAfter from '../components/BeforeAfter.astro';
+import SiloScene from '../components/SiloScene.astro';
+import Sprite from '../components/icons/Sprite.astro';
+import Logo from '../components/Logo.astro';
+import Icon from '../components/Icon.astro';
+import { ICONS, type IconName } from '../components/icons/lucide';
+import type { Lang } from '../i18n/routes';
+import { getPage, listEntries } from '../lib/content';
+import { typo } from '../lib/typo';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { data } = await getPage('styleguide', lang);
+const cas = await listEntries('cas', lang);
+const fr = lang === 'fr';
+const colors = ['jade-900', 'jade-700', 'jade-600', 'jade-100', 'jade-050', 'slate-800', 'slate-700', 'slate-600', 'surface', 'line', 'bg', 'alert'];
+const spaces = ['sp-1', 'sp-2', 'sp-3', 'sp-4', 'sp-6', 'sp-8', 'sp-12', 'sp-16', 'sp-24', 'sp-32'];
+const sizes = ['fs-sm', 'fs-base', 'fs-lg', 'fs-xl', 'fs-2xl', 'fs-3xl', 'fs-h1'];
+const icons = Object.keys(ICONS) as IconName[];
+---
+
+<Page lang={lang} routeKey="styleguide" title={data.title} description={data.description} h1={data.h1} lead={data.lead} noindex cta={false} crumbs={[{ label: data.h1 }]}>
+  <Sprite />
+  <div class="container sg">
+    <section aria-labelledby="sg-brand">
+      <h2 id="sg-brand">{fr ? 'Marque' : 'Brand'}</h2>
+      <div class="cluster">
+        <Logo lang={lang} plain height={48} />
+        <div class="sg__dark"><Logo lang={lang} plain tone="light" height={48} /></div>
+        <img src="/favicon.svg" width="48" height="48" alt={fr ? 'Symbole seul' : 'Symbol only'} />
+      </div>
+    </section>
+
+    <section aria-labelledby="sg-colors">
+      <h2 id="sg-colors">{fr ? 'Couleurs' : 'Colours'}</h2>
+      <ul class="sg__swatches" role="list">
+        {colors.map((c) => <li><span class="sg__swatch" style={`background: var(--${c})`}></span><code>--{c}</code></li>)}
+      </ul>
+    </section>
+
+    <section aria-labelledby="sg-type">
+      <h2 id="sg-type">{fr ? 'Typographie' : 'Typography'}</h2>
+      <ul class="sg__type" role="list">
+        {sizes.map((s) => <li style={`font-size: var(--${s})`}><code>--{s}</code> {fr ? 'Vos opérations, en pilote automatique.' : 'Your operations, on autopilot.'}</li>)}
+      </ul>
+      <p class="proof">10 800 $</p>
+    </section>
+
+    <section aria-labelledby="sg-space">
+      <h2 id="sg-space">{fr ? 'Espacement' : 'Spacing'}</h2>
+      <ul class="sg__spaces" role="list">
+        {spaces.map((s) => <li><span style={`inline-size: var(--${s})`}></span><code>--{s}</code></li>)}
+      </ul>
+    </section>
+
+    <section aria-labelledby="sg-buttons">
+      <h2 id="sg-buttons">{fr ? 'Boutons et liens' : 'Buttons and links'}</h2>
+      <div class="cluster">
+        <Button>Primary</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="ghost">Ghost</Button>
+        <Button size="sm" icon="arrow-right">Small</Button>
+        <Button disabled>Disabled</Button>
+        <a class="link" href="#sg-buttons">{fr ? 'Lien animé' : 'Animated link'}<Icon name="arrow-right" /></a>
+        <span class="badge">Badge</span>
+      </div>
+      <div class="sg__dark cluster mt-8"><Button variant="light">Light</Button></div>
+    </section>
+
+    <section aria-labelledby="sg-cards">
+      <h2 id="sg-cards">{fr ? 'Cartes' : 'Cards'}</h2>
+      <div class="cards cards--3">
+        <Card title="Card" text="Lorem ipsum dolor sit amet." icon="workflow" />
+        <Card title="Card (lien)" text="Lorem ipsum dolor sit amet." href="#sg-cards" more="En savoir plus" variant="white" />
+        {cas[0] && <CaseCard entry={cas[0]} lang={lang} />}
+      </div>
+      <div class="callout mt-8"><Icon name="info" /><div><h3>Callout</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div></div>
+    </section>
+
+    <section aria-labelledby="sg-steps">
+      <h2 id="sg-steps">Steps</h2>
+      <Steps lang={lang} texts={['Lorem ipsum.', 'Dolor sit amet.', 'Consectetur.', 'Adipiscing elit.']} />
+    </section>
+
+    <section aria-labelledby="sg-faq">
+      <h2 id="sg-faq">FAQ</h2>
+      <FAQ items={[{ q: typo('Question ?', lang), a: 'Réponse [À CONFIRMER].' }, { q: typo('Deuxième question ?', lang), a: 'Réponse.' }]} />
+    </section>
+
+    <section aria-labelledby="sg-form">
+      <h2 id="sg-form">{fr ? 'Champs' : 'Fields'}</h2>
+      <div class="stack measure">
+        <div class="field"><label for="sg-in">{fr ? 'Champ' : 'Field'}</label><input class="input" id="sg-in" type="text" /></div>
+        <div class="field">
+          <label for="sg-err">{fr ? 'Champ en erreur' : 'Field with error'}</label>
+          <input class="input" id="sg-err" type="text" aria-invalid="true" aria-describedby="sg-err-msg" />
+          <p class="field__error" id="sg-err-msg"><Icon name="circle-alert" /><span>{fr ? 'Message d’erreur.' : 'Error message.'}</span></p>
+        </div>
+        <div class="form-status form-status--success"><Icon name="circle-check" /><span>{fr ? 'Succès.' : 'Success.'}</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="sg-flow">
+      <h2 id="sg-flow">FlowLine</h2>
+      <FlowLine lang={lang} flow="evenementiel" tabs />
+      <div class="mt-8 measure"><FlowLine lang={lang} flow="clinique" mini /></div>
+    </section>
+
+    <section aria-labelledby="sg-ba">
+      <h2 id="sg-ba">BeforeAfter</h2>
+      <BeforeAfter lang={lang} id="ba-sg" />
+    </section>
+
+    <section aria-labelledby="sg-silo">
+      <h2 id="sg-silo">SectionSilo — {fr ? 'états' : 'states'}</h2>
+      <div class="cards cards--2">
+        {([1, 2, 3, 4] as const).map((n) => <div class="card card--white"><SiloScene lang={lang} state={n} /></div>)}
+      </div>
+    </section>
+
+    <section aria-labelledby="sg-icons">
+      <h2 id="sg-icons">{fr ? 'Icônes' : 'Icons'}</h2>
+      <ul class="sg__icons" role="list">
+        {icons.map((i) => <li><Icon name={i} /><code>{i}</code></li>)}
+      </ul>
+    </section>
+  </div>
+</Page>
+
+<style>
+  @layer components {
+    .sg {
+      display: grid;
+      gap: var(--sp-16);
+      padding-block-end: var(--section-space);
+
+      & > section {
+        display: grid;
+        gap: var(--sp-6);
+      }
+    }
+
+    .sg__dark {
+      background: var(--jade-900);
+      padding: var(--sp-4);
+      border-radius: var(--radius-md);
+    }
+
+    .sg__swatches {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--swatch-min)), 1fr));
+      gap: var(--sp-4);
+
+      & li {
+        display: grid;
+        gap: var(--sp-2);
+        font-size: var(--fs-sm);
+      }
+    }
+
+    .sg__swatch {
+      display: block;
+      block-size: var(--sp-16);
+      border-radius: var(--radius-md);
+      border: var(--border-w) solid var(--line);
+    }
+
+    .sg__type,
+    .sg__spaces,
+    .sg__icons {
+      display: grid;
+      gap: var(--sp-3);
+    }
+
+    .sg__type code,
+    .sg__spaces code,
+    .sg__icons code {
+      font-size: var(--fs-sm);
+      color: var(--color-text-2);
+    }
+
+    .sg__spaces li {
+      display: flex;
+      gap: var(--sp-4);
+      align-items: center;
+
+      & span {
+        display: block;
+        block-size: var(--sp-4);
+        background: var(--jade-600);
+      }
+    }
+
+    .sg__icons {
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--col-min)), 1fr));
+
+      & li {
+        display: flex;
+        gap: var(--sp-2);
+        align-items: center;
+        color: var(--jade-900);
+      }
+    }
+  }
+</style>

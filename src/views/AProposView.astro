@@ -1,0 +1,89 @@
+---
+import Page from '../layouts/Page.astro';
+import Card from '../components/Card.astro';
+import Icon from '../components/Icon.astro';
+import Txt from '../components/Txt.astro';
+import type { Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+import { getPage } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { data } = await getPage('a-propos', lang);
+---
+
+<Page lang={lang} routeKey="a-propos" title={data.title} description={data.description} h1={data.h1} lead={data.lead} crumbs={[{ label: t(lang, 'nav.aPropos') }]}>
+  <section class="section section--surface" aria-labelledby="h-founder">
+    <div class="container founder">
+      <div class="founder__photo" role="img" aria-label={data.founder.photo}>
+        <Icon name="user-round" />
+        <span><Txt text={data.founder.photo} /></span>
+      </div>
+      <div class="stack">
+        <h2 id="h-founder">{data.founder.h2}</h2>
+        <p class="founder__name"><Txt text={data.founder.name} /> · {data.founder.role}</p>
+        {data.founder.bio.map((p) => <p><Txt text={p} /></p>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-experience">
+    <div class="container">
+      <div class="section__head"><h2 id="h-experience">{data.experience.h2}</h2></div>
+      <div class="cards cards--3">
+        {data.experience.items.map((e) => <Card title={e.title} text={e.text} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="h-company">
+    <div class="container prose">
+      <h2 id="h-company">{data.company.h2}</h2>
+      {data.company.paragraphs.map((p) => <p>{p}</p>)}
+    </div>
+  </section>
+</Page>
+
+<style>
+  @layer components {
+    .founder {
+      display: grid;
+      gap: var(--sp-8);
+
+      @media (min-width: 768px) {
+        grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+        align-items: center;
+      }
+    }
+
+    .founder__photo {
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: var(--sp-3);
+      aspect-ratio: 4 / 5;
+      max-inline-size: var(--portrait-max);
+      border-radius: var(--radius-lg);
+      background: var(--jade-100);
+      color: var(--jade-900);
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-semibold);
+      text-align: center;
+      padding: var(--sp-6);
+
+      & svg {
+        inline-size: var(--sp-16);
+        block-size: var(--sp-16);
+      }
+    }
+
+    .founder__name {
+      font-family: var(--font-display);
+      font-weight: var(--fw-semibold);
+      font-size: var(--fs-lg);
+    }
+  }
+</style>

@@ -1,0 +1,35 @@
+---
+title: "Événementiel et associations : congrès sans ressaisie"
+description: "Inscriptions, fiches de membres, factures, rappels et sondages reliés dans un seul flux. ameb automatise vos congrès, peu importe la plateforme."
+order: 1
+icon: "calendar-days"
+name: "Événementiel et associations"
+summary: "Inscriptions, factures, rappels et sondages reliés, pour des congrès qui roulent sans ressaisie."
+h1: "Vos congrès, de l’inscription au sondage, sans ressaisie"
+lead: "Un congrès touche les inscriptions, les membres, la facturation et les communications. On relie ces étapes pour que chaque information soit saisie une seule fois."
+realities:
+  - "Chaque inscription est recopiée dans un tableur, dans la liste des membres et dans la comptabilité, souvent par la même personne."
+  - "Les tarifs membre et non-membre, les factures et les paiements se vérifient à la main, un participant à la fois."
+  - "Les rappels et le sondage post-événement partent tard, et les réponses dorment dans un fichier que personne n’analyse."
+flow: "evenementiel"
+capabilities:
+  - service: "evenements"
+    title: "Inscriptions et billetterie"
+    text: "Un formulaire en ligne applique le bon tarif, crée la fiche du participant et gère la liste d’attente, sans ressaisie."
+  - service: "ventes-crm"
+    title: "Fiches de membres et de participants"
+    text: "Une seule fiche par personne, avec son statut de membre, ses inscriptions passées et ses préférences de communication."
+  - service: "facturation-paiements"
+    title: "Facturation et paiements"
+    text: "La facture part dès l’inscription, le paiement en ligne s’inscrit au dossier et les relances des soldes impayés suivent seules."
+  - service: "marketing-automatise"
+    title: "Communications aux membres"
+    text: "Annonce du congrès, rappels aux participants et suivis aux conférenciers partent aux bonnes listes, au bon moment, et seulement aux personnes qui y ont consenti."
+  - service: "evenements"
+    title: "Sondages post-événement"
+    text: "Le sondage part automatiquement après l’événement, et les réponses reviennent dans la fiche de chaque participant, prêtes à analyser."
+case: "association-congres"
+compliance:
+  title: "Loi 25 et communications aux membres"
+  text: "Le consentement aux communications est demandé à l’inscription, case non cochée et finalité indiquée, puis conservé dans la fiche de chaque personne. Les données des participants et des membres sont traitées dans le respect de la Loi 25 : accès au moindre privilège, durée de conservation définie avec vous et documentation remise à la fin du mandat."
+---

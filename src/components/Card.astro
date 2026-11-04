@@ -1,0 +1,50 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from './icons/lucide';
+
+interface Props {
+  title: string;
+  text?: string;
+  href?: string;
+  icon?: IconName;
+  more?: string;
+  level?: 'h2' | 'h3' | 'h4';
+  variant?: 'surface' | 'white';
+  class?: string;
+  reveal?: boolean;
+}
+
+const { title, text, href, icon, more, level = 'h3', variant = 'surface', class: className, reveal = true } = Astro.props;
+const Heading = level;
+---
+
+<article class:list={['card', variant === 'white' && 'card--white', href && 'card--link', reveal && 'reveal', className]}>
+  {
+    icon && (
+      <span class="icon-tile">
+        <Icon name={icon} />
+      </span>
+    )
+  }
+  <Heading>
+    {
+      href ? (
+        <a class="card__link" href={href}>
+          {title}
+        </a>
+      ) : (
+        title
+      )
+    }
+  </Heading>
+  {text && <p>{text}</p>}
+  <slot />
+  {
+    href && more && (
+      <span class="card__more" aria-hidden="true">
+        {more}
+        <Icon name="arrow-right" />
+      </span>
+    )
+  }
+</article>

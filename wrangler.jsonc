@@ -1,0 +1,46 @@
+// Configuration Cloudflare Workers (ressources statiques + API /api/contact).
+// Voir docs/decisions/ADR-011-cloudflare-workers.md et la section « Déployer » du README.
+//
+// Production : npm run deploy          → Worker « ameb-site »
+// Dev        : npm run deploy:dev      → Worker « ameb-site-dev » (workers.dev, noindex)
+// Local      : npm run cf:dev          → wrangler dev (même environnement que Cloudflare)
+//
+// Workers Builds (Git) : commande de build « npm run build » (ajouter la variable de build
+// SITE_ENV=dev pour l'environnement dev), commande de déploiement « npx wrangler deploy »
+// (ou « npx wrangler deploy --env dev »). « name » doit correspondre au nom du Worker.
+// Secrets (jamais ici) : npx wrangler secret put TURNSTILE_SECRET [--env dev]
+//                        npx wrangler secret put N8N_WEBHOOK_URL [--env dev]
+//                        npx wrangler secret put N8N_WEBHOOK_SECRET [--env dev]
+{
+  "$schema": "https://unpkg.com/wrangler@4.151.3/config-schema.json",
+  "name": "ameb-site",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-15",
+  "minify": true,
+  "assets": {
+    // Site compilé par Astro (npm run build).
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // /approche → /approche/ (URL canoniques avec barre oblique finale).
+    "html_handling": "auto-trailing-slash",
+    // Page introuvable : sert le 404.html le plus proche (/en/404.html pour /en/…).
+    "not_found_handling": "404-page",
+    // Le script ne s'exécute que pour l'API; tout le reste est servi en statique.
+    "run_worker_first": ["/api/*"]
+  },
+  "vars": {
+    "SITE_ENV": "production"
+  },
+  // Journaux du Worker (API seulement; aucun contenu de formulaire n'est journalisé).
+  "observability": { "enabled": true },
+  "env": {
+    "dev": {
+      "name": "ameb-site-dev",
+      "workers_dev": true,
+      "preview_urls": true,
+      "vars": {
+        "SITE_ENV": "dev"
+      }
+    }
+  }
+}

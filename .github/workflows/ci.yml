@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  qualite:
+    name: Qualité, build et tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Installation
+        run: npm ci
+
+      - name: astro check
+        run: npx astro check
+
+      - name: ESLint + Stylelint
+        run: npm run lint
+
+      - name: Contenu interdit
+        run: node scripts/check-content.ts
+
+      - name: Parité FR/EN
+        run: node scripts/check-parity.ts
+
+      - name: Registre des éléments à confirmer à jour
+        run: node scripts/a-confirmer.ts --check
+
+      - name: Build
+        run: npm run build
+
+      - name: html-validate
+        run: npx html-validate "dist/**/*.html"
+
+      - name: Liens internes, budgets, parité H2, typographie
+        run: node scripts/check-dist.ts --report
+
+      - name: Tests unitaires
+        run: npm run test:unit
+
+      - name: Navigateur Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright (a11y, privacy, forms, i18n, reduced-motion, visual)
+        run: npx playwright test
+
+      - name: Pa11y CI
+        run: |
+          node scripts/serve.ts 4324 &
+          npx --yes wait-on@8.0.4 http://localhost:4324/
+          npx --yes pa11y-ci@5.0.0 --config .pa11yci.json --sitemap http://localhost:4324/sitemap-0.xml --sitemap-find https://ameb.ca --sitemap-replace http://localhost:4324
+
+      - name: Lighthouse CI
+        run: npx --yes @lhci/cli@0.15.1 autorun
+
+      - name: Rapports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapports
+          path: |
+            playwright-report/
+            test-results/
+            .lighthouseci/
+          retention-days: 14
+          if-no-files-found: ignore

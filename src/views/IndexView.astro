@@ -1,0 +1,101 @@
+---
+/** Pages d'index : Services, Secteurs, Réalisations, Ressources. */
+import Page from '../layouts/Page.astro';
+import Card from '../components/Card.astro';
+import CaseCard from '../components/CaseCard.astro';
+import FlowLine from '../components/FlowLine.astro';
+import Icon from '../components/Icon.astro';
+import { url, type Lang, type RouteKey } from '../i18n/routes';
+import { t, type UiKey } from '../i18n/ui';
+import { getPage, keyOf, listEntries } from '../lib/content';
+import { formatDate } from '../lib/dates';
+
+interface Props {
+  lang: Lang;
+  page: 'services' | 'secteurs' | 'realisations' | 'ressources';
+}
+
+const { lang, page } = Astro.props;
+const { data } = await getPage(page, lang);
+const navKey: Record<typeof page, UiKey> = {
+  services: 'nav.services',
+  secteurs: 'nav.secteurs',
+  realisations: 'nav.realisations',
+  ressources: 'nav.ressources',
+};
+const services = page === 'services' ? await listEntries('services', lang) : [];
+const secteurs = page === 'secteurs' ? await listEntries('secteurs', lang) : [];
+const cas = page === 'realisations' ? await listEntries('cas', lang) : [];
+const articles =
+  page === 'ressources'
+    ? (await listEntries('blogue', lang)).sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+    : [];
+---
+
+<Page
+  lang={lang}
+  routeKey={page}
+  title={data.title}
+  description={data.description}
+  h1={data.h1}
+  lead={data.lead}
+  crumbs={[{ label: t(lang, navKey[page]) }]}
+>
+  <section class="section section--surface index-list" aria-label={data.h1}>
+    <div class="container">
+      {data.note && <p class="callout index-note"><Icon name="info" /><span>{data.note}</span></p>}
+      {
+        page === 'services' && (
+          <div class="cards cards--3">
+            {services.map((s) => (
+              <Card level="h2" title={s.data.name} text={s.data.summary} icon={s.data.icon} href={url(`services/${keyOf(s)}` as RouteKey, lang)} more={t(lang, 'cta.learnMore')} variant="white" />
+            ))}
+          </div>
+        )
+      }
+      {
+        page === 'secteurs' && (
+          <div class="cards cards--3">
+            {secteurs.map((s) => (
+              <Card level="h2" title={s.data.name} text={s.data.summary} icon={s.data.icon} href={url(`secteurs/${keyOf(s)}` as RouteKey, lang)} more={t(lang, 'cta.learnMore')} variant="white">
+                <FlowLine lang={lang} flow={s.data.flow} mini />
+              </Card>
+            ))}
+          </div>
+        )
+      }
+      {
+        page === 'realisations' && (
+          <div class="cards cards--3">
+            {cas.map((c) => <CaseCard entry={c} lang={lang} level="h2" />)}
+          </div>
+        )
+      }
+      {
+        page === 'ressources' && (
+          <div class="cards cards--2">
+            {articles.map((a) => (
+              <Card level="h2" title={a.data.h1} text={a.data.lead} href={url(`ressources/${keyOf(a)}` as RouteKey, lang)} more={t(lang, 'cta.readArticle')} variant="white">
+                <p class="muted index-date">
+                  <time datetime={a.data.date.toISOString().slice(0, 10)}>{formatDate(a.data.date, lang)}</time> · {a.data.readingMinutes} {t(lang, 'common.minutes')}
+                </p>
+              </Card>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </section>
+</Page>
+
+<style>
+  @layer components {
+    .index-note {
+      margin-block-end: var(--sp-8);
+    }
+
+    .index-date {
+      font-size: var(--fs-sm);
+    }
+  }
+</style>

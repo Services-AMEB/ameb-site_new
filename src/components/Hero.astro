@@ -1,0 +1,73 @@
+---
+/** Hero de l'accueil (grille 7/5). Le H1 est visible immédiatement : aucune animation dessus. */
+import Button from './Button.astro';
+import FlowLine from './FlowLine.astro';
+import { url, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  h1: string;
+  lead: string;
+  proof: string;
+}
+
+const { lang, h1, lead, proof } = Astro.props;
+---
+
+<section class="hero">
+  <div class="container split hero__grid">
+    <div class="hero__text">
+      <h1>{h1}</h1>
+      <p class="hero__lead">{lead}</p>
+      <div class="cluster hero__actions">
+        <Button href={url('diagnostic', lang)} icon="arrow-right" track="cta_diagnostic" placement="hero">{t(lang, 'cta.diagnostic')}</Button>
+        <Button href={url('outils/calculateur-ressaisie', lang)} variant="secondary">{t(lang, 'cta.calculator')}</Button>
+      </div>
+      <p class="hero__proof">{proof}</p>
+    </div>
+    <div class="hero__visual">
+      <FlowLine lang={lang} flow="services-pros" />
+    </div>
+  </div>
+</section>
+
+<style>
+  @layer components {
+    .hero {
+      padding-block: var(--sp-12) var(--section-space);
+
+      @media (min-width: 1024px) {
+        padding-block-start: var(--sp-16);
+      }
+    }
+
+    .hero__text {
+      display: grid;
+      gap: var(--sp-6);
+      justify-items: start;
+    }
+
+    .hero__text h1 {
+      max-inline-size: 14ch;
+    }
+
+    .hero__lead {
+      font-size: var(--fs-md);
+      color: var(--color-text-2);
+      max-inline-size: 52ch;
+
+      @media (min-width: 768px) {
+        font-size: var(--fs-lg);
+      }
+    }
+
+    .hero__proof {
+      font-size: var(--fs-sm);
+      color: var(--color-text-2);
+      font-weight: var(--fw-medium);
+      padding-inline-start: var(--sp-3);
+      border-inline-start: var(--focus-w) solid var(--jade-600);
+    }
+  }
+</style>

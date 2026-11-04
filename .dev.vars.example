@@ -1,0 +1,5 @@
+# Secrets locaux pour « npm run cf:dev » (wrangler dev). Copier en .dev.vars (ignoré par git).
+# Clé de test Cloudflare Turnstile qui valide toujours (documentation Cloudflare) :
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+N8N_WEBHOOK_URL=https://exemple.invalid/webhook/ameb
+N8N_WEBHOOK_SECRET=a-remplacer

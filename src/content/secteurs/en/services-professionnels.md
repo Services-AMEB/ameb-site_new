@@ -1,0 +1,35 @@
+---
+title: "Professional services: from request to payment"
+description: "Requests, quotes, projects, invoices and dashboards connected in one flow. ameb automates operations for professional services firms."
+order: 2
+icon: "briefcase"
+name: "Professional services"
+summary: "Requests, quotes, projects and invoices connected, to go from request to payment without re-entry."
+h1: "From request to payment, a single flow"
+lead: "In a firm, the same information moves from the inbox to the quote, from the quote to the project, then from the project to the invoice. We connect these steps so nothing is retyped or forgotten."
+realities:
+  - "Requests come in by email, by phone and through the website, and some get lost between two inboxes."
+  - "Quotes are built from old files, then the same information is retyped to open the project."
+  - "Hours are compiled at month-end, billing falls behind and the profitability of each engagement stays unclear."
+flow: "services-pros"
+capabilities:
+  - service: "ventes-crm"
+    title: "Requests and quotes"
+    text: "Each request creates a client record and an opportunity. The quote is prepared from approved templates, then signed online."
+  - service: "projets-collaboration"
+    title: "Project setup and tracking"
+    text: "The accepted quote opens the project with its tasks, owners and hours budget, with no re-entry."
+  - service: "facturation-paiements"
+    title: "Time-based or fixed-fee billing"
+    text: "Approved hours feed the invoice. Online payment and reminders follow with no manual step."
+  - service: "tableaux-de-bord-donnees"
+    title: "Profitability by engagement"
+    text: "An up-to-date dashboard shows the hours, billing and margin of each engagement and each client."
+  - service: "ia-appliquee"
+    title: "AI triage of requests"
+    text: "AI reads incoming requests, sorts them, summarizes the essentials and prepares a draft reply that your team approves."
+case: "firme-services-professionnels"
+compliance:
+  title: "Confidentiality of client files"
+  text: "Your clients’ files stay confidential: named accounts, least-privilege access, removed at the end of the engagement. A confidentiality agreement is signed before any access to your systems, we define with you which data AI may process, and each flow is documented in keeping with Law 25."
+---

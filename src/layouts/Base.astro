@@ -1,0 +1,80 @@
+---
+/**
+ * Gabarit de base : <html lang>, SEO, polices, styles, en-tête, pied de page.
+ * Aucune ressource tierce au premier rendu (sauf l'analytics sans témoins si configurée).
+ */
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/layout.css';
+import '../styles/components.css';
+import '../styles/motion.css';
+import Seo from '../components/Seo.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { HTML_LANG, type Lang, type RouteKey } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  routeKey: RouteKey;
+  title: string;
+  description: string;
+  noindex?: boolean;
+  ogType?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>[];
+}
+
+const props = Astro.props;
+const { lang, routeKey } = props;
+const analyticsSrc = import.meta.env.PUBLIC_ANALYTICS_SRC?.trim();
+const analyticsId = import.meta.env.PUBLIC_ANALYTICS_ID?.trim();
+const analyticsAttrs = analyticsSrc?.includes('plausible')
+  ? { 'data-domain': analyticsId }
+  : { 'data-website-id': analyticsId, 'data-do-not-track': 'true' };
+---
+
+<!doctype html>
+<html lang={HTML_LANG[lang]} dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Seo {...props} />
+    <link rel="preload" href="/fonts/sora-latin-600.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0F5E4E" />
+    <script is:inline>
+      try {
+        if (localStorage.getItem('ameb-motion') === 'paused') document.documentElement.dataset.motion = 'paused';
+      } catch {
+        /* stockage indisponible */
+      }
+    </script>
+    {analyticsSrc && <script is:inline defer src={analyticsSrc} {...analyticsAttrs} />}
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">{t(lang, 'a11y.skip')}</a>
+    <Header lang={lang} routeKey={routeKey} />
+    <main id="contenu" tabindex="-1">
+      <slot />
+    </main>
+    <Footer lang={lang} routeKey={routeKey} />
+    <script>
+      import { initTracking } from '../lib/track';
+
+      // Menu mobile : <dialog> natif (piège du focus, Échap, retour du focus).
+      const dialog = document.getElementById('menu-mobile') as HTMLDialogElement | null;
+      document.querySelector('[data-menu-open]')?.addEventListener('click', () => dialog?.showModal());
+      dialog?.querySelector('[data-menu-close]')?.addEventListener('click', () => dialog.close());
+      dialog?.addEventListener('click', (e) => {
+        if (e.target === dialog) dialog.close();
+      });
+      window.matchMedia('(min-width: 1100px)').addEventListener('change', (e) => {
+        if (e.matches) dialog?.close();
+      });
+
+      initTracking();
+    </script>
+  </body>
+</html>

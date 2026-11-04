@@ -1,0 +1,35 @@
+---
+title: "Services professionnels : de la demande au paiement"
+description: "Demandes, devis, projets, factures et tableaux de bord reliés dans un seul flux. ameb automatise les opérations des firmes de services professionnels."
+order: 2
+icon: "briefcase"
+name: "Services professionnels"
+summary: "Demandes, devis, projets et factures reliés, pour passer de la demande au paiement sans ressaisie."
+h1: "De la demande au paiement, un seul flux"
+lead: "Dans une firme, la même information passe de la boîte de réception au devis, du devis au projet, puis du projet à la facture. On relie ces étapes pour que rien ne soit retapé ni oublié."
+realities:
+  - "Les demandes arrivent par courriel, par téléphone et par le site web, et certaines se perdent entre deux boîtes de réception."
+  - "Les devis se montent à partir d’anciens fichiers, puis les mêmes informations sont retapées pour ouvrir le projet."
+  - "Les heures se compilent en fin de mois, la facturation prend du retard et la rentabilité de chaque mandat reste floue."
+flow: "services-pros"
+capabilities:
+  - service: "ventes-crm"
+    title: "Demandes et devis"
+    text: "Chaque demande crée une fiche client et une occasion. Le devis se prépare à partir de modèles approuvés, puis se signe en ligne."
+  - service: "projets-collaboration"
+    title: "Ouverture et suivi des projets"
+    text: "Le devis accepté ouvre le projet avec ses tâches, ses responsables et son budget d’heures, sans ressaisie."
+  - service: "facturation-paiements"
+    title: "Facturation au temps ou à forfait"
+    text: "Les heures approuvées alimentent la facture. Le paiement en ligne et les relances suivent sans intervention."
+  - service: "tableaux-de-bord-donnees"
+    title: "Rentabilité par mandat"
+    text: "Un tableau de bord à jour montre les heures, la facturation et la marge de chaque mandat et de chaque client."
+  - service: "ia-appliquee"
+    title: "Tri des demandes par IA"
+    text: "L’IA lit les demandes entrantes, les classe, en résume l’essentiel et prépare un brouillon de réponse que votre équipe valide."
+case: "firme-services-professionnels"
+compliance:
+  title: "Confidentialité des dossiers clients"
+  text: "Les dossiers de vos clients restent confidentiels : comptes nominatifs, accès au moindre privilège, retirés en fin de mandat. Une entente de confidentialité est signée avant tout accès à vos systèmes, on définit avec vous les données que l’IA peut traiter, et chaque flux est documenté dans le respect de la Loi 25."
+---

@@ -1,0 +1,59 @@
+---
+/** CTA final : fond jade profond, bouton clair. */
+import Button from './Button.astro';
+import { url, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  placement?: string;
+  title?: string;
+}
+
+const { lang, placement = 'final', title } = Astro.props;
+---
+
+<section class="final-cta strong-band" aria-labelledby={`cta-${placement}`}>
+  <div class="container final-cta__inner">
+    <h2 id={`cta-${placement}`}>{title ?? t(lang, 'final.title')}</h2>
+    <div class="final-cta__actions">
+      <Button href={url('diagnostic', lang)} variant="light" icon="arrow-right" track="cta_diagnostic" placement={placement}>
+        {t(lang, 'cta.diagnostic')}
+      </Button>
+      <p>{t(lang, 'final.note')}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  @layer components {
+    .final-cta {
+      padding-block: var(--section-space);
+    }
+
+    .final-cta__inner {
+      display: grid;
+      gap: var(--sp-8);
+
+      @media (min-width: 900px) {
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+        align-items: center;
+      }
+    }
+
+    .final-cta h2 {
+      font-size: var(--fs-h2);
+      max-inline-size: 18ch;
+    }
+
+    .final-cta__actions {
+      display: grid;
+      gap: var(--sp-4);
+      justify-items: start;
+
+      & p {
+        color: var(--color-on-strong-2);
+      }
+    }
+  }
+</style>

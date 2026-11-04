@@ -1,0 +1,24 @@
+# Termes interdits dans src/ et public/ (vérifiés par scripts/check-content.ts).
+# Une entrée par ligne, insensible à la casse, recherchée comme mot entier.
+# Préfixe « texte: » = expression régulière (drapeaux iu) appliquée aux textes seulement
+# (src/content, src/data, src/i18n) : formulations interdites, pas le code.
+# Le nom de l'éditeur est aussi bloqué par /zoho/i dans le script lui-même.
+zoho
+bigin
+# Concurrents (ne jamais nommer sur le site)
+nsisolution
+nuagix
+tooly
+touli
+# Noms de clients : ajouter ici chaque client réel dès qu'un mandat est signé.
+# Formulations interdites (messages de confiance, §11 du brief)
+texte:\bgaranti(e|es|s)?\b
+texte:\bguarantee(d|s)?\b
+texte:\bcertifié(e|es|s)?\b
+texte:\bcertified\b
+texte:\b100\s?%(?!\s+si vous lancez)
+texte:ne quittent jamais le canada
+texte:never leave canada
+texte:conformes? à la loi 25
+texte:compliant with (québec's )?law 25
+texte:100\s?% sécur

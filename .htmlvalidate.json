@@ -1,0 +1,14 @@
+{
+  "extends": ["html-validate:recommended"],
+  "rules": {
+    "no-inline-style": "off",
+    "attribute-boolean-style": "off",
+    "attribute-empty-style": "off",
+    "void-style": "off",
+    "no-trailing-whitespace": "off",
+    "long-title": ["error", { "maxlength": 60 }],
+    "prefer-native-element": ["error", { "exclude": ["img"] }],
+    "no-redundant-role": "off",
+    "valid-id": ["error", { "relaxed": true }]
+  }
+}

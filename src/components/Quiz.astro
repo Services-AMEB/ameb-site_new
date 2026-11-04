@@ -1,0 +1,306 @@
+---
+/**
+ * Autoévaluation en 10 questions (0 à 3 points), données : src/data/quiz.json.
+ * Sans JS : toutes les questions visibles + grille de calcul en texte.
+ * Avec JS : une question à la fois, barre de progression, navigation clavier native (boutons radio),
+ * résultat affiché sans courriel (aria-live="polite").
+ */
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import quiz from '../data/quiz.json';
+import { url, type Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+import { typo, colon } from '../lib/typo';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const total = quiz.questions.length;
+const profiles = quiz.profiles.map((p) => ({
+  id: p.id,
+  min: p.min,
+  max: p.max,
+  name: typo(p[lang].name, lang),
+  text: typo(p[lang].text, lang),
+  recommendations: p[lang].recommendations.map((r) => typo(r, lang)),
+}));
+---
+
+<div class="quiz" data-quiz data-total={total}>
+  <div class="quiz__progress" data-quiz-progress hidden>
+    <p class="quiz__count" data-quiz-count data-template={t(lang, 'quiz.progress')}>{t(lang, 'quiz.progress', { n: 1, total })}</p>
+    <div class="quiz__track" aria-hidden="true"><span class="quiz__fill" data-quiz-fill></span></div>
+  </div>
+
+  <div class="quiz__form" data-quiz-form>
+    {
+      quiz.questions.map((q, i) => (
+        <fieldset class="quiz__q" data-quiz-q={i}>
+          <legend tabindex="-1">
+            <span class="quiz__num">{i + 1}.</span> {typo(q[lang].q, lang)}
+          </legend>
+          <div class="quiz__options">
+            {q[lang].options.map((opt, score) => (
+              <label class="quiz__option">
+                <input type="radio" name={q.id} value={score} />
+                <span>{typo(opt, lang)}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ))
+    }
+    <p class="field__error" data-quiz-error hidden><Icon name="circle-alert" /><span>{t(lang, 'quiz.choose')}</span></p>
+    <div class="quiz__nav" data-quiz-nav hidden>
+      <button type="button" class="btn btn--secondary" data-quiz-prev>{t(lang, 'quiz.prev')}</button>
+      <button type="button" class="btn btn--primary" data-quiz-next data-next={t(lang, 'quiz.next')} data-finish={t(lang, 'quiz.finish')}>
+        {t(lang, 'quiz.next')}
+      </button>
+    </div>
+    <noscript><p class="quiz__noscript">{t(lang, 'quiz.noscript')}</p></noscript>
+  </div>
+
+  <section class="quiz__result" aria-live="polite" data-quiz-result hidden aria-labelledby="quiz-result-title">
+    <p class="badge" data-quiz-score data-template={t(lang, 'quiz.score')}></p>
+    <h2 id="quiz-result-title" tabindex="-1">
+      <span class="quiz__result-kicker">{t(lang, 'quiz.profile')}{colon(lang)} </span><span data-quiz-profile></span>
+    </h2>
+    <p class="lead" data-quiz-text></p>
+    <h3>{t(lang, 'quiz.recommendations')}</h3>
+    <ul class="checklist" data-quiz-recos></ul>
+    <div class="cluster">
+      <Button href={url('diagnostic', lang)} icon="arrow-right" track="cta_diagnostic" placement="quiz">{t(lang, 'cta.diagnostic')}</Button>
+      <button type="button" class="btn btn--ghost" data-quiz-restart><Icon name="rotate-ccw" />{t(lang, 'quiz.restart')}</button>
+    </div>
+  </section>
+
+  <script type="application/json" data-quiz-profiles set:html={JSON.stringify(profiles).replace(/</g, '\\u003c')} />
+  <template data-check><Icon name="check" /></template>
+</div>
+
+<style>
+  @layer components {
+    .quiz {
+      display: grid;
+      gap: var(--sp-6);
+      max-inline-size: var(--measure);
+    }
+
+    .quiz__progress {
+      display: grid;
+      gap: var(--sp-2);
+    }
+
+    .quiz__count {
+      font-weight: var(--fw-semibold);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .quiz__track {
+      block-size: var(--sp-2);
+      border-radius: var(--radius-round);
+      background: var(--jade-100);
+      overflow: hidden;
+    }
+
+    .quiz__fill {
+      display: block;
+      block-size: 100%;
+      inline-size: calc(var(--p, 0.1) * 100%);
+      background: var(--jade-900);
+      border-radius: inherit;
+    }
+
+    .quiz__form {
+      display: grid;
+      gap: var(--sp-6);
+    }
+
+    .quiz__q {
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-6);
+      background: var(--bg);
+      display: grid;
+      gap: var(--sp-4);
+
+      & legend {
+        font-family: var(--font-display);
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-lg);
+        line-height: var(--lh-snug);
+        padding-inline: var(--sp-2);
+        margin-inline-start: calc(-1 * var(--sp-2));
+      }
+    }
+
+    .quiz__num {
+      color: var(--jade-900);
+    }
+
+    .quiz__options {
+      display: grid;
+      gap: var(--sp-2);
+    }
+
+    .quiz__option {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--sp-3);
+      align-items: center;
+      min-block-size: var(--control-h);
+      padding: var(--sp-2) var(--sp-4);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+
+      & input {
+        inline-size: var(--target-min);
+        block-size: var(--target-min);
+        accent-color: var(--jade-900);
+      }
+
+      &:hover {
+        border-color: var(--slate-600);
+      }
+
+      &:has(input:checked) {
+        border-color: var(--jade-900);
+        background: var(--jade-050);
+      }
+
+      &:has(input:focus-visible) {
+        outline: var(--focus-w) solid var(--color-focus);
+        outline-offset: var(--focus-offset);
+      }
+    }
+
+    .quiz__nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-3);
+      justify-content: space-between;
+    }
+
+    .quiz__result {
+      display: grid;
+      gap: var(--sp-4);
+      padding: var(--sp-8);
+      border-radius: var(--radius-lg);
+      background: var(--jade-050);
+      border: var(--border-w) solid var(--jade-100);
+    }
+
+    .quiz__result-kicker {
+      color: var(--color-text-2);
+    }
+
+    .quiz.is-js .quiz__q:not(.is-current) {
+      display: none;
+    }
+  }
+
+  @layer motion {
+    @media (prefers-reduced-motion: no-preference) {
+      .quiz__fill {
+        transition: inline-size var(--dur-base) var(--ease-out);
+      }
+    }
+  }
+</style>
+
+<script>
+  import { track } from '../lib/track';
+
+  type Profile = { id: string; min: number; max: number; name: string; text: string; recommendations: string[] };
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-quiz]')) {
+    const qs = [...root.querySelectorAll<HTMLFieldSetElement>('[data-quiz-q]')];
+    const total = qs.length;
+    const form = root.querySelector<HTMLElement>('[data-quiz-form]');
+    const progress = root.querySelector<HTMLElement>('[data-quiz-progress]');
+    const count = root.querySelector<HTMLElement>('[data-quiz-count]');
+    const fill = root.querySelector<HTMLElement>('[data-quiz-fill]');
+    const nav = root.querySelector<HTMLElement>('[data-quiz-nav]');
+    const prev = root.querySelector<HTMLButtonElement>('[data-quiz-prev]');
+    const next = root.querySelector<HTMLButtonElement>('[data-quiz-next]');
+    const error = root.querySelector<HTMLElement>('[data-quiz-error]');
+    const result = root.querySelector<HTMLElement>('[data-quiz-result]');
+    const profiles = JSON.parse(root.querySelector('[data-quiz-profiles]')?.textContent ?? '[]') as Profile[];
+    const check = root.querySelector<HTMLTemplateElement>('[data-check]');
+    if (!form || !next || !prev || !result) continue;
+
+    let i = 0;
+    root.classList.add('is-js');
+    if (progress) progress.hidden = false;
+    if (nav) nav.hidden = false;
+
+    const answered = (n: number) => qs[n]?.querySelector<HTMLInputElement>('input:checked');
+
+    const show = (n: number, focus: boolean) => {
+      i = n;
+      qs.forEach((q, k) => q.classList.toggle('is-current', k === n));
+      if (count) count.textContent = (count.dataset.template ?? '').replace('{n}', String(n + 1)).replace('{total}', String(total));
+      fill?.style.setProperty('--p', String((n + 1) / total));
+      prev.hidden = n === 0;
+      next.textContent = (n === total - 1 ? next.dataset.finish : next.dataset.next) ?? '';
+      if (error) error.hidden = true;
+      if (focus) qs[n]?.querySelector<HTMLElement>('legend')?.focus();
+    };
+
+    const finish = () => {
+      const score = qs.reduce((sum, _q, k) => sum + Number(answered(k)?.value ?? 0), 0);
+      const p = profiles.find((x) => score >= x.min && score <= x.max) ?? profiles[0];
+      if (!p) return;
+      const scoreEl = root.querySelector<HTMLElement>('[data-quiz-score]');
+      if (scoreEl) scoreEl.textContent = (scoreEl.dataset.template ?? '').replace('{score}', String(score));
+      const name = root.querySelector('[data-quiz-profile]');
+      if (name) name.textContent = p.name;
+      const text = root.querySelector('[data-quiz-text]');
+      if (text) text.textContent = p.text;
+      const list = root.querySelector('[data-quiz-recos]');
+      if (list) {
+        list.replaceChildren(
+          ...p.recommendations.map((r) => {
+            const li = document.createElement('li');
+            if (check) li.append(check.content.cloneNode(true));
+            const span = document.createElement('span');
+            span.textContent = r;
+            li.append(span);
+            return li;
+          }),
+        );
+      }
+      form.hidden = true;
+      if (progress) progress.hidden = true;
+      result.hidden = false;
+      result.querySelector<HTMLElement>('h2')?.focus();
+      track('quiz_complete', { profil: p.id });
+    };
+
+    next.addEventListener('click', () => {
+      if (!answered(i)) {
+        if (error) error.hidden = false;
+        qs[i]?.querySelector<HTMLInputElement>('input')?.focus();
+        return;
+      }
+      if (i < total - 1) show(i + 1, true);
+      else finish();
+    });
+    prev.addEventListener('click', () => show(Math.max(0, i - 1), true));
+    form.addEventListener('change', () => {
+      if (error) error.hidden = true;
+    });
+    root.querySelector('[data-quiz-restart]')?.addEventListener('click', () => {
+      form.querySelectorAll<HTMLInputElement>('input:checked').forEach((input) => (input.checked = false));
+      result.hidden = true;
+      form.hidden = false;
+      if (progress) progress.hidden = false;
+      show(0, true);
+    });
+
+    show(0, false);
+  }
+</script>

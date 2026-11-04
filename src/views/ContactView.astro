@@ -1,0 +1,101 @@
+---
+import Page from '../layouts/Page.astro';
+import ContactForm from '../components/ContactForm.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import Txt from '../components/Txt.astro';
+import type { Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+import { getPage } from '../lib/content';
+import { organizationLd } from '../lib/seo';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { data } = await getPage('contact', lang);
+const booking = import.meta.env.PUBLIC_BOOKING_URL?.trim();
+const isConfirmed = (v: string) => !/CONFIRM/.test(v);
+---
+
+<Page lang={lang} routeKey="contact" title={data.title} description={data.description} h1={data.h1} lead={data.lead} crumbs={[{ label: t(lang, 'nav.contact') }]} cta={false} jsonLd={organizationLd(lang, Astro.site)}>
+  <section class="section section--surface" aria-labelledby="h-form">
+    <div class="container split">
+      <div class="stack">
+        <h2 id="h-form">{data.form.h2}</h2>
+        <p class="lead">{data.form.lead}</p>
+        <ContactForm lang={lang} kind="contact" />
+      </div>
+      <div class="stack stack-lg">
+        <div class="card card--white">
+          <h2 class="contact__h">{data.details.h2}</h2>
+          <dl class="contact__list">
+            <div>
+              <dt><Icon name="mail" /> {t(lang, 'form.email')}</dt>
+              <dd>{isConfirmed(data.details.email) ? <a href={`mailto:${data.details.email}`}>{data.details.email}</a> : <Txt text={data.details.email} />}</dd>
+            </div>
+            <div>
+              <dt><Icon name="phone" /> {lang === 'fr' ? 'Téléphone' : 'Phone'}</dt>
+              <dd>{isConfirmed(data.details.phone) ? <a href={`tel:${data.details.phone.replace(/\s/g, '')}`}>{data.details.phone}</a> : <Txt text={data.details.phone} />}</dd>
+            </div>
+            <div>
+              <dt><Icon name="map-pin" /> {lang === 'fr' ? 'Adresse' : 'Address'}</dt>
+              <dd><Txt text={data.details.address} /></dd>
+            </div>
+            <div>
+              <dt><Icon name="clock" /> {lang === 'fr' ? 'Heures' : 'Hours'}</dt>
+              <dd><Txt text={data.details.hours} /></dd>
+            </div>
+          </dl>
+        </div>
+        <div class="card card--white">
+          <h2 class="contact__h">{data.booking.title}</h2>
+          <p>{data.booking.text}</p>
+          {
+            booking ? (
+              <Button href={booking} variant="secondary" icon="external-link" track="booking_click" placement="contact" external>
+                {t(lang, 'cta.booking')}
+                <span class="visually-hidden">{t(lang, 'a11y.newTab')}</span>
+              </Button>
+            ) : (
+              <p><Txt text={t(lang, 'common.toConfirm')} /></p>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<style>
+  @layer components {
+    .contact__h {
+      font-size: var(--fs-xl);
+    }
+
+    .contact__list {
+      display: grid;
+      gap: var(--sp-4);
+
+      & dt {
+        display: flex;
+        gap: var(--sp-2);
+        align-items: center;
+        font-weight: var(--fw-semibold);
+        color: var(--color-text);
+
+        & svg {
+          inline-size: var(--icon-sm);
+          block-size: var(--icon-sm);
+          color: var(--jade-900);
+        }
+      }
+
+      & dd {
+        margin: 0;
+        padding-inline-start: var(--sp-8);
+      }
+    }
+  }
+</style>

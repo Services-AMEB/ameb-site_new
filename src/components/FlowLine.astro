@@ -1,0 +1,490 @@
+---
+/**
+ * Concept B — « Une demande, zéro ressaisie ».
+ * Chaîne de 5 nœuds; à l'entrée dans la vue (une fois), le point jade parcourt
+ * la ligne en 4 s et allume chaque nœud. État final (tout allumé) par défaut :
+ * sans JS, en mouvement réduit ou en pause, rien ne bouge.
+ */
+import Icon from './Icon.astro';
+import { FLOWS, FLOW_ORDER, type FlowKey } from '../lib/flows';
+import type { Lang } from '../i18n/routes';
+import { t, type UiKey } from '../i18n/ui';
+import { typo } from '../lib/typo';
+
+interface Props {
+  lang: Lang;
+  flow: FlowKey;
+  /** Onglets de secteur (rejoue au changement). */
+  tabs?: boolean;
+  /** Version miniature, statique (cartes de secteur). */
+  mini?: boolean;
+  /** Afficher les étiquettes finales. */
+  outcomes?: boolean;
+  class?: string;
+}
+
+const { lang, flow, tabs = false, mini = false, outcomes = true, class: className } = Astro.props;
+const uid = `flow-${flow}-${Math.random().toString(36).slice(2, 7)}`;
+const keys: FlowKey[] = tabs ? [flow, ...FLOW_ORDER.filter((k) => k !== flow)] : [flow];
+const label = t(lang, 'flow.label');
+---
+
+<figure
+  class:list={['flow', mini && 'flow--mini', className]}
+  data-flow
+  data-static={mini ? '' : undefined}
+  aria-labelledby={`${uid}-cap`}
+>
+  <figcaption id={`${uid}-cap`} class="visually-hidden">{label}</figcaption>
+  {
+    tabs && (
+      <div class="flow__tabs" role="tablist" aria-label={t(lang, 'flow.tabs')}>
+        {keys.map((k, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`${uid}-tab-${k}`}
+            aria-controls={`${uid}-panel-${k}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            class="flow__tab"
+          >
+            {t(lang, `flow.${k}` as UiKey)}
+          </button>
+        ))}
+      </div>
+    )
+  }
+  {
+    keys.map((k, i) => (
+      <div
+        class="flow__panel"
+        id={`${uid}-panel-${k}`}
+        role={tabs ? 'tabpanel' : undefined}
+        aria-labelledby={tabs ? `${uid}-tab-${k}` : undefined}
+        hidden={i > 0}
+      >
+        <div class="flow__body">
+          <div class="flow__track" aria-hidden="true">
+            <div class="flow__runner">
+              <span class="flow__token" />
+            </div>
+          </div>
+          <ol class="flow__nodes" role="list">
+            {FLOWS[k].nodes.map((node, n) => (
+              <li class="flow__node" style={`--i: ${n}`}>
+                <span class="flow__circle">
+                  <Icon name={node.icon} />
+                </span>
+                <span class:list={['flow__label', mini && 'visually-hidden']}>
+                  {typo(node[lang], lang)}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    ))
+  }
+  {
+    outcomes && !mini && (
+      <div class="flow__foot">
+        <p class="flow__outcomes">
+          <span class="badge">
+            <Icon name="check" class="icon flow__check" />
+            {t(lang, 'flow.zero')}
+          </span>
+          <span class="badge">
+            <Icon name="timer" class="icon flow__check" />
+            {t(lang, 'flow.speed')}
+          </span>
+        </p>
+        <button type="button" class="btn btn--ghost btn--sm flow__replay" data-flow-replay hidden>
+          <Icon name="rotate-ccw" />
+          {t(lang, 'flow.replay')}
+        </button>
+      </div>
+    )
+  }
+</figure>
+
+<style>
+  @layer components {
+    .flow {
+      --node: var(--sp-12);
+      --token: var(--sp-3);
+
+      container: flow / inline-size;
+      display: grid;
+      gap: var(--sp-4);
+      padding: var(--sp-6);
+      background: var(--bg);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-1);
+    }
+
+    .flow--mini {
+      --node: var(--sp-8);
+      --token: var(--sp-2);
+
+      padding: var(--sp-3) 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+    }
+
+    .flow__tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-1);
+      padding: var(--sp-1);
+      background: var(--surface);
+      border-radius: var(--radius-md);
+    }
+
+    .flow__tab {
+      min-block-size: var(--sp-12);
+      padding-inline: var(--sp-3);
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--color-text-2);
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-semibold);
+
+      &[aria-selected="true"] {
+        background: var(--bg);
+        color: var(--jade-900);
+        box-shadow: var(--shadow-1);
+      }
+    }
+
+    .flow__body {
+      position: relative;
+    }
+
+    .flow__nodes {
+      position: relative;
+      display: grid;
+      gap: var(--sp-4);
+    }
+
+    .flow__node {
+      display: grid;
+      grid-template-columns: var(--node) 1fr;
+      gap: var(--sp-3);
+      align-items: center;
+    }
+
+    .flow__circle {
+      display: grid;
+      place-items: center;
+      inline-size: var(--node);
+      block-size: var(--node);
+      border-radius: var(--radius-round);
+      background: var(--jade-600);
+      color: var(--white);
+      border: var(--focus-w) solid var(--jade-600);
+
+      & svg {
+        inline-size: calc(var(--node) / 2);
+        block-size: calc(var(--node) / 2);
+      }
+    }
+
+    .flow__label {
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-semibold);
+      line-height: var(--lh-snug);
+      color: var(--color-text);
+    }
+
+    /* Piste verticale (par défaut, mobile) */
+    .flow__track {
+      position: absolute;
+      inset-inline-start: calc(var(--node) / 2 - var(--token) / 2);
+      inset-block: calc(var(--node) / 2) calc(var(--node) / 2);
+      inline-size: var(--token);
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: calc(var(--token) / 2 - var(--border-w));
+        inline-size: var(--focus-w);
+        background: var(--jade-600);
+      }
+    }
+
+    .flow__runner {
+      position: absolute;
+      inset: 0;
+    }
+
+    .flow__token {
+      position: absolute;
+      inset-block-end: calc(var(--token) / -2);
+      inset-inline-start: 0;
+      inline-size: var(--token);
+      block-size: var(--token);
+      border-radius: var(--radius-round);
+      background: var(--jade-600);
+      box-shadow: 0 0 0 var(--sp-1) var(--jade-100);
+      opacity: 0;
+    }
+
+    /* Piste horizontale quand la place le permet */
+    @container flow (min-width: 420px) {
+      .flow__nodes {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: var(--sp-2);
+      }
+
+      .flow__node {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+        align-items: start;
+      }
+
+      .flow__track {
+        inset-inline: 10% 10%;
+        inset-block: calc(var(--node) / 2 - var(--token) / 2) auto;
+        inline-size: auto;
+        block-size: var(--token);
+
+        &::before {
+          inset-inline: 0;
+          inset-block: calc(var(--token) / 2 - var(--border-w)) auto;
+          inline-size: auto;
+          block-size: var(--focus-w);
+        }
+      }
+
+      .flow__token {
+        inset-block: 0 auto;
+        inset-inline: auto calc(var(--token) / -2);
+      }
+    }
+
+    .flow--mini .flow__nodes {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--sp-2);
+    }
+
+    .flow--mini .flow__node {
+      grid-template-columns: 1fr;
+      justify-items: center;
+    }
+
+    .flow--mini .flow__track {
+      inset-inline: 10% 10%;
+      inset-block: calc(var(--node) / 2 - var(--token) / 2) auto;
+      inline-size: auto;
+      block-size: var(--token);
+
+      &::before {
+        inset-inline: 0;
+        inset-block: calc(var(--token) / 2 - var(--border-w)) auto;
+        inline-size: auto;
+        block-size: var(--focus-w);
+      }
+    }
+
+    .flow__foot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-3);
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .flow__outcomes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-2);
+    }
+
+    .flow__check {
+      inline-size: var(--icon-sm);
+      block-size: var(--icon-sm);
+    }
+  }
+
+  @layer motion {
+    /* États « armés » et lecture : seulement si le mouvement est permis */
+    @media (prefers-reduced-motion: no-preference) {
+      :global(html:not([data-motion="paused"])) .flow.is-armed {
+        & .flow__circle {
+          background: var(--bg);
+          color: var(--slate-600);
+          border-color: var(--slate-600);
+        }
+
+        & .flow__track::before {
+          background: var(--line);
+        }
+
+        & .flow__outcomes {
+          opacity: 0;
+        }
+      }
+
+      :global(html:not([data-motion="paused"])) .flow.is-playing {
+        & .flow__runner {
+          animation: flow-run-y var(--dur-flow) linear both;
+        }
+
+        & .flow__token {
+          animation: flow-token var(--dur-flow) linear both;
+        }
+
+        & .flow__circle {
+          animation: flow-node var(--dur-light) var(--ease-out) both;
+          animation-delay: calc(var(--i) * var(--dur-flow-step));
+        }
+
+        & .flow__track::before {
+          animation: flow-line var(--dur-flow) linear both;
+        }
+
+        & .flow__outcomes {
+          animation: flow-fade var(--dur-base) var(--ease-out) both;
+          animation-delay: var(--dur-flow);
+        }
+      }
+
+      @container flow (min-width: 420px) {
+        :global(html:not([data-motion="paused"])) .flow.is-playing .flow__runner {
+          animation-name: flow-run-x;
+        }
+      }
+    }
+
+    @keyframes flow-run-x {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: none;
+      }
+    }
+
+    @keyframes flow-run-y {
+      from {
+        transform: translateY(-100%);
+      }
+
+      to {
+        transform: none;
+      }
+    }
+
+    @keyframes flow-token {
+      0% {
+        opacity: 1;
+      }
+
+      95% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes flow-node {
+      from {
+        background: var(--bg);
+        color: var(--slate-600);
+        border-color: var(--slate-600);
+      }
+
+      to {
+        background: var(--jade-600);
+        color: var(--white);
+        border-color: var(--jade-600);
+      }
+    }
+
+    @keyframes flow-line {
+      from {
+        background: var(--line);
+      }
+
+      to {
+        background: var(--jade-600);
+      }
+    }
+
+    @keyframes flow-fade {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+  }
+</style>
+
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const paused = () => document.documentElement.dataset.motion === 'paused';
+
+  function play(fig: HTMLElement) {
+    if (reduce.matches || paused()) return;
+    fig.classList.remove('is-playing');
+    void fig.offsetWidth; // relance l'animation
+    fig.classList.add('is-armed', 'is-playing');
+  }
+
+  for (const fig of document.querySelectorAll<HTMLElement>('[data-flow]:not([data-static])')) {
+    // Onglets (flèches gauche/droite, Début/Fin)
+    const tabs = [...fig.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const select = (tab: HTMLButtonElement, focus = true) => {
+      for (const other of tabs) {
+        const on = other === tab;
+        other.setAttribute('aria-selected', String(on));
+        other.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(other.getAttribute('aria-controls') ?? '');
+        if (panel) panel.hidden = !on;
+      }
+      if (focus) tab.focus();
+      play(fig);
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab, false));
+      tab.addEventListener('keydown', (e) => {
+        const n = tabs.length;
+        const next = { ArrowRight: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, Home: 0, End: n - 1 }[e.key];
+        if (next === undefined) return;
+        e.preventDefault();
+        const target = tabs[next];
+        if (target) select(target);
+      });
+    });
+
+    if (reduce.matches || paused()) continue;
+    fig.classList.add('is-armed');
+    const replay = fig.querySelector<HTMLButtonElement>('[data-flow-replay]');
+    if (replay) {
+      replay.hidden = false;
+      replay.addEventListener('click', () => play(fig));
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          play(fig);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(fig);
+  }
+</script>

@@ -1,0 +1,15 @@
+---
+import CasView from '../../../views/CasView.astro';
+import { childRoutes, slugOf } from '../../../i18n/routes';
+
+export function getStaticPaths() {
+  return childRoutes('realisations').map((key) => ({
+    params: { slug: slugOf(key, 'en') },
+    props: { key: key.slice('realisations/'.length) },
+  }));
+}
+
+const { key } = Astro.props;
+---
+
+<CasView lang="en" caseKey={key} />

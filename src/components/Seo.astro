@@ -1,0 +1,47 @@
+---
+/** Balises SEO : title, description, canonical, hreflang, Open Graph, JSON-LD. */
+import { HTML_LANG, OG_LOCALE, ROUTES, type Lang, type RouteKey } from '../i18n/routes';
+import { absolute, fullTitle, ogImagePath } from '../lib/seo';
+import { SITE_ENV } from 'astro:env/server';
+
+interface Props {
+  lang: Lang;
+  routeKey: RouteKey;
+  title: string;
+  description: string;
+  noindex?: boolean;
+  ogType?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>[];
+}
+
+const { lang, routeKey, title, description, noindex: noindexPage = false, ogType = 'website', jsonLd = [] } = Astro.props;
+// Préproduction : jamais indexée.
+const noindex = noindexPage || SITE_ENV === 'dev';
+const site = Astro.site;
+const pageTitle = fullTitle(title, lang);
+const canonical = absolute(ROUTES[routeKey][lang], site);
+const alternates = (['fr', 'en'] as const).map((l) => ({ hreflang: HTML_LANG[l], href: absolute(ROUTES[routeKey][l], site) }));
+const xDefault = absolute(ROUTES[routeKey].fr, site);
+const ogImage = absolute(ogImagePath(routeKey, lang), site);
+const other: Lang = lang === 'fr' ? 'en' : 'fr';
+const graph = jsonLd.length ? JSON.stringify({ '@context': 'https://schema.org', '@graph': jsonLd }).replace(/</g, '\\u003c') : '';
+---
+
+<title>{pageTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, follow" />}
+{alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+<link rel="alternate" hreflang="x-default" href={xDefault} />
+<meta property="og:type" content={ogType} />
+<meta property="og:site_name" content="ameb" />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content={OG_LOCALE[lang]} />
+<meta property="og:locale:alternate" content={OG_LOCALE[other]} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+{graph && <script type="application/ld+json" set:html={graph} />}

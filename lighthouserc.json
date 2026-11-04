@@ -1,0 +1,40 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "node scripts/serve.ts 4323",
+      "startServerReadyPattern": "ameb :",
+      "url": [
+        "http://localhost:4323/",
+        "http://localhost:4323/services/ventes-crm/",
+        "http://localhost:4323/secteurs/evenementiel-associations/",
+        "http://localhost:4323/diagnostic/",
+        "http://localhost:4323/en/",
+        "http://localhost:4323/en/services/sales-crm/",
+        "http://localhost:4323/en/sectors/events-associations/",
+        "http://localhost:4323/en/diagnostic/"
+      ],
+      "numberOfRuns": 1,
+      "settings": {
+        "chromeFlags": "--no-sandbox --headless=new",
+        "formFactor": "mobile"
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.95 }],
+        "categories:accessibility": ["error", { "minScore": 0.95 }],
+        "categories:best-practices": ["error", { "minScore": 0.95 }],
+        "categories:seo": ["error", { "minScore": 0.95 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.05 }],
+        "resource-summary:document:size": ["error", { "maxNumericValue": 51200 }],
+        "resource-summary:stylesheet:size": ["error", { "maxNumericValue": 30720 }],
+        "resource-summary:script:size": ["error", { "maxNumericValue": 20480 }],
+        "resource-summary:font:size": ["error", { "maxNumericValue": 102400 }]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}

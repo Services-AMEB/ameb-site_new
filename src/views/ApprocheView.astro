@@ -1,0 +1,102 @@
+---
+import Page from '../layouts/Page.astro';
+import Card from '../components/Card.astro';
+import Icon from '../components/Icon.astro';
+import type { Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+import { getPage } from '../lib/content';
+import { colon } from '../lib/typo';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { data } = await getPage('approche', lang);
+const titles = [t(lang, 'steps.1.title'), t(lang, 'steps.2.title'), t(lang, 'steps.3.title'), t(lang, 'steps.4.title')];
+---
+
+<Page lang={lang} routeKey="approche" title={data.title} description={data.description} h1={data.h1} lead={data.lead} crumbs={[{ label: t(lang, 'nav.approche') }]}>
+  <section class="section section--surface" aria-labelledby="h-steps">
+    <div class="container">
+      <div class="section__head"><h2 id="h-steps">{data.steps.h2}</h2></div>
+      <ol class="approach" role="list">
+        {
+          data.steps.items.map((s, i) => (
+            <li class="approach__step reveal">
+              <span class="steps__num" aria-hidden="true">{i + 1}</span>
+              <div class="stack">
+                <h3>
+                  <span class="visually-hidden">{t(lang, 'steps.label')} {i + 1}{colon(lang)} </span>
+                  {titles[i]}
+                </h3>
+                <p class="approach__lead">{s.text}</p>
+                <ul class="checklist">
+                  {s.details.map((d) => <li><Icon name="check" /><span>{d}</span></li>)}
+                </ul>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-agnostic">
+    <div class="container split split--even">
+      <div class="stack">
+        <h2 id="h-agnostic">{data.agnostic.h2}</h2>
+        <p class="lead">{data.agnostic.text}</p>
+      </div>
+      <ul class="checklist">
+        {data.agnostic.points.map((p) => <li><Icon name="check" /><span>{p}</span></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-labelledby="h-receive">
+    <div class="container">
+      <div class="section__head"><h2 id="h-receive">{data.receive.h2}</h2></div>
+      <div class="cards cards--3">
+        {data.receive.items.map((r) => <Card title={r.title} text={r.text} icon={r.icon} variant="white" />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-thread">
+    <div class="container">
+      <div class="callout">
+        <Icon name="workflow" />
+        <div>
+          <h2 id="h-thread">{data.thread.title}</h2>
+          <p>{data.thread.text}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<style>
+  @layer components {
+    .approach {
+      display: grid;
+      gap: var(--sp-6);
+    }
+
+    .approach__step {
+      display: grid;
+      grid-template-columns: var(--sp-12) 1fr;
+      gap: var(--sp-6);
+      padding: var(--sp-8);
+      background: var(--bg);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+      max-inline-size: calc(var(--measure) + var(--sp-24));
+    }
+
+    .approach__lead {
+      font-size: var(--fs-md);
+      font-weight: var(--fw-semibold);
+    }
+  }
+</style>
