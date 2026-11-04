@@ -1,0 +1,50 @@
+{
+  "name": "ameb-site",
+  "description": "Site vitrine bilingue de Services AMEB inc. (ameb) — Astro statique, CSS natif, Cloudflare.",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "node scripts/serve.ts",
+    "check": "astro check && node scripts/check-content.ts && node scripts/check-parity.ts && node scripts/a-confirmer.ts --check",
+    "lint": "eslint . && stylelint \"src/**/*.{css,astro}\"",
+    "test": "node --test tests/unit/*.test.ts && playwright test",
+    "test:unit": "node --test tests/unit/*.test.ts",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/a11y.spec.ts && npx --yes pa11y-ci@5.0.0 --config .pa11yci.json --sitemap http://localhost:4324/sitemap-0.xml --sitemap-find https://ameb.ca --sitemap-replace http://localhost:4324",
+    "test:lh": "npx --yes @lhci/cli@0.15.1 autorun",
+    "verify:dist": "node scripts/check-dist.ts",
+    "validate:html": "html-validate \"dist/**/*.html\"",
+    "a-confirmer": "node scripts/a-confirmer.ts",
+    "prepare": "git config core.hooksPath .githooks || true"
+  },
+  "dependencies": {
+    "@astrojs/markdown-satteri": "0.4.4",
+    "@astrojs/sitemap": "3.7.4",
+    "astro": "7.4.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.11",
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.63.0",
+    "@resvg/resvg-js": "2.6.2",
+    "eslint": "10.13.0",
+    "eslint-plugin-astro": "3.2.1",
+    "html-validate": "11.17.0",
+    "postcss-html": "2.0.0",
+    "satori": "0.63.2",
+    "stylelint": "17.16.0",
+    "stylelint-config-standard": "40.0.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0"
+  },
+  "overrides": {
+    "playwright-core": "1.63.0"
+  }
+}

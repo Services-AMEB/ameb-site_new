@@ -1,0 +1,3 @@
+#!/bin/sh
+# Pré-commit : garde-fous de contenu (activé par « npm install » via core.hooksPath).
+node scripts/check-content.ts && node scripts/check-parity.ts && node scripts/a-confirmer.ts --check

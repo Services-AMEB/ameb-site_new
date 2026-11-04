@@ -1,0 +1,71 @@
+{
+  "extends": [
+    "stylelint-config-standard"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "**/*.astro"
+      ],
+      "customSyntax": "postcss-html"
+    },
+    {
+      "files": [
+        "src/styles/tokens.css"
+      ],
+      "rules": {
+        "color-no-hex": null,
+        "function-disallowed-list": null,
+        "declaration-property-unit-disallowed-list": null,
+        "color-hex-length": null,
+        "alpha-value-notation": null,
+        "color-function-notation": null
+      }
+    }
+  ],
+  "rules": {
+    "color-no-hex": true,
+    "color-named": "never",
+    "function-disallowed-list": [
+      "rgb",
+      "rgba",
+      "hsl",
+      "hsla"
+    ],
+    "declaration-property-unit-disallowed-list": {
+      "/^(margin|padding|gap|row-gap|column-gap|inset|top|right|bottom|left)/": [
+        "px",
+        "rem",
+        "em"
+      ],
+      "font-size": [
+        "px",
+        "rem",
+        "em"
+      ],
+      "/^(transition|animation)/": [
+        "ms",
+        "s"
+      ]
+    },
+    "selector-class-pattern": null,
+    "custom-property-pattern": null,
+    "keyframes-name-pattern": null,
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": [
+          "global"
+        ]
+      }
+    ],
+    "no-descending-specificity": null,
+    "declaration-block-no-redundant-longhand-properties": null,
+    "shorthand-property-no-redundant-values": null,
+    "property-no-vendor-prefix": null,
+    "value-keyword-case": "lower",
+    "import-notation": null,
+    "media-feature-range-notation": null,
+    "custom-property-empty-line-before": null
+  }
+}
