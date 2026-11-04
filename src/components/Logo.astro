@@ -1,0 +1,84 @@
+---
+/**
+ * Mot-symbole « ameb » + point jade, en SVG inline.
+ * Tracés générés depuis Sora 600 par scripts/build-logo.mjs (voir ADR-006).
+ */
+import { LOGO } from './logo-data';
+import type { Lang } from '../i18n/routes';
+import { url } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+interface Props {
+  tone?: 'dark' | 'light';
+  lang: Lang;
+  /** Hauteur affichée en px (le ratio est conservé). */
+  height?: number;
+  /** Sans lien (ex. pied de page déjà dans un lien, images). */
+  plain?: boolean;
+  class?: string;
+}
+
+const { tone = 'dark', lang, height = 28, plain = false, class: className } = Astro.props;
+const width = Math.round((LOGO.width / LOGO.height) * height * 100) / 100;
+const label = t(lang, 'a11y.homeLabel');
+---
+
+{
+  plain ? (
+    <svg
+      class:list={['logo', `logo--${tone}`, className]}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={LOGO.viewBox}
+      width={width}
+      height={height}
+      role="img"
+      aria-label="ameb"
+    >
+      <path class="logo__word" d={LOGO.word} />
+      <circle class="logo__dot" cx={LOGO.dot.cx} cy={LOGO.dot.cy} r={LOGO.dot.r} />
+    </svg>
+  ) : (
+    <a href={url('home', lang)} class:list={['logo-link', className]} aria-label={label}>
+      <svg
+        class:list={['logo', `logo--${tone}`]}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox={LOGO.viewBox}
+        width={width}
+        height={height}
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path class="logo__word" d={LOGO.word} />
+        <circle class="logo__dot" cx={LOGO.dot.cx} cy={LOGO.dot.cy} r={LOGO.dot.r} />
+      </svg>
+    </a>
+  )
+}
+
+<style>
+  @layer components {
+    .logo-link {
+      display: inline-flex;
+      align-items: center;
+      min-block-size: var(--target-min);
+      view-transition-name: logo;
+    }
+
+    .logo {
+      display: block;
+      block-size: auto;
+    }
+
+    .logo--dark .logo__word {
+      fill: var(--jade-900);
+    }
+
+    .logo--light .logo__word {
+      fill: var(--white);
+    }
+
+    .logo__dot {
+      fill: var(--jade-600);
+    }
+  }
+</style>

@@ -1,0 +1,34 @@
+---
+/** Icône Lucide en SVG inline (trait 1,75 px, couleur héritée). Décorative par défaut. */
+import { ICONS, type IconName } from './icons/lucide';
+
+interface Props {
+  name: IconName;
+  label?: string;
+  class?: string;
+  size?: number;
+}
+
+const { name, label, class: className = 'icon', size = 24 } = Astro.props;
+const role = label ? 'img' : undefined;
+const hidden = label ? undefined : 'true';
+---
+
+<svg
+  class={className}
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.75"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  focusable="false"
+  role={role}
+  aria-label={label}
+  aria-hidden={hidden}
+>
+  <Fragment set:html={ICONS[name]} />
+</svg>

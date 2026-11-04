@@ -1,0 +1,198 @@
+/*
+ * Mouvement : tout ce qui bouge vit ici (ou dans un @layer motion de composant).
+ * État final écrit par défaut; animations seulement sous prefers-reduced-motion: no-preference.
+ */
+@view-transition {
+  navigation: auto;
+}
+
+@layer motion {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--dur-base);
+    animation-timing-function: var(--ease-out);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Bouton */
+    .btn {
+      transition:
+        background-color var(--dur-fast) var(--ease-out),
+        border-color var(--dur-fast) var(--ease-out),
+        color var(--dur-fast) var(--ease-out),
+        transform var(--dur-micro) var(--ease-out);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    /* Lien : soulignement depuis la gauche */
+    .link::after {
+      transform: scaleX(0);
+      transition: transform var(--dur-light) var(--ease-out);
+    }
+
+    .link:hover::after,
+    .link:focus-visible::after {
+      transform: scaleX(1);
+    }
+
+    /* Carte : ombre et bordure, aucune translation */
+    .card--link {
+      transition:
+        box-shadow var(--dur-base) var(--ease-out),
+        border-color var(--dur-base) var(--ease-out);
+    }
+
+    /* FAQ : chevron */
+    .faq summary svg {
+      transition: transform var(--dur-light) var(--ease-out);
+    }
+
+    /* Champs */
+    .input {
+      transition: border-color var(--dur-fast) var(--ease-out);
+    }
+
+    /* Erreur de formulaire : glisse de 4 px + fondu */
+    .field__error:not([hidden]),
+    .form-status:not([hidden]) {
+      animation: error-in var(--dur-fast) var(--ease-out) both;
+    }
+
+    /* Succès : point jade */
+    .form-status--success .dot-pop {
+      animation: dot-pop var(--dur-light) var(--ease-out) both;
+    }
+
+    /* Menu mobile */
+    dialog.menu[open] {
+      animation: menu-in var(--dur-light) var(--ease-out) both;
+    }
+
+    @supports (animation-timeline: view()) {
+      /* Révélations au défilement (jamais sur le H1 ni le sous-titre du hero) */
+      .reveal {
+        animation: reveal linear both;
+        animation-duration: var(--dur-timeline);
+        animation-timeline: view();
+        animation-range: entry 0% entry 60%;
+      }
+
+      /* Étapes : ligne tracée au défilement */
+      .steps__line {
+        animation: draw-y linear both;
+        animation-duration: var(--dur-timeline);
+        animation-timeline: view();
+        animation-range: cover 0% cover 80%;
+
+        @media (min-width: 900px) {
+          animation-name: draw-x;
+        }
+      }
+    }
+  }
+
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translateY(var(--reveal-shift));
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes draw-x {
+    from {
+      transform: scaleX(0);
+    }
+
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes draw-y {
+    from {
+      transform: scaleY(0);
+    }
+
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes error-in {
+    from {
+      opacity: 0;
+      transform: translateY(calc(-1 * var(--error-shift)));
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes dot-pop {
+    from {
+      transform: scale(0);
+    }
+
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--sp-2));
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /*
+   * Interrupteurs globaux : mouvement réduit ou pause demandée par l'utilisateur.
+   * !important dans la dernière couche : l'emporte sur toute déclaration normale.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  html[data-motion="paused"] *,
+  html[data-motion="paused"] *::before,
+  html[data-motion="paused"] *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* Premier bloc sous l'en-tête de page : jamais de révélation (contenu visible au chargement). */
+@layer motion {
+  .page-head + .section .reveal,
+  .page-head + section .reveal,
+  .hero + section .reveal {
+    animation: none;
+  }
+}

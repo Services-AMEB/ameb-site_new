@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /styleguide/
+Disallow: /en/styleguide/
+
+Sitemap: https://ameb.ca/sitemap-index.xml

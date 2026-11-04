@@ -1,0 +1,224 @@
+@layer layout {
+  .container {
+    inline-size: 100%;
+    max-inline-size: calc(var(--container) + 2 * var(--gutter));
+    margin-inline: auto;
+    padding-inline: var(--sp-4);
+
+    @media (min-width: 768px) {
+      padding-inline: var(--gutter);
+    }
+  }
+
+  .section {
+    padding-block: var(--section-space);
+  }
+
+  .section--alt {
+    background: var(--jade-050);
+  }
+
+  .section--surface {
+    background: var(--surface);
+  }
+
+  .section__head {
+    display: grid;
+    gap: var(--sp-4);
+    max-inline-size: var(--measure);
+    margin-block-end: var(--sp-12);
+
+    & > p {
+      color: var(--color-text-2);
+      font-size: var(--fs-md);
+    }
+  }
+
+  .grid-12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--gutter);
+  }
+
+  .stack {
+    display: grid;
+    gap: var(--stack-gap, var(--sp-4));
+    align-content: start;
+  }
+
+  .stack-lg {
+    --stack-gap: var(--sp-8);
+  }
+
+  .cluster {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--cluster-gap, var(--sp-4));
+    align-items: center;
+  }
+
+  .cards {
+    display: grid;
+    gap: var(--gutter);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--card-min)), 1fr));
+  }
+
+  .cards--2 {
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .cards--3 {
+    @media (min-width: 900px) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .cards--4 {
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .split {
+    display: grid;
+    gap: var(--sp-12);
+
+    @media (min-width: 1024px) {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: center;
+    }
+  }
+
+  .split--even {
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .measure {
+    max-inline-size: var(--measure);
+  }
+
+  .lead {
+    font-size: var(--fs-md);
+    color: var(--color-text-2);
+    max-inline-size: var(--measure);
+
+    @media (min-width: 768px) {
+      font-size: var(--fs-lg);
+    }
+  }
+
+  .page-head {
+    padding-block: var(--sp-12) var(--sp-8);
+    display: grid;
+    gap: var(--sp-4);
+
+    @media (min-width: 768px) {
+      padding-block: var(--sp-16) var(--sp-12);
+    }
+
+    & h1 {
+      max-inline-size: 22ch;
+    }
+  }
+
+  .prose {
+    max-inline-size: var(--measure);
+    display: grid;
+    gap: var(--sp-4);
+
+    & h2 {
+      margin-block-start: var(--sp-8);
+      font-size: var(--fs-2xl);
+    }
+
+    & h3 {
+      margin-block-start: var(--sp-4);
+    }
+
+    & ul,
+    & ol {
+      padding-inline-start: var(--sp-6);
+      display: grid;
+      gap: var(--sp-2);
+    }
+
+    & table {
+      border-collapse: collapse;
+      inline-size: 100%;
+      font-size: var(--fs-sm);
+    }
+
+    & th,
+    & td {
+      text-align: start;
+      padding: var(--sp-2) var(--sp-3);
+      border-block-end: var(--border-w) solid var(--line);
+      vertical-align: top;
+    }
+
+    & blockquote {
+      border-inline-start: var(--sp-1) solid var(--jade-100);
+      padding-inline-start: var(--sp-4);
+      color: var(--color-text-2);
+    }
+  }
+}
+
+@layer utilities {
+  .visually-hidden {
+    position: absolute !important;
+    inline-size: 1px !important;
+    block-size: 1px !important;
+    padding: 0 !important;
+    margin: calc(-1 * var(--border-w)) !important;
+    overflow: hidden !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+
+  .skip-link {
+    position: absolute;
+    inset-inline-start: var(--sp-4);
+    inset-block-start: var(--sp-2);
+    z-index: 100;
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--jade-900);
+    color: var(--color-on-strong);
+    border-radius: var(--radius-sm);
+    font-weight: var(--fw-semibold);
+    transform: translateY(-200%);
+
+    &:focus {
+      transform: none;
+    }
+  }
+
+  .muted {
+    color: var(--color-muted);
+  }
+
+  .text-2 {
+    color: var(--color-text-2);
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  .mt-8 {
+    margin-block-start: var(--sp-8);
+  }
+
+  .mt-12 {
+    margin-block-start: var(--sp-12);
+  }
+}
