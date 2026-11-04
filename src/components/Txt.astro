@@ -1,0 +1,10 @@
+---
+/** Texte avec mise en évidence des marqueurs [À CONFIRMER…] / [TO BE CONFIRMED…]. */
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+const parts = text.split(/(\[[^\]]*(?:CONFIRMER|CONFIRMED)[^\]]*\])/u).filter(Boolean);
+---
+
+{parts.map((p) => (/(CONFIRMER|CONFIRMED)/.test(p) && p.startsWith('[') ? <span class="tbc">{p}</span> : p))}

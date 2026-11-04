@@ -1,0 +1,55 @@
+---
+/** Lien vers la page équivalente dans l'autre langue (jamais vers l'accueil par défaut). */
+import Icon from './Icon.astro';
+import { HTML_LANG, url, type Lang, type RouteKey } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  routeKey: RouteKey;
+  class?: string;
+}
+
+const { lang, routeKey, class: className } = Astro.props;
+const other: Lang = lang === 'fr' ? 'en' : 'fr';
+---
+
+<a
+  href={url(routeKey, other)}
+  class:list={['langswitch', className]}
+  lang={HTML_LANG[other]}
+  hreflang={HTML_LANG[other]}
+  data-track="lang_switch"
+  data-track-placement={lang}
+  title={t(lang, 'lang.switchLabel')}
+>
+  <Icon name="languages" class="icon langswitch__icon" />
+  <span>{t(lang, 'lang.switch')}</span>
+</a>
+
+<style>
+  @layer components {
+    .langswitch {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-2);
+      min-block-size: var(--control-h);
+      padding-inline: var(--sp-2);
+      color: var(--color-text-2);
+      font-weight: var(--fw-semibold);
+      font-size: var(--fs-sm);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+
+      &:hover {
+        color: var(--jade-900);
+        background: var(--jade-050);
+      }
+    }
+
+    .langswitch__icon {
+      inline-size: var(--icon-sm);
+      block-size: var(--icon-sm);
+    }
+  }
+</style>

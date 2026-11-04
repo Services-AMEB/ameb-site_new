@@ -1,0 +1,52 @@
+---
+/** Carte de cas anonymisé : secteur, titre, résumé, premier résultat (à confirmer). */
+import Icon from './Icon.astro';
+import Txt from './Txt.astro';
+import type { CollectionEntry } from 'astro:content';
+import { url, type Lang, type RouteKey } from '../i18n/routes';
+import { t } from '../i18n/ui';
+import { keyOf } from '../lib/content';
+
+interface Props {
+  entry: CollectionEntry<'cas'>;
+  lang: Lang;
+  level?: 'h2' | 'h3';
+}
+
+const { entry, lang, level = 'h3' } = Astro.props;
+const Heading = level;
+const href = url(`realisations/${keyOf(entry)}` as RouteKey, lang);
+---
+
+<article class="card card--white card--link case-card reveal">
+  <span class="badge">{entry.data.sectorLabel}</span>
+  <Heading><a class="card__link" href={href}>{entry.data.name}</a></Heading>
+  <p>{entry.data.summary}</p>
+  <dl class="case-card__results">
+    <dt>{t(lang, 'common.results')}</dt>
+    {entry.data.results.map((r) => <dd><Txt text={r} /></dd>)}
+  </dl>
+  <span class="card__more" aria-hidden="true">{t(lang, 'cta.seeCase')}<Icon name="arrow-right" /></span>
+</article>
+
+<style>
+  @layer components {
+    .case-card__results {
+      display: grid;
+      gap: var(--sp-1);
+      padding-block: var(--sp-3);
+      border-block: var(--border-w) solid var(--line);
+      font-size: var(--fs-sm);
+
+      & dt {
+        font-weight: var(--fw-semibold);
+        color: var(--color-text);
+      }
+
+      & dd {
+        margin: 0;
+        color: var(--color-text-2);
+      }
+    }
+  }
+</style>

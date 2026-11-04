@@ -1,0 +1,249 @@
+---
+/** En-tête collant : logo, 5 entrées, sélecteur de langue, CTA. Menu mobile en <dialog>. */
+import Logo from './Logo.astro';
+import LangSwitch from './LangSwitch.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { url, type Lang, type RouteKey } from '../i18n/routes';
+import { t, type UiKey } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  routeKey: RouteKey;
+}
+
+const { lang, routeKey } = Astro.props;
+
+const main: { key: RouteKey; label: UiKey }[] = [
+  { key: 'services', label: 'nav.services' },
+  { key: 'secteurs', label: 'nav.secteurs' },
+  { key: 'diagnostic', label: 'nav.diagnostic' },
+  { key: 'realisations', label: 'nav.realisations' },
+  { key: 'a-propos', label: 'nav.aPropos' },
+];
+const more: { key: RouteKey; label: UiKey }[] = [
+  { key: 'approche', label: 'nav.approche' },
+  { key: 'outils', label: 'nav.outils' },
+  { key: 'confiance', label: 'nav.confiance' },
+  { key: 'ressources', label: 'nav.ressources' },
+  { key: 'contact', label: 'nav.contact' },
+];
+
+/** Section active : la clé elle-même ou un parent (services/… → services). */
+const isCurrent = (key: RouteKey) => routeKey === key || routeKey.startsWith(`${key}/`);
+const current = (key: RouteKey) => (routeKey === key ? 'page' : isCurrent(key) ? 'true' : undefined);
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <Logo lang={lang} height={26} />
+    <nav class="site-nav" aria-label={t(lang, 'a11y.mainNav')}>
+      <ul role="list" class="site-nav__list">
+        {
+          main.map((item) => (
+            <li>
+              <a href={url(item.key, lang)} class="site-nav__link" aria-current={current(item.key)}>
+                {t(lang, item.label)}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="site-header__actions">
+      <LangSwitch lang={lang} routeKey={routeKey} class="site-header__lang" />
+      <Button href={url('diagnostic', lang)} size="sm" track="cta_diagnostic" placement="header" class="site-header__cta">
+        {t(lang, 'cta.diagnostic')}
+      </Button>
+      <button type="button" class="menu-toggle" aria-haspopup="dialog" aria-controls="menu-mobile" data-menu-open>
+        <Icon name="menu" />
+        <span class="visually-hidden">{t(lang, 'a11y.openMenu')}</span>
+      </button>
+    </div>
+  </div>
+
+  <dialog class="menu" id="menu-mobile" aria-labelledby="menu-title">
+    <div class="menu__head">
+      <Logo lang={lang} height={24} />
+      <h2 id="menu-title" class="visually-hidden">{t(lang, 'a11y.menuTitle')}</h2>
+      <button type="button" class="menu-toggle" data-menu-close>
+        <Icon name="x" />
+        <span class="visually-hidden">{t(lang, 'a11y.closeMenu')}</span>
+      </button>
+    </div>
+    <nav aria-label={t(lang, 'a11y.mobileNav')}>
+      <ul role="list" class="menu__list">
+        {
+          [...main, ...more].map((item) => (
+            <li>
+              <a href={url(item.key, lang)} class="menu__link" aria-current={current(item.key)}>
+                {t(lang, item.label)}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="menu__foot">
+      <Button href={url('diagnostic', lang)} track="cta_diagnostic" placement="menu">{t(lang, 'cta.diagnostic')}</Button>
+      <LangSwitch lang={lang} routeKey={routeKey} />
+    </div>
+  </dialog>
+</header>
+
+<style>
+  @layer components {
+    .site-header {
+      position: sticky;
+      inset-block-start: 0;
+      z-index: 50;
+      background: var(--color-header-bg);
+      backdrop-filter: blur(var(--sp-2));
+      border-block-end: var(--border-w) solid var(--line);
+      view-transition-name: header;
+    }
+
+    .site-header__inner {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-6);
+      min-block-size: var(--header-h);
+    }
+
+    .site-nav {
+      display: none;
+      margin-inline-start: auto;
+
+      @media (min-width: 1100px) {
+        display: block;
+      }
+    }
+
+    .site-nav__list {
+      display: flex;
+      gap: var(--sp-1);
+    }
+
+    .site-nav__link {
+      display: inline-flex;
+      align-items: center;
+      min-block-size: var(--control-h);
+      padding-inline: var(--sp-3);
+      color: var(--color-text);
+      font-weight: var(--fw-medium);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+
+      &:hover {
+        color: var(--jade-900);
+        background: var(--jade-050);
+      }
+
+      &[aria-current] {
+        color: var(--jade-900);
+        text-decoration: underline;
+        text-decoration-thickness: var(--focus-w);
+        text-underline-offset: var(--sp-2);
+      }
+    }
+
+    .site-header__actions {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      margin-inline-start: auto;
+
+      @media (min-width: 1100px) {
+        margin-inline-start: 0;
+      }
+    }
+
+    .site-header__lang,
+    .site-header__cta {
+      display: none;
+
+      @media (min-width: 640px) {
+        display: inline-flex;
+      }
+    }
+
+    .menu-toggle {
+      display: inline-grid;
+      place-items: center;
+      inline-size: var(--control-h);
+      block-size: var(--control-h);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      color: var(--jade-900);
+
+      &:hover {
+        background: var(--jade-050);
+      }
+    }
+
+    .site-header__actions .menu-toggle {
+      @media (min-width: 1100px) {
+        display: none;
+      }
+    }
+
+    .menu {
+      inline-size: 100%;
+      max-inline-size: 100%;
+      block-size: 100%;
+      max-block-size: 100%;
+      margin: 0;
+      padding: var(--sp-4);
+      border: 0;
+      background: var(--bg);
+      color: var(--color-text);
+
+      &::backdrop {
+        background: var(--color-backdrop);
+      }
+
+      &[open] {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: var(--sp-6);
+      }
+    }
+
+    .menu__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .menu__list {
+      display: grid;
+      gap: var(--sp-1);
+      align-content: start;
+    }
+
+    .menu__link {
+      display: flex;
+      align-items: center;
+      min-block-size: var(--control-h);
+      padding-inline: var(--sp-3);
+      font-family: var(--font-display);
+      font-size: var(--fs-lg);
+      font-weight: var(--fw-semibold);
+      color: var(--color-text);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+
+      &[aria-current] {
+        color: var(--jade-900);
+        background: var(--jade-050);
+      }
+    }
+
+    .menu__foot {
+      display: grid;
+      gap: var(--sp-3);
+      justify-items: start;
+    }
+  }
+</style>

@@ -1,0 +1,204 @@
+---
+/** Pied de page : fond jade profond, 4 colonnes, RPRP, nom légal. */
+import Logo from './Logo.astro';
+import LangSwitch from './LangSwitch.astro';
+import { url, type Lang, type RouteKey } from '../i18n/routes';
+import { t, type UiKey } from '../i18n/ui';
+import { keyOf, listEntries } from '../lib/content';
+import { colon } from '../lib/typo';
+
+interface Props {
+  lang: Lang;
+  routeKey: RouteKey;
+}
+
+const { lang, routeKey } = Astro.props;
+const services = await listEntries('services', lang);
+const secteurs = await listEntries('secteurs', lang);
+
+const company: { key: RouteKey; label: UiKey }[] = [
+  { key: 'diagnostic', label: 'nav.diagnostic' },
+  { key: 'approche', label: 'nav.approche' },
+  { key: 'realisations', label: 'nav.realisations' },
+  { key: 'outils', label: 'nav.outils' },
+  { key: 'confiance', label: 'nav.confiance' },
+  { key: 'a-propos', label: 'nav.aPropos' },
+  { key: 'ressources', label: 'nav.ressources' },
+  { key: 'contact', label: 'nav.contact' },
+];
+const legal: { key: RouteKey; label: string }[] = [
+  { key: 'confidentialite', label: lang === 'fr' ? 'Politique de confidentialité' : 'Privacy policy' },
+  { key: 'accessibilite', label: lang === 'fr' ? 'Accessibilité' : 'Accessibility' },
+  { key: 'mentions-legales', label: lang === 'fr' ? 'Mentions légales' : 'Legal notice' },
+];
+const year = 2026;
+---
+
+<footer class="site-footer strong-band">
+  <div class="container site-footer__grid">
+    <div class="site-footer__brand">
+      <Logo lang={lang} tone="light" height={30} />
+      <p class="site-footer__tagline">{t(lang, 'footer.tagline')}</p>
+      <address class="site-footer__address">
+        <strong>{t(lang, 'footer.legalName')}</strong><br />
+        {t(lang, 'footer.city')}<br />
+        {t(lang, 'footer.address')}
+      </address>
+      <p class="site-footer__rprp">
+        {t(lang, 'footer.rprp')}{colon(lang)} {t(lang, 'footer.rprpValue')}
+      </p>
+      <p><a href={url('contact', lang)} class="site-footer__help">{t(lang, 'footer.help')}</a></p>
+    </div>
+    <nav class="site-footer__nav" aria-label={t(lang, 'a11y.footerNav')}>
+      <div>
+        <h2 class="site-footer__title">{t(lang, 'footer.services')}</h2>
+        <ul role="list">
+          {
+            services.map((s) => (
+              <li>
+                <a href={url(`services/${keyOf(s)}` as RouteKey, lang)}>{s.data.name}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div>
+        <h2 class="site-footer__title">{t(lang, 'footer.secteurs')}</h2>
+        <ul role="list">
+          {
+            secteurs.map((s) => (
+              <li>
+                <a href={url(`secteurs/${keyOf(s)}` as RouteKey, lang)}>{s.data.name}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div>
+        <h2 class="site-footer__title">{t(lang, 'footer.entreprise')}</h2>
+        <ul role="list">
+          {
+            company.map((c) => (
+              <li>
+                <a href={url(c.key, lang)}>{t(lang, c.label)}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div>
+        <h2 class="site-footer__title">{t(lang, 'footer.legal')}</h2>
+        <ul role="list">
+          {
+            legal.map((c) => (
+              <li>
+                <a href={url(c.key, lang)}>{c.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <div class="container site-footer__bottom">
+    <p>© {year} {t(lang, 'footer.legalName')} {t(lang, 'footer.rights')}</p>
+    {lang === 'en' && <p>{t(lang, 'footer.langNote')}</p>}
+    <LangSwitch lang={lang} routeKey={routeKey} class="site-footer__lang" />
+  </div>
+</footer>
+
+<style>
+  @layer components {
+    .site-footer {
+      padding-block: var(--sp-16) var(--sp-8);
+      border-block-start: var(--border-w) solid var(--color-on-strong-line);
+      font-size: var(--fs-sm);
+    }
+
+    .site-footer__grid {
+      display: grid;
+      gap: var(--sp-12);
+
+      @media (min-width: 1024px) {
+        grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      }
+    }
+
+    .site-footer__brand {
+      display: grid;
+      gap: var(--sp-4);
+      align-content: start;
+    }
+
+    .site-footer__tagline {
+      font-family: var(--font-display);
+      font-size: var(--fs-lg);
+      font-weight: var(--fw-semibold);
+    }
+
+    .site-footer__address {
+      font-style: normal;
+    }
+
+    .site-footer__rprp,
+    .site-footer__address {
+      color: var(--color-on-strong-2);
+    }
+
+    .site-footer a {
+      color: var(--color-on-strong);
+      text-decoration: none;
+      display: inline-block;
+      padding-block: var(--sp-1);
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .site-footer__help {
+      font-weight: var(--fw-semibold);
+      text-decoration: underline !important;
+    }
+
+    .site-footer__nav {
+      display: grid;
+      gap: var(--sp-8);
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--col-min)), 1fr));
+
+      & ul {
+        display: grid;
+        gap: var(--sp-1);
+      }
+    }
+
+    .site-footer__title {
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-semibold);
+      color: var(--color-on-strong-2) !important;
+      margin-block-end: var(--sp-3);
+    }
+
+    .site-footer__bottom {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-4);
+      align-items: center;
+      justify-content: space-between;
+      margin-block-start: var(--sp-12);
+      padding-block-start: var(--sp-6);
+      border-block-start: var(--border-w) solid var(--color-on-strong-line);
+      color: var(--color-on-strong-2);
+    }
+
+    .site-footer .site-footer__lang {
+      color: var(--color-on-strong);
+
+      &:hover {
+        background: transparent;
+        color: var(--color-on-strong);
+        text-decoration: underline;
+      }
+    }
+  }
+</style>
