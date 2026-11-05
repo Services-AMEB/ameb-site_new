@@ -5,8 +5,9 @@
 // Dev        : npm run deploy:dev      → Worker « ameb-site-new-dev » (workers.dev, noindex)
 // Local      : npm run cf:dev          → wrangler dev (même environnement que Cloudflare)
 //
-// Workers Builds (Git) : commande de build « npm run build » (ajouter la variable de build
-// SITE_ENV=dev pour l'environnement dev), commande de déploiement « npx wrangler deploy »
+// Workers Builds (Git) : aucune commande de build n'est requise dans le tableau de bord, « build.command »
+// ci-dessous fait compiler le site par wrangler avant chaque déploiement (ajouter la variable
+// SITE_ENV=dev pour l'environnement dev); commande de déploiement « npx wrangler deploy »
 // (ou « npx wrangler deploy --env dev »). « name » doit correspondre au nom du Worker.
 // Secrets (jamais ici) : npx wrangler secret put TURNSTILE_SECRET [--env dev]
 //                        npx wrangler secret put N8N_WEBHOOK_URL [--env dev]
@@ -17,6 +18,11 @@
   "main": "worker/index.ts",
   "compatibility_date": "2026-10-15",
   "minify": true,
+  // Compile dist/ avant « wrangler deploy » et « wrangler dev » (Workers Builds, CLI).
+  "build": {
+    "command": "npm run build",
+    "watch_dir": "src"
+  },
   "assets": {
     // Site compilé par Astro (npm run build).
     "directory": "./dist",

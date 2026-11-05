@@ -71,7 +71,7 @@ npm run cf:dev
 
 Dans le tableau de bord Cloudflare, créer un Worker relié au dépôt GitHub :
 - nom du Worker : `ameb-site-new-dev` (doit correspondre à `env.dev.name`);
-- commande de build : `npm run build:dev`;
+- commande de build : laisser vide (`wrangler.jsonc` compile le site lui-même avant le déploiement) ou `npm run build:dev`;
 - commande de déploiement : `npx wrangler deploy --env dev`;
 - variables de build : `PUBLIC_TURNSTILE_SITEKEY` (et au besoin `PUBLIC_BOOKING_URL`, `PUBLIC_ANALYTICS_SRC`, `PUBLIC_ANALYTICS_ID`);
 - secrets du Worker : `TURNSTILE_SECRET`, `N8N_WEBHOOK_URL`, `N8N_WEBHOOK_SECRET`.
