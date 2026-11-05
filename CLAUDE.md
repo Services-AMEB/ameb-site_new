@@ -48,4 +48,4 @@ Référence : `docs/brief.md`, amendé par les décisions de `docs/decisions/` (
 - Libellés de schéma : HTML positionné avec un fond propre (contraste vérifiable par axe), jamais de `<text>` SVG; les démos sont `aria-hidden` et marquées « données fictives ».
 - Plages unicode des polices : « œ » doit rester dans le sous-ensemble latin (sinon 85 Ko de plus).
 - Markdown : processeur Sätteri (Astro 7) — plugin `src/lib/remark-typo.ts`.
-- Captures visuelles : comparées en CI seulement (ignorées en local). Après un changement visuel voulu, lancer le workflow « Captures de référence » (Actions → Run workflow, sur la branche) : il régénère et pousse les captures; relancer ensuite la CI (workflow_dispatch) si la poussée du robot ne l'a pas déclenchée.
+- Captures visuelles : comparées en CI seulement (ignorées en local). Après un changement visuel voulu, lancer la CI à la main sur la branche avec la case « captures » (Actions → CI → Run workflow) : elle régénère et pousse les captures; relancer ensuite la CI sans la case (la poussée du robot ne la déclenche pas).
