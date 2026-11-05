@@ -1,0 +1,541 @@
+---
+/** Bento « ce que vous y gagnez » : quatre tuiles avec une micro-démo chacune, lumière au survol. */
+import type { Lang } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+  gains: {
+    eyebrow: string;
+    h2: string;
+    tiles: { title: string; text: string }[];
+    inputs: string[];
+    output: string;
+    invoices: { name: string; before: string; after: string }[];
+    updated: string;
+    tasks: string[];
+    manual: string;
+    automated: string;
+  };
+}
+
+const { gains } = Astro.props;
+const [t1, t2, t3, t4] = gains.tiles;
+const miniPaths = [50, 130, 210].map((y) => `M150 ${y}C300 ${y} 300 130 420 130`);
+const bars = [38, 52, 46, 64, 58, 76, 88];
+---
+
+<section class="section section--surface" id="gains" aria-labelledby="h-gains">
+  <div class="container">
+    <div class="section__head"><span class="eyebrow">{gains.eyebrow}</span><h2 id="h-gains">{gains.h2}</h2></div>
+    <div class="bento">
+      <article class="tile tile--7" data-spot>
+        <h3>{t1?.title}</h3>
+        <p>{t1?.text}</p>
+        <div class="demo">
+          <div class="mini" aria-hidden="true">
+            <svg viewBox="0 0 700 260" preserveAspectRatio="none">
+              {miniPaths.map((d, i) => <><path class="mini__base" d={d} /><path class="mini__pulse" d={d} pathLength="100" style={`animation-delay: -${i * 0.9}s`} /></>)}
+            </svg>
+            {gains.inputs.map((label, i) => <span class="mini__node mini__node--l" style={`top: ${[19, 50, 81][i]}%`}>{label}</span>)}
+            <span class="mini__node mini__node--r" style="top: 50%">{gains.output}</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="tile tile--5" data-spot>
+        <h3>{t2?.title}</h3>
+        <p>{t2?.text}</p>
+        <div class="demo" aria-hidden="true">
+          {
+            gains.invoices.map((inv) => (
+              <div class="inv">
+                <span class="inv__name">{inv.name}</span>
+                <span class="chip"><b>{inv.before}</b><i>{inv.after}</i></span>
+              </div>
+            ))
+          }
+        </div>
+      </article>
+
+      <article class="tile tile--5" data-spot>
+        <h3>{t3?.title}</h3>
+        <p>{t3?.text}</p>
+        <div class="demo" aria-hidden="true">
+          <div class="bars">{bars.map((h) => <i style={`--h: ${h}%`}></i>)}</div>
+          <span class="upd"><span class="live"><i></i></span>{gains.updated}</span>
+        </div>
+      </article>
+
+      <article class="tile tile--7" data-spot>
+        <h3>{t4?.title}</h3>
+        <p>{t4?.text}</p>
+        <div class="demo" aria-hidden="true">
+          {
+            gains.tasks.map((task) => (
+              <div class="task">
+                <span>{task}</span>
+                <span class="task__state"><b>{gains.manual}</b><i>{gains.automated}</i></span>
+                <span class="tog"></span>
+              </div>
+            ))
+          }
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  @layer components {
+    .bento {
+      display: grid;
+      gap: var(--sp-4);
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .tile {
+      grid-column: span 12;
+      position: relative;
+      overflow: hidden;
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--bg);
+      padding: var(--sp-6);
+      display: grid;
+      gap: var(--sp-4);
+      grid-template-rows: auto auto 1fr;
+      min-inline-size: 0;
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 60%);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      &:hover {
+        border-color: var(--jade-600);
+        box-shadow: var(--shadow-2);
+      }
+
+      &:hover::before {
+        opacity: 1;
+      }
+
+      & > * {
+        position: relative;
+      }
+
+      & h3 {
+        font-size: var(--fs-lg);
+      }
+
+      & p {
+        color: var(--color-text-2);
+        max-inline-size: 46ch;
+      }
+
+      @media (min-width: 820px) {
+        &.tile--7 {
+          grid-column: span 7;
+        }
+
+        &.tile--5 {
+          grid-column: span 5;
+        }
+      }
+    }
+
+    .demo {
+      align-self: end;
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      border: var(--border-w) solid var(--line);
+      padding: var(--sp-3);
+      min-block-size: 150px;
+      display: grid;
+      align-content: center;
+      gap: var(--sp-2);
+    }
+
+    /* mini-faisceau */
+    .mini {
+      position: relative;
+      aspect-ratio: 7 / 2.6;
+      container-type: inline-size;
+
+      & svg {
+        position: absolute;
+        inset: 0;
+        inline-size: 100%;
+        block-size: 100%;
+      }
+    }
+
+    .mini__base {
+      fill: none;
+      stroke: var(--line);
+      stroke-width: 2;
+    }
+
+    .mini__pulse {
+      fill: none;
+      stroke: var(--jade-600);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-dasharray: 12 88;
+    }
+
+    .mini__node {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      padding-inline: var(--sp-2);
+      block-size: clamp(24px, 8cqi, 32px);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-round);
+      background: var(--bg);
+      font-size: clamp(var(--fs-2xs), 2.6cqi, var(--fs-xs));
+      font-weight: var(--fw-semibold);
+      color: var(--color-text-2);
+      white-space: nowrap;
+      transform: translateY(-50%);
+    }
+
+    .mini__node--l {
+      inset-inline-start: 3%;
+    }
+
+    .mini__node--r {
+      inset-inline-end: 4%;
+      color: var(--color-text);
+    }
+
+    /* factures */
+    .inv {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-3);
+      background: var(--bg);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-md);
+      font-size: var(--fs-xs);
+    }
+
+    .inv__name {
+      color: var(--color-text-2);
+    }
+
+    .chip {
+      position: relative;
+      display: inline-grid;
+      min-inline-size: 78px;
+      block-size: var(--sp-6);
+      border-radius: var(--radius-round);
+      font-size: var(--fs-2xs);
+      font-weight: var(--fw-semibold);
+      line-height: var(--sp-6);
+      text-align: center;
+      overflow: hidden;
+
+      & b,
+      & i {
+        grid-area: 1 / 1;
+        font-style: normal;
+        font-weight: var(--fw-semibold);
+        border-radius: var(--radius-round);
+      }
+
+      & b {
+        background: var(--surface);
+        color: var(--color-text-2);
+        opacity: 0;
+      }
+
+      & i {
+        background: var(--color-badge);
+        color: var(--color-badge-fg);
+      }
+    }
+
+    /* barres */
+    .bars {
+      display: flex;
+      align-items: end;
+      gap: var(--sp-2);
+      block-size: 110px;
+      padding-inline: var(--sp-1);
+
+      & i {
+        flex: 1;
+        display: block;
+        background: var(--jade-600);
+        border-radius: var(--radius-sm) var(--radius-sm) 2px 2px;
+        block-size: var(--h);
+        transform-origin: bottom;
+        opacity: .85;
+      }
+
+      & i:last-child {
+        opacity: 1;
+      }
+    }
+
+    .upd {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      font-size: var(--fs-2xs);
+      color: var(--color-muted);
+    }
+
+    .live {
+      display: inline-flex;
+
+      & i {
+        inline-size: var(--sp-2);
+        block-size: var(--sp-2);
+        border-radius: var(--radius-round);
+        background: var(--jade-600);
+      }
+    }
+
+    /* tâches */
+    .task {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-3);
+      background: var(--bg);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-md);
+      font-size: var(--fs-xs);
+    }
+
+    .task__state {
+      position: relative;
+      font-size: var(--fs-2xs);
+      color: var(--color-muted);
+      min-inline-size: 70px;
+      text-align: end;
+      block-size: 1em;
+
+      & b,
+      & i {
+        position: absolute;
+        inset-inline-end: 0;
+        inset-block-start: 0;
+        font-style: normal;
+        font-weight: var(--fw-semibold);
+      }
+
+      & b {
+        opacity: 0;
+      }
+
+      & i {
+        color: var(--jade-600);
+      }
+    }
+
+    .tog {
+      inline-size: 34px;
+      block-size: 20px;
+      border-radius: var(--radius-round);
+      background: var(--jade-600);
+      position: relative;
+
+      &::after {
+        content: "";
+        position: absolute;
+        inset-block-start: var(--sp-1);
+        inset-inline-start: var(--sp-1);
+        inline-size: var(--sp-3);
+        block-size: var(--sp-3);
+        border-radius: var(--radius-round);
+        background: var(--white);
+        transform: translateX(14px);
+      }
+    }
+  }
+
+  @layer motion {
+    @media (prefers-reduced-motion: no-preference) {
+      .tile {
+        transition:
+          border-color var(--dur-base) var(--ease-out),
+          box-shadow var(--dur-base) var(--ease-out);
+      }
+
+      .tile::before {
+        transition: opacity var(--dur-base) var(--ease-out);
+      }
+
+      .mini__pulse {
+        stroke-dashoffset: 100;
+        animation: beam var(--dur-beam) linear infinite;
+      }
+
+      .chip b {
+        opacity: 1;
+        animation: state-off var(--dur-cycle) infinite;
+      }
+
+      .chip i {
+        opacity: 0;
+        animation: state-on var(--dur-cycle) infinite;
+      }
+
+      .inv:nth-child(2) .chip b,
+      .inv:nth-child(2) .chip i {
+        animation-delay: calc(var(--dur-cycle) * .2);
+      }
+
+      .inv:nth-child(3) .chip b,
+      .inv:nth-child(3) .chip i {
+        animation-delay: calc(var(--dur-cycle) * .4);
+      }
+
+      .bars i {
+        animation: breathe var(--dur-breathe) var(--ease-out) infinite;
+      }
+
+      .bars i:nth-child(odd) {
+        animation-delay: calc(var(--dur-breathe) * -.5);
+      }
+
+      .live i {
+        animation: pulse var(--dur-pulse) infinite;
+      }
+
+      .task__state b {
+        opacity: 1;
+        animation: state-off var(--dur-cycle-slow) infinite;
+      }
+
+      .task__state i {
+        opacity: 0;
+        animation: state-on var(--dur-cycle-slow) infinite;
+      }
+
+      .tog {
+        background: var(--line);
+        animation: tog-bg var(--dur-cycle-slow) infinite;
+      }
+
+      .tog::after {
+        transform: none;
+        animation: tog-knob var(--dur-cycle-slow) infinite;
+      }
+
+      .task:nth-child(2) * {
+        animation-delay: calc(var(--dur-cycle-slow) * .15);
+      }
+
+      .task:nth-child(3) * {
+        animation-delay: calc(var(--dur-cycle-slow) * .3);
+      }
+
+      .task:nth-child(4) * {
+        animation-delay: calc(var(--dur-cycle-slow) * .45);
+      }
+    }
+
+    @keyframes beam {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes state-off {
+      0%,
+      45% {
+        opacity: 1;
+      }
+
+      55%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes state-on {
+      0%,
+      45% {
+        opacity: 0;
+        transform: translateY(var(--sp-1));
+      }
+
+      55%,
+      100% {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @keyframes breathe {
+      0%,
+      100% {
+        transform: scaleY(.72);
+      }
+
+      50% {
+        transform: scaleY(1);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 var(--glow);
+      }
+
+      70% {
+        box-shadow: 0 0 0 8px transparent;
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 transparent;
+      }
+    }
+
+    @keyframes tog-bg {
+      0%,
+      45% {
+        background: var(--line);
+      }
+
+      55%,
+      100% {
+        background: var(--jade-600);
+      }
+    }
+
+    @keyframes tog-knob {
+      0%,
+      45% {
+        transform: none;
+      }
+
+      55%,
+      100% {
+        transform: translateX(14px);
+      }
+    }
+  }
+</style>
+
+<script>
+  // Lumière qui suit le pointeur sur les tuiles.
+  for (const tile of document.querySelectorAll<HTMLElement>('[data-spot]')) {
+    tile.addEventListener('pointermove', (e) => {
+      const b = tile.getBoundingClientRect();
+      tile.style.setProperty('--mx', `${e.clientX - b.left}px`);
+      tile.style.setProperty('--my', `${e.clientY - b.top}px`);
+    });
+  }
+</script>

@@ -1,10 +1,10 @@
 ---
-/** En-tête collant : logo, 5 entrées, sélecteur de langue, CTA. Menu mobile en <dialog>. */
+/** En-tête collant : logo, sections de l'accueil, pages, bascule clair/sombre, langue, CTA. Menu mobile en <dialog>. */
 import Logo from './Logo.astro';
 import LangSwitch from './LangSwitch.astro';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
-import { url, type Lang, type RouteKey } from '../i18n/routes';
+import { homeUrl, url, type HomeAnchor, type Lang, type RouteKey } from '../i18n/routes';
 import { t, type UiKey } from '../i18n/ui';
 
 interface Props {
@@ -14,24 +14,19 @@ interface Props {
 
 const { lang, routeKey } = Astro.props;
 
-const main: { key: RouteKey; label: UiKey }[] = [
-  { key: 'services', label: 'nav.services' },
-  { key: 'secteurs', label: 'nav.secteurs' },
-  { key: 'diagnostic', label: 'nav.diagnostic' },
-  { key: 'realisations', label: 'nav.realisations' },
-  { key: 'a-propos', label: 'nav.aPropos' },
+type Item = { href: string; label: UiKey; key?: RouteKey };
+const anchors: { anchor: HomeAnchor; label: UiKey }[] = [
+  { anchor: 'methode', label: 'nav.methode' },
+  { anchor: 'services', label: 'nav.services' },
+  { anchor: 'secteurs', label: 'nav.secteurs' },
 ];
-const more: { key: RouteKey; label: UiKey }[] = [
-  { key: 'approche', label: 'nav.approche' },
-  { key: 'outils', label: 'nav.outils' },
-  { key: 'confiance', label: 'nav.confiance' },
-  { key: 'ressources', label: 'nav.ressources' },
-  { key: 'contact', label: 'nav.contact' },
+const items: Item[] = [
+  ...anchors.map((a) => ({ href: homeUrl(a.anchor, lang), label: a.label })),
+  { href: url('realisations', lang), label: 'nav.realisations', key: 'realisations' },
+  { href: url('diagnostic', lang), label: 'nav.diagnostic', key: 'diagnostic' },
+  { href: url('contact', lang), label: 'nav.contact', key: 'contact' },
 ];
-
-/** Section active : la clé elle-même ou un parent (services/… → services). */
-const isCurrent = (key: RouteKey) => routeKey === key || routeKey.startsWith(`${key}/`);
-const current = (key: RouteKey) => (routeKey === key ? 'page' : isCurrent(key) ? 'true' : undefined);
+const current = (item: Item) => (item.key && routeKey === item.key ? 'page' : undefined);
 ---
 
 <header class="site-header">
@@ -40,9 +35,9 @@ const current = (key: RouteKey) => (routeKey === key ? 'page' : isCurrent(key) ?
     <nav class="site-nav" aria-label={t(lang, 'a11y.mainNav')}>
       <ul role="list" class="site-nav__list">
         {
-          main.map((item) => (
+          items.map((item) => (
             <li>
-              <a href={url(item.key, lang)} class="site-nav__link" aria-current={current(item.key)}>
+              <a href={item.href} class="site-nav__link" aria-current={current(item)}>
                 {t(lang, item.label)}
               </a>
             </li>
@@ -51,6 +46,18 @@ const current = (key: RouteKey) => (routeKey === key ? 'page' : isCurrent(key) ?
       </ul>
     </nav>
     <div class="site-header__actions">
+      <button
+        type="button"
+        class="theme-toggle"
+        data-theme-toggle
+        aria-pressed="false"
+        aria-label={t(lang, 'a11y.themeDark')}
+        data-label-dark={t(lang, 'a11y.themeDark')}
+        data-label-light={t(lang, 'a11y.themeLight')}
+      >
+        <span class="theme-toggle__sun"><Icon name="sun" /></span>
+        <span class="theme-toggle__moon"><Icon name="moon" /></span>
+      </button>
       <LangSwitch lang={lang} routeKey={routeKey} class="site-header__lang" />
       <Button href={url('diagnostic', lang)} size="sm" track="cta_diagnostic" placement="header" class="site-header__cta">
         {t(lang, 'cta.diagnostic')}
@@ -74,9 +81,9 @@ const current = (key: RouteKey) => (routeKey === key ? 'page' : isCurrent(key) ?
     <nav aria-label={t(lang, 'a11y.mobileNav')}>
       <ul role="list" class="menu__list">
         {
-          [...main, ...more].map((item) => (
+          items.map((item) => (
             <li>
-              <a href={url(item.key, lang)} class="menu__link" aria-current={current(item.key)}>
+              <a href={item.href} class="menu__link" aria-current={current(item)} data-menu-link>
                 {t(lang, item.label)}
               </a>
             </li>
@@ -129,14 +136,15 @@ const current = (key: RouteKey) => (routeKey === key ? 'page' : isCurrent(key) ?
       align-items: center;
       min-block-size: var(--control-h);
       padding-inline: var(--sp-3);
-      color: var(--color-text);
+      color: var(--color-text-2);
       font-weight: var(--fw-medium);
+      font-size: var(--fs-sm);
       text-decoration: none;
       border-radius: var(--radius-sm);
 
       &:hover {
-        color: var(--jade-900);
-        background: var(--jade-050);
+        color: var(--color-text);
+        background: var(--surface);
       }
 
       &[aria-current] {
@@ -158,27 +166,43 @@ const current = (key: RouteKey) => (routeKey === key ? 'page' : isCurrent(key) ?
       }
     }
 
+    .theme-toggle,
+    .menu-toggle {
+      display: inline-grid;
+      place-items: center;
+      inline-size: var(--sp-12);
+      block-size: var(--sp-12);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      color: var(--color-text-2);
+
+      &:hover {
+        border-color: var(--jade-600);
+        color: var(--color-text);
+      }
+    }
+
+    .theme-toggle > span {
+      display: inline-grid;
+      grid-area: 1 / 1;
+    }
+
+    .theme-toggle__moon,
+    :global(html[data-theme="dark"]) .theme-toggle__sun {
+      display: none;
+    }
+
+    :global(html[data-theme="dark"]) .theme-toggle__moon {
+      display: inline-grid;
+    }
+
     .site-header__lang,
     .site-header__cta {
       display: none;
 
       @media (min-width: 640px) {
         display: inline-flex;
-      }
-    }
-
-    .menu-toggle {
-      display: inline-grid;
-      place-items: center;
-      inline-size: var(--control-h);
-      block-size: var(--control-h);
-      border: var(--border-w) solid var(--line);
-      border-radius: var(--radius-sm);
-      background: var(--bg);
-      color: var(--jade-900);
-
-      &:hover {
-        background: var(--jade-050);
       }
     }
 

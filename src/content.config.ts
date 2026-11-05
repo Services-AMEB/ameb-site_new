@@ -10,22 +10,14 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { ICONS } from './components/icons/lucide';
-import { childRoutes } from './i18n/routes';
 
 const iconNames = Object.keys(ICONS) as [keyof typeof ICONS, ...(keyof typeof ICONS)[]];
 const icon = z.enum(iconNames);
 
-const strip = (key: string) => key.split('/')[1] ?? key;
-const serviceKeys = childRoutes('services').map(strip) as [string, ...string[]];
-const sectorKeys = childRoutes('secteurs').map(strip) as [string, ...string[]];
-const caseKeys = childRoutes('realisations').map(strip) as [string, ...string[]];
-
-export const FLOW_KEYS = ['evenementiel', 'clinique', 'msp', 'services-pros'] as const;
-const flow = z.enum(FLOW_KEYS);
-
 const str = () => z.string().trim().min(1);
 const titleText = z.object({ title: str(), text: str() });
 const qa = z.object({ q: str(), a: str() });
+const iconLabel = z.object({ icon, label: str() });
 
 /** Métadonnées SEO : title ≤ 60 caractères, description ≤ 155. */
 const seo = {
@@ -33,79 +25,18 @@ const seo = {
   description: str().max(155, 'description : 155 caractères au maximum'),
 };
 
-const services = defineCollection({
-  loader: glob({ pattern: '{fr,en}/*.md', base: './src/content/services' }),
-  schema: z.object({
-    ...seo,
-    order: z.number().int(),
-    icon,
-    /** Libellé court (menus, cartes). */
-    name: str(),
-    /** Une phrase pour la carte de l'accueil. */
-    summary: str().max(160),
-    h1: str(),
-    lead: str(),
-    pains: z.array(titleText).length(3),
-    capabilities: z.array(titleText).min(4).max(6),
-    flow,
-    /** Texte de chacune des 4 étapes (titres fixes : Diagnostic, Plan, Mise en place, Pilote automatique). */
-    steps: z.array(str()).length(4),
-    case: z.enum(caseKeys),
-    faq: z.array(qa).length(4),
-  }),
-});
-
-const secteurs = defineCollection({
-  loader: glob({ pattern: '{fr,en}/*.md', base: './src/content/secteurs' }),
-  schema: z.object({
-    ...seo,
-    order: z.number().int(),
-    icon,
-    name: str(),
-    summary: str().max(160),
-    h1: str(),
-    lead: str(),
-    realities: z.array(str()).length(3),
-    flow,
-    capabilities: z
-      .array(z.object({ service: z.enum(serviceKeys), title: str(), text: str() }))
-      .min(4)
-      .max(6),
-    case: z.enum(caseKeys),
-    compliance: titleText,
-  }),
-});
-
+/** Cas anonymisés, affichés sur l'accueil et sur /realisations/ (aucun chiffre). */
 const cas = defineCollection({
   loader: glob({ pattern: '{fr,en}/*.md', base: './src/content/cas' }),
   schema: z.object({
-    ...seo,
     order: z.number().int(),
-    sector: z.enum(sectorKeys),
-    /** Titre de la carte. */
-    name: str(),
-    summary: str().max(200),
-    h1: str(),
-    lead: str(),
     sectorLabel: str(),
-    /** Fourchette, jamais une taille exacte (règle anti-réidentification). */
-    size: str(),
+    name: str(),
+    summary: str().max(220),
     before: z.array(str()).length(3),
     system: z.array(str()).min(3).max(6),
-    results: z.array(str()).length(2),
-    delay: str(),
-  }),
-});
-
-const blogue = defineCollection({
-  loader: glob({ pattern: '{fr,en}/*.md', base: './src/content/blogue' }),
-  schema: z.object({
-    ...seo,
-    h1: str(),
-    lead: str(),
-    date: z.coerce.date(),
-    updated: z.coerce.date().optional(),
-    readingMinutes: z.number().int().positive(),
+    /** Ce qui a changé au quotidien, en une phrase, sans chiffre. */
+    changed: str(),
   }),
 });
 
@@ -116,75 +47,123 @@ const base = { ...seo, h1: str(), lead: str() };
 const accueil = z.object({
   page: z.literal('accueil'),
   ...seo,
-  hero: z.object({ h1: str(), lead: str(), proof: str() }),
-  pains: z.object({ h2: str(), items: z.array(z.object({ title: str(), text: str(), icon })).length(4) }),
-  cost: z.object({ h2: str(), before: str(), after: str(), note: str(), link: str() }),
-  automate: z.object({ h2: str(), lead: str() }),
-  sectors: z.object({ h2: str(), lead: str() }),
-  approach: z.object({ h2: str(), lead: str(), steps: z.array(str()).length(4) }),
-  agnostic: z.object({ h2: str(), text: str(), points: z.array(str()).min(2).max(4) }),
-  cases: z.object({ h2: str(), lead: str() }),
-  trust: z.object({ h2: str(), items: z.array(z.object({ text: str(), icon })).length(3), link: str() }),
+  hero: z.object({
+    eyebrow: str(),
+    h1: str(),
+    lead: str(),
+    leadStrong: str(),
+    leadEnd: str(),
+    ctaSecondary: str(),
+    proof: z.array(str()).length(3),
+  }),
+  panel: z.object({
+    label: str(),
+    note: str(),
+    sources: z.array(iconLabel).length(4),
+    outputs: z.array(iconLabel).length(3),
+    hub: str(),
+    feed: z.array(str()).min(6).max(12),
+  }),
+  calc: z.object({
+    eyebrow: str(),
+    h2: str(),
+    employees: str(),
+    hours: str(),
+    rate: str(),
+    resultLabel: str(),
+    note: str(),
+  }),
+  gains: z.object({
+    eyebrow: str(),
+    h2: str(),
+    tiles: z.array(titleText).length(4),
+    inputs: z.array(str()).length(3),
+    output: str(),
+    invoices: z.array(z.object({ name: str(), before: str(), after: str() })).length(3),
+    updated: str(),
+    tasks: z.array(str()).length(4),
+    manual: str(),
+    automated: str(),
+  }),
+  method: z.object({
+    eyebrow: str(),
+    h2: str(),
+    lead: str(),
+    vs: z.object({
+      bad: z.object({ title: str(), items: z.array(str()).length(3) }),
+      good: z.object({ title: str(), items: z.array(str()).length(3) }),
+    }),
+    steps: z
+      .array(z.object({ label: str(), title: str(), text: str(), points: z.array(str()).length(3) }))
+      .length(3),
+    map: z.object({
+      caption: str(),
+      nodes: z.array(z.object({ label: str(), icon, friction: z.string().optional() })).length(5),
+      legend: z.array(str()).length(2),
+    }),
+    matrix: z.object({
+      caption: str(),
+      process: str(),
+      choices: z.array(str()).length(4),
+      rows: z.array(z.object({ process: str(), why: str(), choice: z.number().int().min(0).max(3) })).min(4).max(6),
+      note: str(),
+    }),
+    setup: z.object({ caption: str(), items: z.array(str()).length(4), done: str(), badge: str() }),
+  }),
+  services: z.object({
+    eyebrow: str(),
+    h2: str(),
+    chips: z.array(iconLabel).min(8).max(10),
+    chips2: z.array(str()).min(8).max(10),
+    orbit: z.object({
+      core: str(),
+      inner: z.array(str()).length(4),
+      outer: z.array(str()).length(4),
+      h3: str(),
+      lead: str(),
+      points: z.array(str()).length(3),
+    }),
+  }),
+  sectors: z.object({
+    eyebrow: str(),
+    h2: str(),
+    label: str(),
+    tabs: z.array(z.object({ id: str(), label: str(), h3: str(), text: str(), flow: z.array(str()).length(5) })).length(3),
+  }),
+  proof: z.object({ eyebrow: str(), h2: str(), lead: str(), before: str(), after: str(), changed: str(), link: str() }),
+  offer: z.object({
+    eyebrow: str(),
+    h2: str(),
+    lead: str(),
+    includes: z.array(str()).length(4),
+    priceLabel: str(),
+    priceValue: str(),
+    priceNote: str(),
+    funding: str(),
+  }),
+  faqTitle: str(),
+  faq: z.array(qa).length(4),
 });
 
 const diagnostic = z.object({
   page: z.literal('diagnostic'),
   ...base,
-  price: z.object({ h2: str(), amount: str(), credit: str(), duration: str(), note: str() }),
+  price: z.object({ h2: str(), value: str(), note: str(), credit: str() }),
   deliverables: z.object({ h2: str(), items: z.array(z.object({ title: str(), text: str(), icon })).length(4) }),
   process: z.object({ h2: str(), steps: z.array(str()).length(4) }),
   funding: titleText,
   form: z.object({ h2: str(), lead: str() }),
+  faqTitle: str(),
   faq: z.array(qa).length(4),
 });
 
-const outils = z.object({
-  page: z.literal('outils'),
+const realisations = z.object({
+  page: z.literal('realisations'),
   ...base,
-  tools: z.array(z.object({ route: z.enum(['outils/calculateur-ressaisie', 'outils/autoevaluation']), title: str(), text: str(), icon })).length(2),
-});
-
-const calculateur = z.object({
-  page: z.literal('calculateur'),
-  ...base,
-  howTo: z.object({ h2: str(), items: z.array(str()).min(2).max(5) }),
-  next: titleText,
-});
-
-const autoevaluation = z.object({
-  page: z.literal('autoevaluation'),
-  ...base,
-  intro: z.object({ h2: str(), items: z.array(str()).min(2).max(4) }),
-  next: titleText,
-});
-
-const approche = z.object({
-  page: z.literal('approche'),
-  ...base,
-  steps: z.object({
-    h2: str(),
-    items: z.array(z.object({ text: str(), details: z.array(str()).min(2).max(5) })).length(4),
-  }),
-  agnostic: z.object({ h2: str(), text: str(), points: z.array(str()).min(2).max(5) }),
-  receive: z.object({ h2: str(), items: z.array(z.object({ title: str(), text: str(), icon })).length(3) }),
-  thread: titleText,
-});
-
-const confiance = z.object({
-  page: z.literal('confiance'),
-  ...base,
-  commitments: z.object({ h2: str(), items: z.array(z.object({ text: str(), icon })).min(4).max(6) }),
-  health: z.object({ h2: str(), paragraphs: z.array(str()).min(1).max(4) }),
-  rprp: z.object({ h2: str(), text: str(), contact: str() }),
-  beforeAfter: z.object({ h2: str(), lead: str() }),
-});
-
-const aPropos = z.object({
-  page: z.literal('a-propos'),
-  ...base,
-  founder: z.object({ h2: str(), name: str(), role: str(), bio: z.array(str()).min(1).max(4), photo: str() }),
-  experience: z.object({ h2: str(), items: z.array(titleText).length(3) }),
-  company: z.object({ h2: str(), paragraphs: z.array(str()).min(1).max(4) }),
+  before: str(),
+  system: str(),
+  changed: str(),
+  note: str(),
 });
 
 const contact = z.object({
@@ -193,10 +172,11 @@ const contact = z.object({
   details: z.object({ h2: str(), email: str(), phone: str(), address: str(), hours: str() }),
   form: z.object({ h2: str(), lead: str() }),
   booking: titleText,
+  about: z.object({ h2: str(), paragraphs: z.array(str()).min(1).max(3) }),
 });
 
 const index = z.object({
-  page: z.enum(['services', 'secteurs', 'realisations', 'ressources', '404', 'styleguide']),
+  page: z.enum(['404', 'styleguide']),
   ...base,
   note: z.string().optional(),
 });
@@ -210,19 +190,7 @@ const prose = z.object({
 
 const pages = defineCollection({
   loader: glob({ pattern: '{fr,en}/*.md', base: './src/content/pages' }),
-  schema: z.discriminatedUnion('page', [
-    accueil,
-    diagnostic,
-    outils,
-    calculateur,
-    autoevaluation,
-    approche,
-    confiance,
-    aPropos,
-    contact,
-    index,
-    prose,
-  ]),
+  schema: z.discriminatedUnion('page', [accueil, diagnostic, realisations, contact, index, prose]),
 });
 
-export const collections = { services, secteurs, cas, blogue, pages };
+export const collections = { cas, pages };

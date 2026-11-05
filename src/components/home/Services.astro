@@ -1,0 +1,240 @@
+---
+/** Ce qu'on automatise : deux rubans qui défilent, puis l'orbite « vos outils actuels restent ». */
+import Icon from '../Icon.astro';
+import type { IconName } from '../icons/lucide';
+
+interface Props {
+  services: {
+    eyebrow: string;
+    h2: string;
+    chips: { icon: IconName; label: string }[];
+    chips2: string[];
+    orbit: { core: string; inner: string[]; outer: string[]; h3: string; lead: string; points: string[] };
+  };
+}
+
+const { services } = Astro.props;
+const angles = (n: number, offset: number) => Array.from({ length: n }, (_, i) => offset + (360 / n) * i);
+---
+
+<section class="section section--surface services" id="services" aria-labelledby="h-services">
+  <div class="container">
+    <div class="section__head"><span class="eyebrow">{services.eyebrow}</span><h2 id="h-services">{services.h2}</h2></div>
+  </div>
+  <ul class="marquee" role="list" aria-label={services.h2}>
+    <li class="marquee__track">
+      {[...services.chips, ...services.chips].map((c, i) => <span class="cap" aria-hidden={i >= services.chips.length ? 'true' : undefined}><Icon name={c.icon} />{c.label}</span>)}
+    </li>
+  </ul>
+  <div class="marquee marquee--rev" aria-hidden="true">
+    <div class="marquee__track">
+      {[...services.chips2, ...services.chips2].map((c) => <span class="cap">{c}</span>)}
+    </div>
+  </div>
+  <div class="container orbit-grid">
+    <div class="orbit" aria-hidden="true">
+      <div class="ring ring--outer">
+        {services.orbit.outer.map((label, i) => <div class="it" style={`--a: ${angles(4, 0)[i]}deg`}><span>{label}</span></div>)}
+      </div>
+      <div class="ring ring--inner">
+        {services.orbit.inner.map((label, i) => <div class="it" style={`--a: ${angles(4, 45)[i]}deg`}><span>{label}</span></div>)}
+      </div>
+      <div class="core"><div><b></b>{services.orbit.core}</div></div>
+    </div>
+    <div class="orbit__text">
+      <h3>{services.orbit.h3}</h3>
+      <p class="lead">{services.orbit.lead}</p>
+      <ul class="checklist" role="list">
+        {services.orbit.points.map((p) => <li><Icon name="check" /><span>{p}</span></li>)}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  @layer components {
+    .services {
+      overflow-x: hidden;
+    }
+
+    .marquee {
+      overflow: hidden;
+      mask-image: linear-gradient(90deg, transparent, var(--white) 8%, var(--white) 92%, transparent);
+      padding-block: var(--sp-1);
+    }
+
+    .marquee__track {
+      display: flex;
+      gap: var(--sp-2);
+      inline-size: max-content;
+    }
+
+    .cap {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-4);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-round);
+      background: var(--bg);
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-medium);
+      white-space: nowrap;
+      color: var(--color-text);
+
+      & svg {
+        inline-size: var(--icon-sm);
+        block-size: var(--icon-sm);
+        color: var(--jade-600);
+      }
+    }
+
+    .orbit-grid {
+      display: grid;
+      gap: var(--sp-8);
+      align-items: center;
+      margin-block-start: var(--sp-16);
+
+      @media (min-width: 900px) {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .orbit {
+      position: relative;
+      aspect-ratio: 1;
+      max-inline-size: 440px;
+      inline-size: 100%;
+      margin-inline: auto;
+      container-type: inline-size;
+    }
+
+    .ring {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-round);
+      border: var(--border-w) dashed var(--line);
+    }
+
+    .ring--inner {
+      inset: 28%;
+    }
+
+    .ring--outer {
+      inset: 7%;
+    }
+
+    .it {
+      position: absolute;
+      inset-block-start: 50%;
+      inset-inline-start: 50%;
+      transform: translate(-50%, -50%) rotate(var(--a)) translate(var(--rad)) rotate(calc(-1 * var(--a)));
+
+      & span {
+        display: inline-flex;
+        align-items: center;
+        padding: var(--sp-2) var(--sp-3);
+        border-radius: var(--radius-round);
+        border: var(--border-w) solid var(--line);
+        background: var(--bg);
+        box-shadow: var(--shadow-2);
+        font-size: clamp(var(--fs-2xs), 2.6cqi, var(--fs-xs));
+        font-weight: var(--fw-semibold);
+        color: var(--color-text-2);
+        white-space: nowrap;
+      }
+    }
+
+    .ring--inner .it {
+      --rad: 22cqi;
+    }
+
+    .ring--outer .it {
+      --rad: 43cqi;
+    }
+
+    .core {
+      position: absolute;
+      inset-inline-start: 50%;
+      inset-block-start: 50%;
+      transform: translate(-50%, -50%);
+      inline-size: 28%;
+      aspect-ratio: 1;
+      border-radius: var(--radius-round);
+      background: var(--bg);
+      border: var(--border-w) solid var(--line);
+      box-shadow: 0 0 0 12px var(--glow), var(--shadow-2);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: clamp(var(--fs-2xs), 2.8cqi, var(--fs-xs));
+      font-weight: var(--fw-semibold);
+      line-height: var(--lh-snug);
+      color: var(--color-text);
+      padding: var(--sp-2);
+
+      & b {
+        display: block;
+        inline-size: 14px;
+        block-size: 14px;
+        border-radius: var(--radius-round);
+        background: var(--jade-600);
+        margin: 0 auto var(--sp-1);
+      }
+    }
+
+    .orbit__text {
+      display: grid;
+      gap: var(--sp-4);
+
+      & h3 {
+        font-size: var(--fs-h3-lg);
+      }
+    }
+  }
+
+  @layer motion {
+    @media (prefers-reduced-motion: no-preference) {
+      .marquee__track {
+        animation: scroll var(--dur-marquee) linear infinite;
+      }
+
+      .marquee--rev .marquee__track {
+        animation-direction: reverse;
+      }
+
+      .marquee:hover .marquee__track {
+        animation-play-state: paused;
+      }
+
+      .ring--inner {
+        animation: spin var(--dur-orbit) linear infinite;
+      }
+
+      .ring--outer {
+        animation: spin var(--dur-orbit-2) linear infinite reverse;
+      }
+
+      .ring--inner .it span {
+        animation: spin var(--dur-orbit) linear infinite reverse;
+      }
+
+      .ring--outer .it span {
+        animation: spin var(--dur-orbit-2) linear infinite;
+      }
+    }
+
+    @keyframes scroll {
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  }
+</style>

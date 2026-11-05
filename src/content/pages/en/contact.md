@@ -16,4 +16,9 @@ form:
 booking:
   title: "Book a meeting"
   text: "Prefer to talk it through? Choose a time that suits you in our external booking tool."
+about:
+  h2: "Who is behind ameb"
+  paragraphs:
+    - "ameb is the brand of Services AMEB inc., a firm based in Montréal. Its founder first worked at the heart of operations, in events, managed IT and clinics [BACKGROUND TO BE CONFIRMED]."
+    - "From that ground, one conviction: most pain points come from tools that do not talk to each other, not from a lack of software. Hence an approach without a mould: we analyze the way you work, and the technology adapts to it."
 ---

@@ -1,0 +1,172 @@
+---
+/**
+ * Ordre de grandeur du coût de la ressaisie (ADR-012 : fourchette arrondie, jamais un chiffre exact).
+ * Sans JS : les curseurs restent utilisables et la formule est affichée en texte.
+ */
+import { CALC_LIMITS, annualCost, formatRange } from '../../lib/calc';
+import type { Lang } from '../../i18n/routes';
+import { t } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  calc: { eyebrow: string; h2: string; employees: string; hours: string; rate: string; resultLabel: string; note: string };
+}
+
+const { lang, calc } = Astro.props;
+const words = { about: t(lang, 'calc.about'), to: t(lang, 'calc.to') };
+const d = { employees: CALC_LIMITS.employees.default, hours: CALC_LIMITS.hours.default, rate: CALC_LIMITS.rate.default };
+const initial = formatRange(annualCost(d), lang, words);
+const fields = [
+  { name: 'employees', label: calc.employees, lim: CALC_LIMITS.employees, suffix: '' },
+  { name: 'hours', label: calc.hours, lim: CALC_LIMITS.hours, suffix: '' },
+  { name: 'rate', label: calc.rate, lim: CALC_LIMITS.rate, suffix: ' $' },
+] as const;
+---
+
+<section class="container calc-wrap" aria-labelledby="h-calc">
+  <div class="calc" data-calc data-lang={lang} data-about={words.about} data-to={words.to}>
+    <div>
+      <span class="eyebrow">{calc.eyebrow}</span>
+      <h2 id="h-calc" class="calc__h2">{calc.h2}</h2>
+      <div class="calc__sliders">
+        {
+          fields.map((f) => (
+            <div class="calc__field">
+              <div class="calc__row">
+                <label for={`calc-${f.name}`}>{f.label}</label>
+                <output id={`calc-${f.name}-out`} for={`calc-${f.name}`} class="num">
+                  {String(f.lim.default).replace('.', lang === 'fr' ? ',' : '.')}{f.suffix}
+                </output>
+              </div>
+              <input type="range" id={`calc-${f.name}`} name={f.name} min={f.lim.min} max={f.lim.max} step={f.lim.step} value={f.lim.default} data-suffix={f.suffix} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+    <div class="calc__result" aria-live="polite" aria-atomic="true">
+      <span class="eyebrow">{calc.resultLabel}</span>
+      <span class="calc__big num" data-calc-out>{initial}</span>
+      <small>{calc.note}</small>
+      <noscript><small>{t(lang, 'calc.formula')}</small></noscript>
+    </div>
+  </div>
+</section>
+
+<style>
+  @layer components {
+    .calc-wrap {
+      padding-block-end: var(--sp-16);
+    }
+
+    .calc {
+      display: grid;
+      gap: var(--sp-6);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--bg);
+      padding: var(--sp-6);
+      box-shadow: var(--shadow-2);
+
+      @media (min-width: 900px) {
+        grid-template-columns: 3fr 2fr;
+        align-items: center;
+        gap: var(--sp-8);
+        padding: var(--sp-8);
+      }
+    }
+
+    .calc__h2 {
+      font-size: var(--fs-xl);
+      margin-block-start: var(--sp-2);
+    }
+
+    .calc__sliders {
+      display: grid;
+      gap: var(--sp-4);
+      margin-block-start: var(--sp-4);
+    }
+
+    .calc__field {
+      display: grid;
+      gap: var(--sp-1);
+
+      & .calc__row {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--sp-3);
+        font-size: var(--fs-sm);
+        font-weight: var(--fw-medium);
+        color: var(--color-text-2);
+      }
+
+      & output {
+        font-weight: var(--fw-semibold);
+        color: var(--color-text);
+      }
+
+      & input[type="range"] {
+        inline-size: 100%;
+        accent-color: var(--jade-900);
+        block-size: var(--sp-6);
+        margin: 0;
+      }
+    }
+
+    .calc__result {
+      display: grid;
+      gap: var(--sp-2);
+      padding: var(--sp-6);
+      border-radius: var(--radius-md);
+      background: var(--jade-050);
+      border: var(--border-w) solid var(--jade-100);
+
+      & small {
+        color: var(--color-text-2);
+        font-size: var(--fs-sm);
+        line-height: var(--lh-body);
+      }
+    }
+
+    .calc__big {
+      font-family: var(--font-display);
+      font-weight: var(--fw-bold);
+      font-size: var(--fs-big);
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      color: var(--color-text);
+    }
+  }
+</style>
+
+<script>
+  import { annualCost, formatRange, parseInput } from '../../lib/calc';
+  import { track } from '../../lib/track';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-calc]')) {
+    const lang = root.dataset.lang === 'en' ? 'en' : 'fr';
+    const words = { about: root.dataset.about ?? '', to: root.dataset.to ?? '' };
+    const out = root.querySelector<HTMLElement>('[data-calc-out]');
+    const inputs = [...root.querySelectorAll<HTMLInputElement>('input[type="range"]')];
+    const get = (k: string) => inputs.find((i) => i.name === k)?.value;
+    let tracked = false;
+    const render = () => {
+      const v = parseInput((k) => get(k));
+      for (const i of inputs) {
+        const o = document.getElementById(`${i.id}-out`);
+        if (o) o.textContent = `${i.value.replace('.', lang === 'fr' ? ',' : '.')}${i.dataset.suffix ?? ''}`;
+      }
+      if (out) out.textContent = formatRange(annualCost(v), lang, words);
+    };
+    for (const i of inputs) {
+      i.addEventListener('input', () => {
+        render();
+        if (!tracked) {
+          tracked = true;
+          track('calc_complete');
+        }
+      });
+    }
+    render();
+  }
+</script>

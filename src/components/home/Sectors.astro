@@ -1,0 +1,180 @@
+---
+/** Trois secteurs en onglets, chacun avec un flux de cinq étapes. */
+interface Props {
+  sectors: {
+    eyebrow: string;
+    h2: string;
+    label: string;
+    tabs: { id: string; label: string; h3: string; text: string; flow: string[] }[];
+  };
+}
+
+const { sectors } = Astro.props;
+---
+
+<section class="section" id="secteurs" aria-labelledby="h-secteurs">
+  <div class="container">
+    <div class="section__head"><span class="eyebrow">{sectors.eyebrow}</span><h2 id="h-secteurs">{sectors.h2}</h2></div>
+    <div class="tabs" role="tablist" aria-label={sectors.label} data-tabs>
+      {
+        sectors.tabs.map((tab, i) => (
+          <button type="button" class="tab" role="tab" id={`tab-${tab.id}`} aria-controls={`panel-${tab.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
+            {tab.label}
+          </button>
+        ))
+      }
+    </div>
+    {
+      sectors.tabs.map((tab, i) => (
+        <div class="tabpanel" id={`panel-${tab.id}`} role="tabpanel" aria-labelledby={`tab-${tab.id}`} hidden={i > 0}>
+          <div>
+            <h3>{tab.h3}</h3>
+            <p>{tab.text}</p>
+          </div>
+          <ol class="flow" role="list">
+            {tab.flow.map((step, n) => <li class="flow__node"><i>{n + 1}</i>{step}</li>)}
+          </ol>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  @layer components {
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-1);
+      padding: var(--sp-1);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      inline-size: fit-content;
+      max-inline-size: 100%;
+    }
+
+    .tab {
+      border: 0;
+      background: transparent;
+      border-radius: var(--radius-md);
+      padding: var(--sp-3) var(--sp-4);
+      min-block-size: var(--sp-12);
+      font-family: var(--font-display);
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-semibold);
+      color: var(--color-text-2);
+
+      &[aria-selected="true"] {
+        background: var(--bg);
+        color: var(--color-text);
+        box-shadow: var(--shadow-2);
+      }
+    }
+
+    .tabpanel {
+      margin-block-start: var(--sp-6);
+      display: grid;
+      gap: var(--sp-6);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-6);
+      background: var(--bg);
+
+      &[hidden] {
+        display: none;
+      }
+
+      & h3 {
+        font-size: var(--fs-lg);
+      }
+
+      & p {
+        margin-block-start: var(--sp-2);
+        color: var(--color-text-2);
+      }
+
+      @media (min-width: 900px) {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+        align-items: center;
+        gap: var(--sp-8);
+      }
+    }
+
+    .flow {
+      display: grid;
+      gap: var(--sp-2);
+
+      @media (min-width: 640px) {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    .flow__node {
+      display: grid;
+      gap: var(--sp-2);
+      justify-items: start;
+      padding: var(--sp-3);
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      border: var(--border-w) solid var(--line);
+      font-size: var(--fs-xs);
+      font-weight: var(--fw-semibold);
+      color: var(--color-text);
+      position: relative;
+
+      & i {
+        inline-size: 28px;
+        block-size: 28px;
+        border-radius: var(--radius-round);
+        background: var(--band);
+        color: var(--white);
+        display: grid;
+        place-items: center;
+        font-family: var(--font-display);
+        font-style: normal;
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-bold);
+      }
+
+      @media (min-width: 640px) {
+        &:not(:last-child)::after {
+          content: "";
+          position: absolute;
+          inset-inline-end: calc(-1 * var(--sp-2));
+          inset-block-start: var(--sp-6);
+          inline-size: var(--sp-2);
+          block-size: 2px;
+          background: var(--jade-600);
+        }
+      }
+    }
+  }
+</style>
+
+<script>
+  for (const list of document.querySelectorAll<HTMLElement>('[data-tabs]')) {
+    const tabs = [...list.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const select = (tab: HTMLButtonElement, focus: boolean) => {
+      for (const other of tabs) {
+        const on = other === tab;
+        other.setAttribute('aria-selected', String(on));
+        other.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(other.getAttribute('aria-controls') ?? '');
+        if (panel) panel.hidden = !on;
+      }
+      if (focus) tab.focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab, false));
+      tab.addEventListener('keydown', (e) => {
+        const n = tabs.length;
+        const next = { ArrowRight: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, Home: 0, End: n - 1 }[e.key];
+        if (next === undefined) return;
+        e.preventDefault();
+        const target = tabs[next];
+        if (target) select(target, true);
+      });
+    });
+  }
+</script>

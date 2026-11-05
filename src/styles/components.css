@@ -32,7 +32,7 @@
 
   .btn--primary {
     background: var(--color-action);
-    color: var(--color-on-strong);
+    color: var(--color-action-fg);
 
     &:hover {
       background: var(--color-action-hover);
@@ -62,7 +62,7 @@
   /* Variante claire : sur fond jade profond */
   .btn--light {
     background: var(--white);
-    color: var(--jade-900);
+    color: var(--band);
 
     &:hover {
       background: var(--jade-100);
@@ -115,8 +115,8 @@
     inline-size: var(--sp-12);
     block-size: var(--sp-12);
     border-radius: var(--radius-md);
-    background: var(--jade-100);
-    color: var(--jade-900);
+    background: var(--color-badge);
+    color: var(--color-badge-fg);
   }
 
   /* ---------- Carte ---------- */
@@ -193,8 +193,8 @@
     gap: var(--sp-1);
     padding: var(--sp-1) var(--sp-3);
     border-radius: var(--radius-round);
-    background: var(--jade-100);
-    color: var(--jade-900);
+    background: var(--color-badge);
+    color: var(--color-badge-fg);
     font-size: var(--fs-sm);
     font-weight: var(--fw-semibold);
     line-height: var(--lh-snug);
@@ -202,10 +202,23 @@
   }
 
   .eyebrow {
-    font-family: var(--font-display);
-    font-size: var(--fs-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-family: var(--font-body);
+    font-size: var(--fs-xs);
     font-weight: var(--fw-semibold);
+    letter-spacing: .09em;
+    text-transform: uppercase;
     color: var(--jade-900);
+
+    &::before {
+      content: "";
+      inline-size: var(--sp-2);
+      block-size: var(--sp-2);
+      border-radius: var(--radius-round);
+      background: var(--jade-600);
+    }
   }
 
   /* ---------- Encadré ---------- */
@@ -237,7 +250,7 @@
 
   /* ---------- Bandeau fort (jade profond) ---------- */
   .strong-band {
-    background: var(--jade-900);
+    background: var(--band);
     color: var(--color-on-strong);
 
     & h2,
@@ -315,8 +328,8 @@
 
   /* ---------- Marqueur [À CONFIRMER] ---------- */
   .tbc {
-    background: var(--jade-100);
-    color: var(--jade-900);
+    background: var(--color-badge);
+    color: var(--color-badge-fg);
     border-radius: var(--radius-sm);
     padding-inline: var(--sp-1);
     font-weight: var(--fw-semibold);
@@ -416,8 +429,8 @@
   }
 
   .form-status--success {
-    background: var(--jade-100);
-    color: var(--jade-900);
+    background: var(--color-badge);
+    color: var(--color-badge-fg);
   }
 
   .form-status--error {
@@ -476,82 +489,5 @@
     color: var(--color-text-2);
     display: grid;
     gap: var(--sp-3);
-  }
-
-  /* ---------- Étapes ---------- */
-  .steps-wrap {
-    position: relative;
-  }
-
-  .steps {
-    position: relative;
-    display: grid;
-    gap: var(--sp-8);
-    list-style: none;
-    padding: 0;
-    counter-reset: step;
-
-    @media (min-width: 900px) {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: var(--gutter);
-    }
-  }
-
-  .steps__line {
-    position: absolute;
-    inset-block: var(--sp-6);
-    inset-inline-start: calc(var(--sp-6) - var(--border-w));
-    inline-size: var(--focus-w);
-    background: var(--jade-600);
-    transform-origin: top;
-
-    @media (min-width: 900px) {
-      inset-block: calc(var(--sp-6) - var(--border-w)) auto;
-      inset-inline: var(--sp-6) auto;
-      inline-size: calc(75% + .75 * var(--gutter));
-      block-size: var(--focus-w);
-      transform-origin: left;
-    }
-  }
-
-  .steps__item {
-    position: relative;
-    display: grid;
-    gap: var(--sp-2);
-    grid-template-columns: var(--sp-12) 1fr;
-    column-gap: var(--sp-4);
-
-    @media (min-width: 900px) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .steps__num {
-    grid-row: span 2;
-    display: grid;
-    place-items: center;
-    inline-size: var(--sp-12);
-    block-size: var(--sp-12);
-    border-radius: var(--radius-round);
-    background: var(--jade-900);
-    color: var(--color-on-strong);
-    font-family: var(--font-display);
-    font-weight: var(--fw-bold);
-    font-size: var(--fs-lg);
-    position: relative;
-    z-index: 1;
-
-    @media (min-width: 900px) {
-      grid-row: auto;
-      margin-block-end: var(--sp-2);
-    }
-  }
-
-  .steps__item h3 {
-    font-size: var(--fs-lg);
-  }
-
-  .steps__item p {
-    color: var(--color-text-2);
   }
 }

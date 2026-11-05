@@ -1,0 +1,141 @@
+---
+/** L'offre d'entrée : carte du diagnostic avec bordure lumineuse qui tourne (ADR-012 : aucun montant). */
+import Button from '../Button.astro';
+import Icon from '../Icon.astro';
+import { url, type Lang } from '../../i18n/routes';
+import { t } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  offer: { eyebrow: string; h2: string; lead: string; includes: string[]; priceLabel: string; priceValue: string; priceNote: string; funding: string };
+}
+
+const { lang, offer } = Astro.props;
+---
+
+<section class="section" id="offre" aria-labelledby="h-offre">
+  <div class="container">
+    <div class="offer">
+      <div class="offer__in">
+        <div class="offer__text">
+          <span class="eyebrow">{offer.eyebrow}</span>
+          <h2 id="h-offre">{offer.h2}</h2>
+          <p class="lead">{offer.lead}</p>
+          <ul class="checklist" role="list">
+            {offer.includes.map((i) => <li><Icon name="check" /><span>{i}</span></li>)}
+          </ul>
+        </div>
+        <div class="price">
+          <span class="eyebrow">{offer.priceLabel}</span>
+          <span class="price__v">{offer.priceValue}</span>
+          <small>{offer.priceNote}</small>
+          <Button href={url('diagnostic', lang)} icon="arrow-right" track="cta_diagnostic" placement="offer">{t(lang, 'cta.diagnostic')}</Button>
+          <div class="price__fund"><Icon name="building-2" /><span>{offer.funding}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @property --ang {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  @layer components {
+    .offer {
+      position: relative;
+      border-radius: var(--radius-lg);
+      padding: var(--border-w);
+      background: conic-gradient(from var(--ang), var(--line) 0 72%, var(--jade-600) 86%, var(--line) 100%);
+      max-inline-size: 960px;
+      margin-inline: auto;
+    }
+
+    .offer__in {
+      border-radius: calc(var(--radius-lg) - var(--border-w));
+      background: var(--bg);
+      display: grid;
+      gap: var(--sp-8);
+      padding: var(--sp-6);
+
+      @media (min-width: 900px) {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+        gap: var(--sp-12);
+        padding: var(--sp-12);
+      }
+    }
+
+    .offer__text {
+      display: grid;
+      gap: var(--sp-4);
+      align-content: start;
+
+      & h2 {
+        font-size: var(--fs-h3-lg);
+      }
+
+      & .lead {
+        font-size: var(--fs-md);
+      }
+    }
+
+    .price {
+      display: grid;
+      gap: var(--sp-3);
+      padding: var(--sp-6);
+      border-radius: var(--radius-md);
+      background: var(--jade-050);
+      border: var(--border-w) solid var(--jade-100);
+      align-content: start;
+      justify-items: start;
+
+      & small {
+        color: var(--color-text-2);
+        font-size: var(--fs-sm);
+        line-height: var(--lh-body);
+      }
+    }
+
+    .price__v {
+      font-family: var(--font-display);
+      font-size: var(--fs-xl);
+      font-weight: var(--fw-bold);
+      line-height: var(--lh-tight);
+      letter-spacing: -.02em;
+    }
+
+    .price__fund {
+      display: flex;
+      gap: var(--sp-2);
+      align-items: start;
+      font-size: var(--fs-xs);
+      color: var(--color-text-2);
+      padding-block-start: var(--sp-3);
+      border-block-start: var(--border-w) solid var(--line);
+
+      & svg {
+        inline-size: var(--icon-sm);
+        block-size: var(--icon-sm);
+        color: var(--jade-600);
+        flex: none;
+      }
+    }
+  }
+
+  @layer motion {
+    @media (prefers-reduced-motion: no-preference) {
+      .offer {
+        animation: turn var(--dur-turn) linear infinite;
+      }
+    }
+
+    @keyframes turn {
+      to {
+        --ang: 360deg;
+      }
+    }
+  }
+</style>

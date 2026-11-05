@@ -1,14 +1,8 @@
 ---
-title: "Cas : une clinique relie rendez-vous et facturation"
-description: "Clinique privée multidisciplinaire : rendez-vous en ligne, rappels, facturation et suivi post-visite reliés, sous un mandat écrit. Cas anonymisé."
 order: 3
-sector: "cliniques"
+sectorLabel: "Clinique privée multidisciplinaire"
 name: "Une clinique qui a relié ses rendez-vous, ses rappels et sa facturation"
 summary: "Une clinique privée multidisciplinaire a remplacé les rappels faits à la main et la facturation en fin de journée par un flux relié et documenté."
-h1: "Une clinique privée multidisciplinaire qui a relié rendez-vous, rappels et facturation"
-lead: "La réception gérait l’agenda de plusieurs professionnels, les rappels par téléphone et la facturation en fin de journée. On a relié ces étapes administratives, dans un mandat encadré par écrit."
-sectorLabel: "Clinique privée multidisciplinaire"
-size: "Fourchette à confirmer [À CONFIRMER]"
 before:
   - "Les demandes de rendez-vous arrivaient par téléphone et par courriel, et la réception reportait tout à la main dans l’agenda de chaque professionnel."
   - "Les rappels se faisaient par téléphone quand le temps le permettait, et les absences laissaient des plages vides."
@@ -20,8 +14,5 @@ system:
   - "Facture et reçu préparés à la fin du rendez-vous, avec paiement en ligne et relances des soldes impayés"
   - "Message de suivi post-visite et court sondage de satisfaction"
   - "Documentation des flux et des accès, encadrée par une entente écrite et remise à la clinique"
-results:
-  - "Taux d’absence aux rendez-vous : [À CONFIRMER]"
-  - "Temps consacré chaque jour à la facturation et aux rappels : [À CONFIRMER]"
-delay: "[À CONFIRMER]"
+changed: "La réception ne jongle plus entre l’agenda, les rappels et la facturation : les rappels partent seuls et la facture suit le rendez-vous."
 ---

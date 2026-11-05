@@ -1,0 +1,25 @@
+---
+import Page from '../layouts/Page.astro';
+import CaseCards from '../components/CaseCards.astro';
+import Icon from '../components/Icon.astro';
+import type { Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+import { getPage, listEntries } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { data } = await getPage('realisations', lang);
+const cases = await listEntries('cas', lang);
+---
+
+<Page lang={lang} routeKey="realisations" title={data.title} description={data.description} h1={data.h1} lead={data.lead} crumbs={[{ label: t(lang, 'nav.realisations') }]}>
+  <section class="section section--surface" aria-label={data.h1}>
+    <div class="container stack stack-lg">
+      <p class="callout"><Icon name="info" /><span>{data.note}</span></p>
+      <CaseCards lang={lang} cases={cases} labels={{ before: data.before, system: data.system, changed: data.changed }} full level="h2" />
+    </div>
+  </section>
+</Page>

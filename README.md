@@ -4,7 +4,8 @@ Site bilingue (français à la racine, anglais sous `/en/`) d'**ameb**, firme mo
 
 - **Pile** : Astro 7 (statique), TypeScript strict, CSS natif (jetons + `@layer`), aucun framework client
 - **Hébergement** : Cloudflare Pages; `POST /api/contact` = Pages Function (`functions/api/contact.ts`)
-- **Qualité mesurée** (2026-11-04) : Lighthouse mobile 99/100/100/100 sur les 8 URL cibles; axe 0 violation sérieuse sur 68 pages; Pa11y 66/66; 152 tests Playwright + 12 tests unitaires verts
+- **Sept pages par langue** (ADR-012) : accueil (message complet, sections ancrées), diagnostic, réalisations, contact, confidentialité, accessibilité, mentions légales
+- **Qualité mesurée** : voir la section « Vérifications »; chaque PR relance Lighthouse (8 URL, mobile, ≥ 95 ×4), axe et Pa11y sur tout le plan du site
 - **Pour Claude Code** : lire `CLAUDE.md`. Brief : `docs/brief.md`. Décisions : `docs/decisions/`. À confirmer avant lancement : `docs/a-confirmer.md`
 
 ## Démarrer
@@ -31,8 +32,8 @@ Le site se déploie comme **Worker à ressources statiques** : `dist/` est servi
 
 | Environnement | Worker | Indexation | Commande |
 |---|---|---|---|
-| dev (préproduction) | `ameb-site-dev` (`*.workers.dev`) | `noindex` + `robots.txt` « Disallow: / » | `npm run deploy:dev` |
-| production | `ameb-site` | normale | `npm run deploy` |
+| dev (préproduction) | `ameb-site-new-dev` (`*.workers.dev`) | `noindex` + `robots.txt` « Disallow: / » | `npm run deploy:dev` |
+| production | `ameb-site-new` | normale | `npm run deploy` |
 
 ### Mode dev, depuis votre poste
 
@@ -69,13 +70,13 @@ npm run cf:dev
 ### Mode dev, par Git (Workers Builds)
 
 Dans le tableau de bord Cloudflare, créer un Worker relié au dépôt GitHub :
-- nom du Worker : `ameb-site-dev` (doit correspondre à `env.dev.name`);
-- commande de build : `npm run build:dev`;
+- nom du Worker : `ameb-site-new-dev` (doit correspondre à `env.dev.name`);
+- commande de build : laisser vide (`wrangler.jsonc` compile le site lui-même avant le déploiement) ou `npm run build:dev`;
 - commande de déploiement : `npx wrangler deploy --env dev`;
 - variables de build : `PUBLIC_TURNSTILE_SITEKEY` (et au besoin `PUBLIC_BOOKING_URL`, `PUBLIC_ANALYTICS_SRC`, `PUBLIC_ANALYTICS_ID`);
 - secrets du Worker : `TURNSTILE_SECRET`, `N8N_WEBHOOK_URL`, `N8N_WEBHOOK_SECRET`.
 
-Pour la production, même chose avec le Worker `ameb-site`, la commande de build `npm run build` et la commande de déploiement `npx wrangler deploy` (variable de build `SITE_URL` = domaine définitif).
+Pour la production, même chose avec le Worker `ameb-site-new` (le nom déclaré dans `wrangler.jsonc` doit être exactement celui du Worker dans le tableau de bord), la commande de build `npm run build` et la commande de déploiement `npx wrangler deploy` (variable de build `SITE_URL` = domaine définitif).
 
 ### Cloudflare Pages (autre option)
 

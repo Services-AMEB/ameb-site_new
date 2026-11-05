@@ -113,6 +113,28 @@
     unicode-range: U+0100-0130, U+0132-0151, U+0154-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
   }
 
+  /*
+   * Polices de repli aux métriques ajustées (calculées par rapport à Liberation Sans / Arial) :
+   * le texte occupe la même place avant et après le chargement de Sora et d'Inter → aucun décalage (CLS).
+   */
+  @font-face {
+    font-family: "Sora Fallback";
+    src: local("Arial"), local("Liberation Sans"), local("Helvetica Neue"), local("Helvetica");
+    size-adjust: 116.17%;
+    ascent-override: 83.5%;
+    descent-override: 24.96%;
+    line-gap-override: 0%;
+  }
+
+  @font-face {
+    font-family: "Inter Fallback";
+    src: local("Arial"), local("Liberation Sans"), local("Helvetica Neue"), local("Helvetica");
+    size-adjust: 107.47%;
+    ascent-override: 90.14%;
+    descent-override: 22.44%;
+    line-gap-override: 0%;
+  }
+
   html {
     scroll-padding-top: var(--scroll-pad);
     color-scheme: light;

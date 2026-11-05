@@ -5,7 +5,7 @@ import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 import type { Lang } from '../i18n/routes';
 import { typo } from './typo';
 
-type Collection = 'services' | 'secteurs' | 'cas' | 'blogue' | 'pages';
+type Collection = 'cas' | 'pages';
 
 /** Applique la typographie à toutes les chaînes d'un objet (récursif). */
 export function deepTypo<T>(value: T, lang: Lang): T {

@@ -1,18 +1,19 @@
 ---
 import Base from '../layouts/Base.astro';
-import Hero from '../components/Hero.astro';
-import SectionSilo from '../components/SectionSilo.astro';
-import Card from '../components/Card.astro';
-import CaseCard from '../components/CaseCard.astro';
-import Steps from '../components/Steps.astro';
-import FlowLine from '../components/FlowLine.astro';
+import Hero from '../components/home/Hero.astro';
+import Calc from '../components/home/Calc.astro';
+import Gains from '../components/home/Gains.astro';
+import Method from '../components/home/Method.astro';
+import Services from '../components/home/Services.astro';
+import Sectors from '../components/home/Sectors.astro';
+import Offer from '../components/home/Offer.astro';
+import CaseCards from '../components/CaseCards.astro';
+import FAQ from '../components/FAQ.astro';
 import FinalCta from '../components/FinalCta.astro';
 import Icon from '../components/Icon.astro';
-import { url, type Lang, type RouteKey } from '../i18n/routes';
-import { t } from '../i18n/ui';
-import { getPage, keyOf, listEntries } from '../lib/content';
-import { annualCost, formatMoney, CALC_LIMITS } from '../lib/calc';
-import { organizationLd } from '../lib/seo';
+import { url, type Lang } from '../i18n/routes';
+import { getPage, listEntries } from '../lib/content';
+import { faqLd, organizationLd } from '../lib/seo';
 
 interface Props {
   lang: Lang;
@@ -20,178 +21,37 @@ interface Props {
 
 const { lang } = Astro.props;
 const { data } = await getPage('accueil', lang);
-const services = await listEntries('services', lang);
-const secteurs = await listEntries('secteurs', lang);
-const cas = await listEntries('cas', lang);
-const amount = formatMoney(
-  annualCost({ employees: 1, hours: CALC_LIMITS.hours.default, rate: CALC_LIMITS.rate.default }),
-  lang,
-);
+const cases = await listEntries('cas', lang);
 ---
 
-<Base lang={lang} routeKey="home" title={data.title} description={data.description} jsonLd={organizationLd(lang, Astro.site)}>
-  <Hero lang={lang} h1={data.hero.h1} lead={data.hero.lead} proof={data.hero.proof} />
+<Base lang={lang} routeKey="home" title={data.title} description={data.description} jsonLd={[...organizationLd(lang, Astro.site), faqLd(data.faq)]}>
+  <Hero lang={lang} hero={data.hero} panel={data.panel} />
+  <Calc lang={lang} calc={data.calc} />
+  <Gains lang={lang} gains={data.gains} />
+  <Method lang={lang} method={data.method} />
+  <Services services={data.services} />
+  <Sectors sectors={data.sectors} />
 
-  <SectionSilo lang={lang} />
-
-  <section class="section" aria-labelledby="h-pains">
-    <div class="container">
-      <div class="section__head"><h2 id="h-pains">{data.pains.h2}</h2></div>
-      <div class="cards cards--4">
-        {data.pains.items.map((p) => <Card title={p.title} text={p.text} icon={p.icon} />)}
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--alt" aria-labelledby="h-cost">
-    <div class="container cost">
-      <h2 id="h-cost">{data.cost.h2}</h2>
-      <p class="cost__sentence">
-        {data.cost.before} <strong class="proof cost__amount">{amount}</strong> {data.cost.after}
-      </p>
-      <p class="cost__note">{data.cost.note}</p>
-      <a class="link" href={url('outils/calculateur-ressaisie', lang)}>{data.cost.link}<Icon name="arrow-right" /></a>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="h-automate">
+  <section class="section section--surface" id="preuve" aria-labelledby="h-preuve">
     <div class="container">
       <div class="section__head">
-        <h2 id="h-automate">{data.automate.h2}</h2>
-        <p>{data.automate.lead}</p>
+        <span class="eyebrow">{data.proof.eyebrow}</span>
+        <h2 id="h-preuve">{data.proof.h2}</h2>
+        <p>{data.proof.lead}</p>
       </div>
-      <div class="cards cards--3">
-        {
-          services.map((s) => (
-            <Card
-              title={s.data.name}
-              text={s.data.summary}
-              icon={s.data.icon}
-              href={url(`services/${keyOf(s)}` as RouteKey, lang)}
-              more={t(lang, 'cta.learnMore')}
-              variant="white"
-            />
-          ))
-        }
-      </div>
+      <CaseCards lang={lang} cases={cases} labels={{ before: data.proof.before, after: data.proof.after, changed: data.proof.changed }} />
+      <p class="mt-8"><a class="link" href={url('realisations', lang)}>{data.proof.link}<Icon name="arrow-right" /></a></p>
     </div>
   </section>
 
-  <section class="section section--surface" aria-labelledby="h-sectors">
+  <Offer lang={lang} offer={data.offer} />
+
+  <section class="section section--surface" aria-labelledby="h-faq">
     <div class="container">
-      <div class="section__head">
-        <h2 id="h-sectors">{data.sectors.h2}</h2>
-        <p>{data.sectors.lead}</p>
-      </div>
-      <div class="cards cards--3">
-        {
-          secteurs.map((s) => (
-            <Card
-              title={s.data.name}
-              text={s.data.summary}
-              href={url(`secteurs/${keyOf(s)}` as RouteKey, lang)}
-              more={t(lang, 'cta.learnMore')}
-              variant="white"
-            >
-              <FlowLine lang={lang} flow={s.data.flow} mini />
-            </Card>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="h-approach">
-    <div class="container">
-      <div class="section__head">
-        <h2 id="h-approach">{data.approach.h2}</h2>
-        <p>{data.approach.lead}</p>
-      </div>
-      <Steps lang={lang} texts={data.approach.steps} />
-      <p class="mt-12"><a class="link" href={url('approche', lang)}>{t(lang, 'nav.approche')}<Icon name="arrow-right" /></a></p>
-    </div>
-  </section>
-
-  <section class="section section--alt" aria-labelledby="h-agnostic">
-    <div class="container split split--even">
-      <div class="stack">
-        <h2 id="h-agnostic">{data.agnostic.h2}</h2>
-        <p class="lead">{data.agnostic.text}</p>
-      </div>
-      <ul class="checklist">
-        {data.agnostic.points.map((p) => <li><Icon name="check" /><span>{p}</span></li>)}
-      </ul>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="h-cases">
-    <div class="container">
-      <div class="section__head">
-        <h2 id="h-cases">{data.cases.h2}</h2>
-        <p>{data.cases.lead}</p>
-      </div>
-      <div class="cards cards--3">
-        {cas.map((c) => <CaseCard entry={c} lang={lang} />)}
-      </div>
-      <p class="mt-8"><a class="link" href={url('realisations', lang)}>{t(lang, 'cta.seeAllCases')}<Icon name="arrow-right" /></a></p>
-    </div>
-  </section>
-
-  <section class="section section--surface" aria-labelledby="h-trust">
-    <div class="container">
-      <div class="section__head"><h2 id="h-trust">{data.trust.h2}</h2></div>
-      <ul class="cards cards--3 trust" role="list">
-        {
-          data.trust.items.map((item) => (
-            <li class="card card--white trust__item reveal">
-              <span class="icon-tile"><Icon name={item.icon} /></span>
-              <p class="trust__text">{item.text}</p>
-            </li>
-          ))
-        }
-      </ul>
-      <p class="mt-8"><a class="link" href={url('confiance', lang)}>{data.trust.link}<Icon name="arrow-right" /></a></p>
+      <div class="section__head"><h2 id="h-faq">{data.faqTitle}</h2></div>
+      <FAQ items={data.faq} />
     </div>
   </section>
 
   <FinalCta lang={lang} placement="home-final" />
 </Base>
-
-<style>
-  @layer components {
-    .cost {
-      display: grid;
-      gap: var(--sp-4);
-      justify-items: start;
-    }
-
-    .cost__sentence {
-      font-size: var(--fs-lg);
-      max-inline-size: 40ch;
-
-      @media (min-width: 768px) {
-        font-size: var(--fs-xl);
-      }
-    }
-
-    .cost__amount {
-      display: block;
-      margin-block: var(--sp-2);
-    }
-
-    .cost__note {
-      color: var(--color-text-2);
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--sp-2);
-      align-items: center;
-    }
-
-    .trust__text {
-      font-family: var(--font-display);
-      font-weight: var(--fw-semibold);
-      font-size: var(--fs-lg);
-      color: var(--color-text) !important;
-    }
-  }
-</style>

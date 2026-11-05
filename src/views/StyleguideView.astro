@@ -1,15 +1,10 @@
 ---
-/** Guide de style (noindex) : jetons et composants. */
+/** Guide de style (noindex) : jetons et composants, dans les deux thèmes (bascule de l'en-tête). */
 import Page from '../layouts/Page.astro';
 import Button from '../components/Button.astro';
 import Card from '../components/Card.astro';
-import CaseCard from '../components/CaseCard.astro';
-import Steps from '../components/Steps.astro';
+import CaseCards from '../components/CaseCards.astro';
 import FAQ from '../components/FAQ.astro';
-import FlowLine from '../components/FlowLine.astro';
-import BeforeAfter from '../components/BeforeAfter.astro';
-import SiloScene from '../components/SiloScene.astro';
-import Sprite from '../components/icons/Sprite.astro';
 import Logo from '../components/Logo.astro';
 import Icon from '../components/Icon.astro';
 import { ICONS, type IconName } from '../components/icons/lucide';
@@ -23,16 +18,16 @@ interface Props {
 
 const { lang } = Astro.props;
 const { data } = await getPage('styleguide', lang);
-const cas = await listEntries('cas', lang);
+const cases = await listEntries('cas', lang);
 const fr = lang === 'fr';
-const colors = ['jade-900', 'jade-700', 'jade-600', 'jade-100', 'jade-050', 'slate-800', 'slate-700', 'slate-600', 'surface', 'line', 'bg', 'alert'];
+const colors = ['jade-900', 'jade-700', 'jade-600', 'jade-100', 'jade-050', 'slate-800', 'slate-700', 'slate-600', 'surface', 'line', 'bg', 'alert', 'alert-bg', 'band'];
 const spaces = ['sp-1', 'sp-2', 'sp-3', 'sp-4', 'sp-6', 'sp-8', 'sp-12', 'sp-16', 'sp-24', 'sp-32'];
-const sizes = ['fs-sm', 'fs-base', 'fs-lg', 'fs-xl', 'fs-2xl', 'fs-3xl', 'fs-h1'];
+const sizes = ['fs-2xs', 'fs-xs', 'fs-sm', 'fs-base', 'fs-md', 'fs-lg', 'fs-xl', 'fs-2xl', 'fs-3xl', 'fs-h1'];
 const icons = Object.keys(ICONS) as IconName[];
+const sample = fr ? 'La technologie s’adapte à vous.' : 'Technology adapts to you.';
 ---
 
 <Page lang={lang} routeKey="styleguide" title={data.title} description={data.description} h1={data.h1} lead={data.lead} noindex cta={false} crumbs={[{ label: data.h1 }]}>
-  <Sprite />
   <div class="container sg">
     <section aria-labelledby="sg-brand">
       <h2 id="sg-brand">{fr ? 'Marque' : 'Brand'}</h2>
@@ -44,7 +39,7 @@ const icons = Object.keys(ICONS) as IconName[];
     </section>
 
     <section aria-labelledby="sg-colors">
-      <h2 id="sg-colors">{fr ? 'Couleurs' : 'Colours'}</h2>
+      <h2 id="sg-colors">{fr ? 'Couleurs (jetons, deux thèmes)' : 'Colours (tokens, both themes)'}</h2>
       <ul class="sg__swatches" role="list">
         {colors.map((c) => <li><span class="sg__swatch" style={`background: var(--${c})`}></span><code>--{c}</code></li>)}
       </ul>
@@ -53,9 +48,9 @@ const icons = Object.keys(ICONS) as IconName[];
     <section aria-labelledby="sg-type">
       <h2 id="sg-type">{fr ? 'Typographie' : 'Typography'}</h2>
       <ul class="sg__type" role="list">
-        {sizes.map((s) => <li style={`font-size: var(--${s})`}><code>--{s}</code> {fr ? 'Vos opérations, en pilote automatique.' : 'Your operations, on autopilot.'}</li>)}
+        {sizes.map((s) => <li style={`font-size: var(--${s})`}><code>--{s}</code> {sample}</li>)}
       </ul>
-      <p class="proof">10 800 $</p>
+      <span class="eyebrow">{fr ? 'Surtitre' : 'Eyebrow'}</span>
     </section>
 
     <section aria-labelledby="sg-space">
@@ -81,17 +76,12 @@ const icons = Object.keys(ICONS) as IconName[];
 
     <section aria-labelledby="sg-cards">
       <h2 id="sg-cards">{fr ? 'Cartes' : 'Cards'}</h2>
-      <div class="cards cards--3">
+      <div class="cards cards--2">
         <Card title="Card" text="Lorem ipsum dolor sit amet." icon="workflow" />
         <Card title="Card (lien)" text="Lorem ipsum dolor sit amet." href="#sg-cards" more="En savoir plus" variant="white" />
-        {cas[0] && <CaseCard entry={cas[0]} lang={lang} />}
       </div>
       <div class="callout mt-8"><Icon name="info" /><div><h3>Callout</h3><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div></div>
-    </section>
-
-    <section aria-labelledby="sg-steps">
-      <h2 id="sg-steps">Steps</h2>
-      <Steps lang={lang} texts={['Lorem ipsum.', 'Dolor sit amet.', 'Consectetur.', 'Adipiscing elit.']} />
+      <div class="mt-8"><CaseCards lang={lang} cases={cases.slice(0, 1)} labels={{ before: fr ? 'Avant' : 'Before', after: fr ? 'Avec ameb' : 'With ameb', changed: fr ? 'Ce qui a changé' : 'What changed' }} /></div>
     </section>
 
     <section aria-labelledby="sg-faq">
@@ -109,24 +99,6 @@ const icons = Object.keys(ICONS) as IconName[];
           <p class="field__error" id="sg-err-msg"><Icon name="circle-alert" /><span>{fr ? 'Message d’erreur.' : 'Error message.'}</span></p>
         </div>
         <div class="form-status form-status--success"><Icon name="circle-check" /><span>{fr ? 'Succès.' : 'Success.'}</span></div>
-      </div>
-    </section>
-
-    <section aria-labelledby="sg-flow">
-      <h2 id="sg-flow">FlowLine</h2>
-      <FlowLine lang={lang} flow="evenementiel" tabs />
-      <div class="mt-8 measure"><FlowLine lang={lang} flow="clinique" mini /></div>
-    </section>
-
-    <section aria-labelledby="sg-ba">
-      <h2 id="sg-ba">BeforeAfter</h2>
-      <BeforeAfter lang={lang} id="ba-sg" />
-    </section>
-
-    <section aria-labelledby="sg-silo">
-      <h2 id="sg-silo">SectionSilo — {fr ? 'états' : 'states'}</h2>
-      <div class="cards cards--2">
-        {([1, 2, 3, 4] as const).map((n) => <div class="card card--white"><SiloScene lang={lang} state={n} /></div>)}
       </div>
     </section>
 
@@ -153,7 +125,7 @@ const icons = Object.keys(ICONS) as IconName[];
     }
 
     .sg__dark {
-      background: var(--jade-900);
+      background: var(--band);
       padding: var(--sp-4);
       border-radius: var(--radius-md);
     }

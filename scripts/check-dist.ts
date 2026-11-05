@@ -1,7 +1,7 @@
 /**
  * Vérifications du site compilé (dist/) :
  *  - liens internes et ancres valides;
- *  - budgets par page (gzip) : HTML ≤ 50 Ko, CSS ≤ 30 Ko, JS ≤ 20 Ko; scène SVG + CSS ≤ 10 Ko;
+ *  - budgets par page (gzip) : HTML ≤ 50 Ko, CSS ≤ 30 Ko, JS ≤ 20 Ko;
  *  - parité FR/EN des pages : même nombre de H2, un seul H1;
  *  - typographie FR : aucune espace ordinaire avant « ; : ! ? » dans le texte des pages FR.
  * Usage : npm run build && node scripts/check-dist.ts
@@ -13,7 +13,7 @@ import { ROUTES, LOCALES, type RouteKey } from '../src/i18n/routes.ts';
 
 const DIST = new URL('../dist/', import.meta.url).pathname;
 const KB = 1024;
-const BUDGET = { html: 50 * KB, css: 30 * KB, js: 20 * KB, scene: 10 * KB };
+const BUDGET = { html: 50 * KB, css: 30 * KB, js: 20 * KB };
 const problems: string[] = [];
 const report: string[] = [];
 
@@ -37,25 +37,6 @@ const visibleText = (html: string) =>
     .replace(/<style[\s\S]*?<\/style>/g, ' ')
     .replace(/<[^>]+>/g, '\u0000')
     .replace(/&nbsp;|&#160;|&#xa0;/gi, ' ');
-
-/** Règles CSS (niveau supérieur) dont le sélecteur concerne la scène silo. */
-function sceneCss(css: string): string {
-  const out: string[] = [];
-  let depth = 0;
-  let start = 0;
-  for (let i = 0; i < css.length; i++) {
-    if (css[i] === '{') depth++;
-    else if (css[i] === '}') {
-      depth--;
-      if (depth === 0) {
-        const rule = css.slice(start, i + 1);
-        if (/silo|\.s-[a-z]|s-(align|fill|in|out|fold|shift|fall|pulse|count|pop|trace|assemble|ai-move|loop)\b|--retype/.test(rule)) out.push(rule);
-        start = i + 1;
-      }
-    }
-  }
-  return out.join('');
-}
 
 const pages = [...htmlFiles(DIST)];
 for (const file of pages) {
@@ -84,19 +65,13 @@ for (const file of pages) {
   // Budgets
   const htmlGz = gz(html);
   let cssGz = 0;
-  let cssText = '';
   for (const m of html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)) {
     const f = fileFor(m[1]!);
     if (f) {
-      const c = readFileSync(f, 'utf8');
-      cssText += c;
-      cssGz += gz(c);
+      cssGz += gz(readFileSync(f, 'utf8'));
     }
   }
-  for (const m of html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)) {
-    cssText += m[1];
-    cssGz += gz(m[1]!);
-  }
+  for (const m of html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)) cssGz += gz(m[1]!);
   let jsGz = 0;
   for (const m of html.matchAll(/<script[^>]*\ssrc="(\/[^"]+)"/g)) {
     const f = fileFor(m[1]!);
@@ -106,13 +81,6 @@ for (const file of pages) {
   if (htmlGz > BUDGET.html) problems.push(`${rel} : HTML ${(htmlGz / KB).toFixed(1)} Ko gzip > 50 Ko`);
   if (cssGz > BUDGET.css) problems.push(`${rel} : CSS ${(cssGz / KB).toFixed(1)} Ko gzip > 30 Ko`);
   if (jsGz > BUDGET.js) problems.push(`${rel} : JS ${(jsGz / KB).toFixed(1)} Ko gzip > 20 Ko`);
-  if (rel === '/index.html' || rel === '/en/index.html') {
-    const scene = html.match(/<div class="silo-scene"[^>]*data-state="live"[\s\S]*?<\/svg>[\s\S]*?<\/div>\s*<\/div>/)?.[0] ?? '';
-    const sceneGz = gz(scene + sceneCss(cssText));
-    report.push(`${rel} scène silo (SVG + CSS) : ${(sceneGz / KB).toFixed(1)} Ko gzip`);
-    if (!scene) problems.push(`${rel} : scène silo introuvable`);
-    if (sceneGz > BUDGET.scene) problems.push(`${rel} : scène silo ${(sceneGz / KB).toFixed(1)} Ko gzip > 10 Ko`);
-  }
   report.push(`${rel} HTML ${(htmlGz / KB).toFixed(1)} · CSS ${(cssGz / KB).toFixed(1)} · JS ${(jsGz / KB).toFixed(1)} Ko gzip`);
 
   // Un seul H1

@@ -17,8 +17,11 @@
     --bg: #FFFFFF;
     --surface: #F4F7F6;
     --line: #DDE5E2;
-    --alert: #B4413A; /* décoratif, scène « silo » seulement */
+    --alert: #B4413A; /* décoratif : frictions dans les schémas */
+    --alert-bg: #FBEAE8;
     --white: #FFFFFF;
+    --glow: rgb(27 142 107 / 16%); /* halo jade (survol des tuiles, hub) */
+    --dot: rgb(16 32 28 / 16%); /* trame de points du hero */
 
     /* Sémantique */
     --color-text: var(--slate-800);
@@ -29,15 +32,22 @@
     --color-action-hover: var(--jade-700);
     --color-accent: var(--jade-600);
     --color-focus: var(--jade-600);
+    --band: var(--jade-900); /* aplats forts : offre, CTA final, pied de page */
     --color-on-strong: var(--white);
     --color-on-strong-2: var(--jade-100);
     --color-header-bg: rgb(255 255 255 / 92%);
     --color-backdrop: rgb(16 32 28 / 55%);
     --color-on-strong-line: rgb(255 255 255 / 24%);
+    --color-logo: var(--jade-900);
+    --color-badge: var(--jade-100);
+    --color-badge-fg: var(--jade-900);
+    --color-alt: var(--jade-050);
+    --color-action-fg: var(--white);
+    --shadow-2: 0 1px 2px rgb(16 32 28 / 6%), 0 12px 32px rgb(16 32 28 / 8%);
 
     /* Typographie */
-    --font-display: "Sora", system-ui, sans-serif;
-    --font-body: "Inter", system-ui, sans-serif;
+    --font-display: "Sora", "Sora Fallback", system-ui, sans-serif;
+    --font-body: "Inter", "Inter Fallback", system-ui, sans-serif;
     --fs-2xs: .6875rem;
     --fs-xs: .8125rem;
     --fs-btn: 1rem;
@@ -51,6 +61,9 @@
     --fs-h1: clamp(2.25rem, 1.5rem + 2.5vw, 3.5rem);
     --fs-h2: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
     --fs-proof: clamp(2.5rem, 2rem + 1.6vw, 3.25rem);
+    --fs-hero: clamp(2.5rem, 1.5rem + 3.4vw, 4.2rem);
+    --fs-big: clamp(2rem, 1.4rem + 2vw, 2.5rem);
+    --fs-h3-lg: clamp(1.5rem, 1.2rem + 1vw, 2rem);
     --lh-body: 1.6;
     --lh-tight: 1.15;
     --lh-snug: 1.3;
@@ -106,6 +119,18 @@
     --dur-flow-step: 1s;
     --dur-loop: 2.4s;
     --dur-timeline: 1ms; /* Firefox : durée non nulle requise avec animation-timeline */
+    --dur-pulse: 2s;
+    --dur-beam: 2.6s;
+    --dur-feed: 500ms;
+    --dur-cycle: 7s;
+    --dur-cycle-slow: 8s;
+    --dur-breathe: 6s;
+    --dur-glow: 10s;
+    --dur-marquee: 46s;
+    --dur-orbit: 60s;
+    --dur-orbit-2: 90s;
+    --dur-turn: 6s;
+    --dur-sweep: 600ms;
     --ease-out: cubic-bezier(.2, 0, 0, 1);
     --reveal-shift: 16px;
     --error-shift: 4px;
@@ -120,5 +145,39 @@
     :root {
       --section-space: var(--sp-24);
     }
+  }
+
+  /*
+   * Mode sombre : clair par défaut, sombre seulement par la bascule de l'en-tête
+   * (html[data-theme="dark"], mémorisé). Les jetons sémantiques et les nuances
+   * jade utilisées comme fonds sont redéfinis; la marque (jade-900 du logo) passe
+   * en clair par --color-logo.
+   */
+  :root[data-theme="dark"] {
+    --bg: #0B1613;
+    --surface: #10201C;
+    --line: #223D36;
+    --jade-900: #2FA882; /* couleur d'action lisible sur fond sombre */
+    --jade-700: #3DBB93;
+    --jade-600: #2FA882;
+    --jade-100: #173A31;
+    --jade-050: #122A24;
+    --slate-800: #E9F1EE;
+    --slate-700: #B9CBC4;
+    --slate-600: #8AA39A;
+    --alert: #E07B73;
+    --alert-bg: #3A1F1C;
+    --glow: rgb(47 168 130 / 22%);
+    --dot: rgb(233 241 238 / 12%);
+    --color-logo: #E9F1EE;
+    --color-badge-fg: #9FE3C8;
+    --color-action-fg: #0B1613;
+    --color-header-bg: rgb(11 22 19 / 88%);
+    --color-backdrop: rgb(0 0 0 / 60%);
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px rgb(0 0 0 / 30%);
+    --shadow-2: 0 1px 2px rgb(0 0 0 / 40%), 0 12px 32px rgb(0 0 0 / 35%);
+    --band: #0F5E4E;
+
+    color-scheme: dark;
   }
 }

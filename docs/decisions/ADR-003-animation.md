@@ -1,6 +1,6 @@
 # ADR-003 — Technique d’animation (concepts A, B, C)
 
-- Statut : Accepté
+- Statut : Remplacé par ADR-012 (composants retirés le 2026-11-05)
 - Date : 2026-11-04
 
 - A — SectionSilo : SVG inline + CSS piloté par le défilement (`view-timeline: --silo block`, plages `contain`), propriétés opacity / transform / stroke-dashoffset / fill seulement; 0 Ko de JS requis (le seul script est le bouton pause). Scène : 4,6 Ko gzip (SVG + CSS), mesurée par `check-dist`.

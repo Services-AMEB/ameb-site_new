@@ -17,7 +17,7 @@ Services AMEB inc. vise le niveau AA des Règles pour l’accessibilité des con
 - **Contrastes.** Le texte courant présente un contraste d’au moins 4,5:1 avec son arrière-plan. Aucune information n’est transmise par la couleur seule.
 - **Clavier.** Toutes les fonctions s’utilisent au clavier. L’indicateur de focus reste visible et n’est jamais masqué par l’en-tête. Un lien d’évitement mène directement au contenu principal.
 - **Mouvement réduit.** Si votre appareil demande de réduire les animations, le site affiche directement l’état final de chaque animation.
-- **Pause de l’animation.** Sur l’accueil, un bouton « Mettre en pause l’animation », accessible au clavier, arrête toutes les animations de la page.
+- **Animations.** Les animations de l’accueil tournent en boucle, sans son ni clignotement rapide. Elles s’arrêtent entièrement lorsque votre appareil demande de réduire les animations.
 - **Sous-titres.** Le site ne contient ni vidéo ni contenu audio. Les sous-titres ne s’appliquent donc pas pour le moment.
 - **Textes alternatifs.** Les images et les schémas porteurs de sens ont une description textuelle. Les éléments décoratifs sont ignorés par les lecteurs d’écran.
 - **Formulaires.** Chaque champ a une étiquette visible. Les erreurs sont décrites en texte et liées au champ concerné.
