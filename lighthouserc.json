@@ -5,13 +5,13 @@
       "startServerReadyPattern": "ameb :",
       "url": [
         "http://localhost:4323/",
-        "http://localhost:4323/services/ventes-crm/",
-        "http://localhost:4323/secteurs/evenementiel-associations/",
         "http://localhost:4323/diagnostic/",
+        "http://localhost:4323/realisations/",
+        "http://localhost:4323/contact/",
         "http://localhost:4323/en/",
-        "http://localhost:4323/en/services/sales-crm/",
-        "http://localhost:4323/en/sectors/events-associations/",
-        "http://localhost:4323/en/diagnostic/"
+        "http://localhost:4323/en/diagnostic/",
+        "http://localhost:4323/en/case-studies/",
+        "http://localhost:4323/en/contact/"
       ],
       "numberOfRuns": 1,
       "settings": {

@@ -14,20 +14,10 @@ const START = '<!-- DÉBUT : section générée par scripts/a-confirmer.ts — n
 const END = '<!-- FIN : section générée -->';
 const MARK = /\[[^\]]*CONFIRMER[^\]]*\]/g;
 
-const PAGE_KEYS: Record<string, RouteKey> = {
-  accueil: 'home',
-  calculateur: 'outils/calculateur-ressaisie',
-  autoevaluation: 'outils/autoevaluation',
-};
-const COLLECTION_PREFIX: Record<string, string> = {
-  services: 'services',
-  secteurs: 'secteurs',
-  cas: 'realisations',
-  blogue: 'ressources',
-};
+const PAGE_KEYS: Record<string, RouteKey> = { accueil: 'home' };
 
 function pageFor(collection: string, key: string): string {
-  const routeKey = (collection === 'pages' ? (PAGE_KEYS[key] ?? key) : `${COLLECTION_PREFIX[collection]}/${key}`) as RouteKey;
+  const routeKey = (collection === 'pages' ? (PAGE_KEYS[key] ?? key) : 'realisations') as RouteKey;
   return ROUTES[routeKey]?.fr ?? '?';
 }
 

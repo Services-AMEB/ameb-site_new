@@ -1,0 +1,550 @@
+---
+/**
+ * La méthode : « pas de moule » (comparaison), puis trois étapes avec un visuel collant par étape
+ * (carte des processus, matrice de décision, état du mandat).
+ */
+import Icon from '../Icon.astro';
+import type { IconName } from '../icons/lucide';
+import type { Lang } from '../../i18n/routes';
+import { t } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  method: {
+    eyebrow: string;
+    h2: string;
+    lead: string;
+    vs: { bad: { title: string; items: string[] }; good: { title: string; items: string[] } };
+    steps: { label: string; title: string; text: string; points: string[] }[];
+    map: { caption: string; nodes: { label: string; icon: IconName; friction?: string }[]; legend: string[] };
+    matrix: { caption: string; process: string; choices: string[]; rows: { process: string; why: string; choice: number }[]; note: string };
+    setup: { caption: string; items: string[]; done: string; badge: string };
+  };
+}
+
+const { lang, method } = Astro.props;
+---
+
+<section class="section" id="methode" aria-labelledby="h-methode">
+  <div class="container">
+    <div class="section__head">
+      <span class="eyebrow">{method.eyebrow}</span>
+      <h2 id="h-methode">{method.h2}</h2>
+      <p>{method.lead}</p>
+    </div>
+
+    <div class="vs" role="group" aria-label={t(lang, 'a11y.vs')}>
+      <div class="vs__col">
+        <span class="vs__k">{method.vs.bad.title}</span>
+        <ul role="list">{method.vs.bad.items.map((i) => <li>{i}</li>)}</ul>
+      </div>
+      <div class="vs__col vs__col--on">
+        <span class="vs__k">{method.vs.good.title}</span>
+        <ul role="list">{method.vs.good.items.map((i) => <li>{i}</li>)}</ul>
+      </div>
+    </div>
+
+    <ol class="steps" role="list">
+      {
+        method.steps.map((step, n) => (
+          <li class="step">
+            <div class="step__text">
+              <span class="step__n">{step.label}</span>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+              <ul class="checklist" role="list">
+                {step.points.map((p) => <li><Icon name="check" /><span>{p}</span></li>)}
+              </ul>
+            </div>
+            <div class="vis" aria-hidden="true">
+              {n === 0 && (
+                <>
+                  <span class="vis__cap">{method.map.caption}</span>
+                  <div class="pmap">
+                    {method.map.nodes.map((node) => (
+                      <div class:list={['pn', node.friction && 'pn--bad']}>
+                        <i><Icon name={node.icon} /></i>
+                        {node.label}
+                        {node.friction && <em>{node.friction}</em>}
+                      </div>
+                    ))}
+                  </div>
+                  <div class="legend"><span><i></i>{method.map.legend[0]}</span><span>{method.map.legend[1]}</span></div>
+                </>
+              )}
+              {n === 1 && (
+                <>
+                  <span class="vis__cap">{method.matrix.caption}</span>
+                  <div class="scroll">
+                    <table class="mx">
+                      <thead>
+                        <tr><th>{method.matrix.process}</th>{method.matrix.choices.map((c) => <th>{c}</th>)}</tr>
+                      </thead>
+                      <tbody>
+                        {method.matrix.rows.map((row) => (
+                          <tr>
+                            <td>{row.process}<span class="mx__why">{row.why}</span></td>
+                            {method.matrix.choices.map((_c, i) => <td>{i === row.choice && <i><Icon name="check" /></i>}</td>)}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="note"><Icon name="shield-check" />{method.matrix.note}</div>
+                </>
+              )}
+              {n === 2 && (
+                <>
+                  <span class="vis__cap">{method.setup.caption}</span>
+                  <ul class="done" role="list">
+                    {method.setup.items.map((item) => <li><i><Icon name="check" /></i><span>{item}</span><span>{method.setup.done}</span></li>)}
+                  </ul>
+                  <div class="prog"><i></i></div>
+                  <span class="ap"><i></i>{method.setup.badge}</span>
+                </>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  @layer components {
+    .vs {
+      display: grid;
+      gap: var(--sp-4);
+      margin-block-end: var(--sp-12);
+
+      @media (min-width: 820px) {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .vs__col {
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-6);
+      background: var(--bg);
+      display: grid;
+      gap: var(--sp-3);
+      align-content: start;
+
+      & ul {
+        display: grid;
+        gap: var(--sp-2);
+        color: var(--color-text-2);
+        font-size: var(--fs-sm);
+      }
+
+      & li {
+        display: flex;
+        gap: var(--sp-2);
+        align-items: start;
+      }
+
+      & li::before {
+        content: "";
+        flex: none;
+        inline-size: var(--sp-2);
+        block-size: var(--sp-2);
+        border-radius: var(--radius-round);
+        background: var(--line);
+        margin-block-start: var(--sp-2);
+      }
+    }
+
+    .vs__col--on {
+      border-color: var(--jade-600);
+      background: var(--jade-050);
+      box-shadow: 0 0 0 6px var(--glow);
+
+      & li::before {
+        background: var(--jade-600);
+      }
+    }
+
+    .vs__k {
+      font-size: var(--fs-2xs);
+      font-weight: var(--fw-semibold);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+    }
+
+    .vs__col--on .vs__k {
+      color: var(--jade-900);
+    }
+
+    /* ---- étapes ---- */
+    .steps {
+      display: grid;
+      border-block-start: var(--border-w) solid var(--line);
+    }
+
+    .step {
+      display: grid;
+      gap: var(--sp-6);
+      padding-block: var(--sp-8);
+      border-block-end: var(--border-w) solid var(--line);
+
+      & > * {
+        min-inline-size: 0;
+      }
+
+      @media (min-width: 1024px) {
+        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+        gap: var(--sp-12);
+        min-block-size: 72vh;
+        align-items: start;
+        padding-block: var(--sp-12);
+      }
+    }
+
+    .step__text {
+      display: grid;
+      gap: var(--sp-3);
+      align-content: start;
+
+      & h3 {
+        font-size: var(--fs-h3-lg);
+        font-weight: var(--fw-bold);
+      }
+
+      & p {
+        color: var(--color-text-2);
+        max-inline-size: 48ch;
+        font-size: var(--fs-md);
+      }
+    }
+
+    .step__n {
+      font-family: var(--font-display);
+      font-weight: var(--fw-bold);
+      font-size: var(--fs-sm);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--jade-900);
+    }
+
+    .vis {
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--bg);
+      box-shadow: var(--shadow-2);
+      padding: var(--sp-6);
+      display: grid;
+      gap: var(--sp-3);
+      overflow: hidden;
+
+      & > * {
+        min-inline-size: 0;
+      }
+
+      @media (min-width: 1024px) {
+        position: sticky;
+        inset-block-start: var(--sp-24);
+      }
+    }
+
+    .vis__cap {
+      font-size: var(--fs-2xs);
+      font-weight: var(--fw-semibold);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+    }
+
+    /* carte des processus */
+    .pmap {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(64px, 1fr));
+      gap: var(--sp-2);
+      position: relative;
+      align-items: start;
+      overflow-x: auto;
+      padding-block-end: var(--sp-1);
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset-inline: 10% 10%;
+        inset-block-start: var(--sp-6);
+        block-size: 2px;
+        background: var(--line);
+      }
+    }
+
+    .pn {
+      position: relative;
+      display: grid;
+      justify-items: center;
+      gap: var(--sp-2);
+      text-align: center;
+      font-size: var(--fs-2xs);
+      font-weight: var(--fw-semibold);
+      color: var(--color-text-2);
+
+      & i {
+        inline-size: var(--sp-12);
+        block-size: var(--sp-12);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        border: var(--border-w) solid var(--line);
+        display: grid;
+        place-items: center;
+        color: var(--color-text);
+      }
+
+      & svg {
+        inline-size: var(--icon-sm);
+        block-size: var(--icon-sm);
+      }
+
+      & em {
+        font-style: normal;
+        padding: 0 var(--sp-2);
+        border-radius: var(--radius-round);
+        background: var(--alert-bg);
+        color: var(--alert);
+        white-space: nowrap;
+      }
+    }
+
+    .pn--bad i {
+      border-color: var(--alert);
+      box-shadow: 0 0 0 4px var(--alert-bg);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-4);
+      font-size: var(--fs-xs);
+      color: var(--color-muted);
+
+      & span {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-1);
+      }
+
+      & i {
+        inline-size: 10px;
+        block-size: 10px;
+        border-radius: 3px;
+        background: var(--alert);
+      }
+    }
+
+    /* matrice */
+    .scroll {
+      overflow-x: auto;
+    }
+
+    .mx {
+      inline-size: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: var(--fs-xs);
+
+      & th,
+      & td {
+        padding: var(--sp-2);
+        text-align: center;
+        border-block-end: var(--border-w) solid var(--line);
+      }
+
+      & th {
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-semibold);
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        color: var(--color-muted);
+      }
+
+      & td:first-child,
+      & th:first-child {
+        text-align: start;
+        font-weight: var(--fw-semibold);
+        color: var(--color-text);
+      }
+
+      & td i {
+        display: inline-grid;
+        place-items: center;
+        inline-size: 26px;
+        block-size: 26px;
+        border-radius: var(--radius-sm);
+        background: var(--color-badge);
+        color: var(--color-badge-fg);
+      }
+
+      & td svg {
+        inline-size: 15px;
+        block-size: 15px;
+      }
+
+      & tr:last-child td {
+        border-block-end: 0;
+      }
+    }
+
+    .mx__why {
+      display: block;
+      font-weight: var(--fw-regular);
+      color: var(--color-muted);
+      font-size: var(--fs-2xs);
+    }
+
+    .note {
+      display: flex;
+      gap: var(--sp-2);
+      align-items: center;
+      padding: var(--sp-2) var(--sp-3);
+      border-radius: var(--radius-md);
+      background: var(--jade-050);
+      border: var(--border-w) solid var(--jade-100);
+      font-size: var(--fs-xs);
+      color: var(--color-text-2);
+
+      & svg {
+        inline-size: var(--icon-sm);
+        block-size: var(--icon-sm);
+        color: var(--jade-600);
+        flex: none;
+      }
+    }
+
+    /* mise en place */
+    .done {
+      display: grid;
+      gap: var(--sp-2);
+
+      & li {
+        display: grid;
+        grid-template-columns: var(--sp-6) 1fr auto;
+        gap: var(--sp-2);
+        align-items: center;
+        padding: var(--sp-2) var(--sp-3);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        border: var(--border-w) solid var(--line);
+        font-size: var(--fs-sm);
+      }
+
+      & i {
+        inline-size: var(--sp-6);
+        block-size: var(--sp-6);
+        border-radius: var(--radius-round);
+        background: var(--jade-600);
+        color: var(--white);
+        display: grid;
+        place-items: center;
+      }
+
+      & svg {
+        inline-size: 13px;
+        block-size: 13px;
+      }
+
+      & li > span:last-child {
+        font-size: var(--fs-2xs);
+        color: var(--color-muted);
+      }
+    }
+
+    .prog {
+      block-size: var(--sp-2);
+      border-radius: var(--radius-round);
+      background: var(--line);
+      overflow: hidden;
+
+      & i {
+        display: block;
+        block-size: 100%;
+        inline-size: 100%;
+        background: var(--jade-600);
+        border-radius: inherit;
+      }
+    }
+
+    .ap {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-3);
+      border-radius: var(--radius-round);
+      background: var(--band);
+      color: var(--white);
+      font-family: var(--font-display);
+      font-size: var(--fs-xs);
+      font-weight: var(--fw-semibold);
+      justify-self: start;
+
+      & i {
+        inline-size: var(--sp-2);
+        block-size: var(--sp-2);
+        border-radius: var(--radius-round);
+        background: var(--jade-100);
+      }
+    }
+  }
+
+  @layer motion {
+    @media (prefers-reduced-motion: no-preference) {
+      .mx tbody tr {
+        animation: rowglow var(--dur-glow) infinite;
+      }
+
+      .mx tbody tr:nth-child(2) {
+        animation-delay: calc(var(--dur-glow) * .2);
+      }
+
+      .mx tbody tr:nth-child(3) {
+        animation-delay: calc(var(--dur-glow) * .4);
+      }
+
+      .mx tbody tr:nth-child(4) {
+        animation-delay: calc(var(--dur-glow) * .6);
+      }
+
+      .mx tbody tr:nth-child(5) {
+        animation-delay: calc(var(--dur-glow) * .8);
+      }
+
+      .ap i {
+        animation: pulse var(--dur-pulse) infinite;
+      }
+    }
+
+    @keyframes rowglow {
+      0%,
+      12%,
+      100% {
+        background: transparent;
+      }
+
+      4%,
+      8% {
+        background: var(--jade-050);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 var(--glow);
+      }
+
+      70% {
+        box-shadow: 0 0 0 8px transparent;
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 transparent;
+      }
+    }
+  }
+</style>

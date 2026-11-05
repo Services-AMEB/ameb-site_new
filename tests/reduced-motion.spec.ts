@@ -1,7 +1,7 @@
-/** Mouvement réduit : aucun élément animé; bouton pause : arrête tout et persiste. */
+/** Mouvement réduit : aucun élément animé; sinon, les boucles de l'accueil tournent sans bouton d'arrêt (ADR-012). */
 import { test, expect, type Page } from '@playwright/test';
 
-const PAGES = ['/', '/en/', '/services/ventes-crm/', '/secteurs/cliniques/', '/diagnostic/', '/approche/', '/styleguide/'];
+const PAGES = ['/', '/en/', '/diagnostic/', '/realisations/', '/contact/', '/styleguide/'];
 
 async function animated(page: Page): Promise<string[]> {
   return page.evaluate(() => {
@@ -25,36 +25,20 @@ for (const path of PAGES) {
   });
 }
 
-test('mouvement réduit : FlowLine tout allumé, scène silo en cartes', async ({ page }) => {
+test('mouvement réduit : le journal reste figé et les états finaux sont affichés', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await expect(page.locator('.flow').first()).not.toHaveClass(/is-armed/);
-  await expect(page.locator('.silo__sticky')).toBeHidden();
-  await expect(page.locator('.silo__mini').first()).toBeVisible();
+  const first = await page.locator('[data-feed] .feed__item').first().textContent();
+  await page.waitForTimeout(3200);
+  expect(await page.locator('[data-feed] .feed__item').first().textContent()).toBe(first);
+  await expect(page.locator('.tog').first()).toHaveCSS('background-color', 'rgb(27, 142, 107)');
 });
 
-test('bouton pause : arrête toutes les animations et persiste', async ({ page }) => {
+test('mouvement permis : les boucles tournent en continu et le journal avance', async ({ page }) => {
   await page.goto('/');
-  const stage = page.locator('.silo__stage');
-  await stage.scrollIntoViewIfNeeded();
   expect((await animated(page)).length).toBeGreaterThan(0);
-  const pause = page.locator('[data-motion-toggle]:visible').first();
-  await expect(pause).toHaveText(/Mettre en pause l’animation/);
-  await pause.focus();
-  await page.keyboard.press('Enter');
-  await expect(page.locator('html')).toHaveAttribute('data-motion', 'paused');
-  expect(await animated(page)).toEqual([]);
-  await expect(pause).toHaveText(/Reprendre l’animation/);
-  await page.reload();
-  await expect(page.locator('html')).toHaveAttribute('data-motion', 'paused');
-  expect(await animated(page)).toEqual([]);
-  await page.locator('[data-motion-toggle]:visible').first().click();
-  await expect(page.locator('html')).not.toHaveAttribute('data-motion', 'paused');
-});
-
-test('scène silo : récit collant au défilement sur desktop', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.locator('.silo__sticky')).toHaveCSS('position', 'sticky');
-  await expect(page.locator('.silo-scene[data-state="live"] svg')).toHaveAttribute('aria-labelledby', 'silo-desc');
-  expect(await page.locator('.silo-scene[data-state="live"] svg text').count()).toBe(0);
+  await expect(page.locator('[data-motion-toggle], [data-pause]')).toHaveCount(0);
+  const first = await page.locator('[data-feed] .feed__item').first().textContent();
+  await expect.poll(async () => page.locator('[data-feed] .feed__item').first().textContent(), { timeout: 6000 }).not.toBe(first);
+  await expect(page.locator('[data-feed] .feed__item')).toHaveCount(4);
 });

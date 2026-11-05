@@ -1,0 +1,151 @@
+---
+/** Cas anonymisés : version courte (accueil) ou complète (/realisations/). Aucun chiffre. */
+import Icon from './Icon.astro';
+import type { CollectionEntry } from 'astro:content';
+import type { Lang } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  cases: CollectionEntry<'cas'>[];
+  labels: { before: string; after?: string; system?: string; changed: string };
+  full?: boolean;
+  level?: 'h2' | 'h3';
+}
+
+const { lang, cases, labels, full = false, level = 'h3' } = Astro.props;
+const Heading = level;
+---
+
+<div class:list={['cases', full && 'cases--full']}>
+  {
+    cases.map((c) => (
+      <article class="case">
+        <span class="badge">{c.data.sectorLabel}</span>
+        <Heading>{c.data.name}</Heading>
+        {full ? (
+          <>
+            <div class="case__block">
+              <b>{labels.before}</b>
+              <ul>{c.data.before.map((b) => <li>{b}</li>)}</ul>
+            </div>
+            <div class="case__block">
+              <b>{labels.system}</b>
+              <ul class="checklist" role="list">{c.data.system.map((s) => <li><Icon name="check" /><span>{s}</span></li>)}</ul>
+            </div>
+          </>
+        ) : (
+          <div class="case__ba">
+            <b>{labels.before}</b>
+            <span>{c.data.before[0]}</span>
+            <b>{labels.after}</b>
+            <span>{c.data.summary}</span>
+          </div>
+        )}
+        <div class="case__changed">
+          <b>{labels.changed}</b>
+          <span>{c.data.changed}</span>
+        </div>
+        {full && <p class="case__note"><Icon name="eye-off" /> {t(lang, 'common.anonymized')}</p>}
+      </article>
+    ))
+  }
+</div>
+
+<style>
+  @layer components {
+    .cases {
+      display: grid;
+      gap: var(--sp-4);
+
+      @media (min-width: 820px) {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .cases--full {
+      @media (min-width: 820px) {
+        grid-template-columns: 1fr;
+        max-inline-size: calc(var(--measure) + var(--sp-24));
+      }
+    }
+
+    .case {
+      display: grid;
+      gap: var(--sp-3);
+      padding: var(--sp-6);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--bg);
+      align-content: start;
+
+      &:hover {
+        border-color: var(--jade-600);
+        box-shadow: var(--shadow-2);
+      }
+
+      & h2,
+      & h3 {
+        font-size: var(--fs-md);
+      }
+    }
+
+    .case__ba,
+    .case__block,
+    .case__changed {
+      display: grid;
+      gap: var(--sp-1);
+      font-size: var(--fs-sm);
+      color: var(--color-text-2);
+
+      & b {
+        color: var(--color-muted);
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-semibold);
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        margin-block-start: var(--sp-1);
+      }
+    }
+
+    .case__block ul:not(.checklist) {
+      padding-inline-start: var(--sp-4);
+      display: grid;
+      gap: var(--sp-1);
+    }
+
+    .case__changed {
+      padding: var(--sp-3);
+      border-radius: var(--radius-md);
+      background: var(--jade-050);
+      border: var(--border-w) solid var(--jade-100);
+
+      & span {
+        color: var(--color-text);
+      }
+    }
+
+    .case__note {
+      display: flex;
+      gap: var(--sp-2);
+      align-items: center;
+      color: var(--color-muted);
+      font-size: var(--fs-xs);
+
+      & svg {
+        inline-size: var(--icon-sm);
+        block-size: var(--icon-sm);
+      }
+    }
+  }
+
+  @layer motion {
+    @media (prefers-reduced-motion: no-preference) {
+      .case {
+        transition:
+          border-color var(--dur-base) var(--ease-out),
+          box-shadow var(--dur-base) var(--ease-out);
+      }
+    }
+  }
+</style>

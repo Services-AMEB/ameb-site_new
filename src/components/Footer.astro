@@ -1,10 +1,9 @@
 ---
-/** Pied de page : fond jade profond, 4 colonnes, RPRP, nom légal. */
+/** Pied de page : fond jade profond, trois colonnes, RPRP, nom légal. */
 import Logo from './Logo.astro';
 import LangSwitch from './LangSwitch.astro';
-import { url, type Lang, type RouteKey } from '../i18n/routes';
+import { homeUrl, url, type Lang, type RouteKey } from '../i18n/routes';
 import { t, type UiKey } from '../i18n/ui';
-import { keyOf, listEntries } from '../lib/content';
 import { colon } from '../lib/typo';
 
 interface Props {
@@ -13,23 +12,22 @@ interface Props {
 }
 
 const { lang, routeKey } = Astro.props;
-const services = await listEntries('services', lang);
-const secteurs = await listEntries('secteurs', lang);
 
+const explore: { href: string; label: UiKey }[] = [
+  { href: homeUrl('methode', lang), label: 'nav.methode' },
+  { href: homeUrl('services', lang), label: 'nav.services' },
+  { href: homeUrl('secteurs', lang), label: 'nav.secteurs' },
+  { href: homeUrl('offre', lang), label: 'nav.diagnostic' },
+];
 const company: { key: RouteKey; label: UiKey }[] = [
   { key: 'diagnostic', label: 'nav.diagnostic' },
-  { key: 'approche', label: 'nav.approche' },
   { key: 'realisations', label: 'nav.realisations' },
-  { key: 'outils', label: 'nav.outils' },
-  { key: 'confiance', label: 'nav.confiance' },
-  { key: 'a-propos', label: 'nav.aPropos' },
-  { key: 'ressources', label: 'nav.ressources' },
   { key: 'contact', label: 'nav.contact' },
 ];
-const legal: { key: RouteKey; label: string }[] = [
-  { key: 'confidentialite', label: lang === 'fr' ? 'Politique de confidentialité' : 'Privacy policy' },
-  { key: 'accessibilite', label: lang === 'fr' ? 'Accessibilité' : 'Accessibility' },
-  { key: 'mentions-legales', label: lang === 'fr' ? 'Mentions légales' : 'Legal notice' },
+const legal: { key: RouteKey; label: UiKey }[] = [
+  { key: 'confidentialite', label: 'footer.privacy' },
+  { key: 'accessibilite', label: 'footer.accessibility' },
+  { key: 'mentions-legales', label: 'footer.legalNotice' },
 ];
 const year = 2026;
 ---
@@ -51,51 +49,21 @@ const year = 2026;
     </div>
     <nav class="site-footer__nav" aria-label={t(lang, 'a11y.footerNav')}>
       <div>
-        <h2 class="site-footer__title">{t(lang, 'footer.services')}</h2>
+        <h2 class="site-footer__title">{t(lang, 'footer.explore')}</h2>
         <ul role="list">
-          {
-            services.map((s) => (
-              <li>
-                <a href={url(`services/${keyOf(s)}` as RouteKey, lang)}>{s.data.name}</a>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-      <div>
-        <h2 class="site-footer__title">{t(lang, 'footer.secteurs')}</h2>
-        <ul role="list">
-          {
-            secteurs.map((s) => (
-              <li>
-                <a href={url(`secteurs/${keyOf(s)}` as RouteKey, lang)}>{s.data.name}</a>
-              </li>
-            ))
-          }
+          {explore.map((c) => <li><a href={c.href}>{t(lang, c.label)}</a></li>)}
         </ul>
       </div>
       <div>
         <h2 class="site-footer__title">{t(lang, 'footer.entreprise')}</h2>
         <ul role="list">
-          {
-            company.map((c) => (
-              <li>
-                <a href={url(c.key, lang)}>{t(lang, c.label)}</a>
-              </li>
-            ))
-          }
+          {company.map((c) => <li><a href={url(c.key, lang)}>{t(lang, c.label)}</a></li>)}
         </ul>
       </div>
       <div>
         <h2 class="site-footer__title">{t(lang, 'footer.legal')}</h2>
         <ul role="list">
-          {
-            legal.map((c) => (
-              <li>
-                <a href={url(c.key, lang)}>{c.label}</a>
-              </li>
-            ))
-          }
+          {legal.map((c) => <li><a href={url(c.key, lang)}>{t(lang, c.label)}</a></li>)}
         </ul>
       </div>
     </nav>
@@ -111,8 +79,8 @@ const year = 2026;
   @layer components {
     .site-footer {
       padding-block: var(--sp-16) var(--sp-8);
-      border-block-start: var(--border-w) solid var(--color-on-strong-line);
       font-size: var(--fs-sm);
+      border-block-start: var(--border-w) solid var(--color-on-strong-line);
     }
 
     .site-footer__grid {
@@ -120,7 +88,7 @@ const year = 2026;
       gap: var(--sp-12);
 
       @media (min-width: 1024px) {
-        grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
       }
     }
 

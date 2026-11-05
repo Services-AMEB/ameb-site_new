@@ -3,9 +3,9 @@ import { test, expect } from '@playwright/test';
 
 const TEMPLATES = {
   accueil: '/',
-  service: '/services/ventes-crm/',
-  secteur: '/secteurs/evenementiel-associations/',
   diagnostic: '/diagnostic/',
+  realisations: '/realisations/',
+  contact: '/contact/',
 };
 
 for (const [name, path] of Object.entries(TEMPLATES)) {

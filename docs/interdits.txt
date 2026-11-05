@@ -5,6 +5,8 @@
 # Le nom de l'éditeur est aussi bloqué par /zoho/i dans le script lui-même.
 zoho
 bigin
+rewst
+gto
 # Concurrents (ne jamais nommer sur le site)
 nsisolution
 nuagix

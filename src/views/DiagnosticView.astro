@@ -5,7 +5,6 @@ import FAQ from '../components/FAQ.astro';
 import ContactForm from '../components/ContactForm.astro';
 import Button from '../components/Button.astro';
 import Icon from '../components/Icon.astro';
-import Txt from '../components/Txt.astro';
 import type { Lang } from '../i18n/routes';
 import { t } from '../i18n/ui';
 import { getPage } from '../lib/content';
@@ -34,12 +33,11 @@ const { data } = await getPage('diagnostic', lang);
     <div class="container price__grid">
       <div class="stack">
         <h2 id="h-price">{data.price.h2}</h2>
-        <p class="price__amount"><Txt text={data.price.amount} /></p>
+        <p class="price__amount">{data.price.value}</p>
       </div>
       <ul class="price__facts" role="list">
-        <li><Icon name="check" /><span><Txt text={data.price.credit} /></span></li>
-        <li><Icon name="timer" /><span><Txt text={data.price.duration} /></span></li>
         <li><Icon name="info" /><span>{data.price.note}</span></li>
+        <li><Icon name="check" /><span>{data.price.credit}</span></li>
         <li>
           <Button href="#reserver" variant="light" icon="arrow-right" track="cta_diagnostic" placement="diagnostic-price">
             {t(lang, 'cta.diagnostic')}
@@ -80,7 +78,7 @@ const { data } = await getPage('diagnostic', lang);
         <Icon name="building-2" />
         <div>
           <h2 id="h-funding">{data.funding.title}</h2>
-          <p><Txt text={data.funding.text} /></p>
+          <p>{data.funding.text}</p>
         </div>
       </div>
     </div>
@@ -98,7 +96,7 @@ const { data } = await getPage('diagnostic', lang);
 
   <section class="section" aria-labelledby="h-faq">
     <div class="container">
-      <div class="section__head"><h2 id="h-faq">{t(lang, 'service.faq')}</h2></div>
+      <div class="section__head"><h2 id="h-faq">{data.faqTitle}</h2></div>
       <FAQ items={data.faq} />
     </div>
   </section>
@@ -123,12 +121,9 @@ const { data } = await getPage('diagnostic', lang);
     .price__amount {
       font-family: var(--font-display);
       font-weight: var(--fw-bold);
-      font-size: var(--fs-2xl);
+      font-size: var(--fs-xl);
       line-height: var(--lh-tight);
-    }
-
-    .price .tbc {
-      background: var(--white);
+      max-inline-size: 24ch;
     }
 
     .price__facts {

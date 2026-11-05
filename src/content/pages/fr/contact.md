@@ -16,4 +16,9 @@ form:
 booking:
   title: "Prendre rendez-vous"
   text: "Vous préférez en parler de vive voix ? Choisissez un moment qui vous convient dans notre outil externe de prise de rendez-vous."
+about:
+  h2: "Qui est derrière ameb"
+  paragraphs:
+    - "ameb est la marque de Services AMEB inc., une firme établie à Montréal. Son fondateur a d’abord travaillé au cœur des opérations, en événementiel, en TI gérées et en cliniques [PARCOURS À CONFIRMER]."
+    - "De ce terrain, une conviction : la plupart des irritants viennent d’outils qui ne se parlent pas, pas d’un manque de logiciels. D’où une approche sans moule : on analyse votre façon de travailler, et c’est la technologie qui s’y adapte."
 ---

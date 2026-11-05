@@ -1,8 +1,11 @@
 ---
 page: "realisations"
 title: "Case studies: anonymized automation projects"
-description: "Anonymized cases in events, professional services and a clinic: the starting point, the system put in place and the results."
-h1: "Concrete cases, anonymized"
-lead: "For each case: the sector and size, the initial friction, the system put in place and what changed."
-note: "Cases are anonymized at the clients’ request. Quantified results are being validated."
+description: "Three anonymized cases in events, professional services and clinics: the starting point, what we put in place and what changed."
+h1: "Real cases, anonymized"
+lead: "Each case is described with the client’s agreement, without naming them. For each: the frictions at the start, what we put in place and what changed day to day."
+before: "Before"
+system: "What we put in place"
+changed: "What changed"
+note: "No names, no cities, no figures: what matters is that the technology adapted to the way they work, not the other way around."
 ---

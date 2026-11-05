@@ -4,7 +4,8 @@ Site bilingue (français à la racine, anglais sous `/en/`) d'**ameb**, firme mo
 
 - **Pile** : Astro 7 (statique), TypeScript strict, CSS natif (jetons + `@layer`), aucun framework client
 - **Hébergement** : Cloudflare Pages; `POST /api/contact` = Pages Function (`functions/api/contact.ts`)
-- **Qualité mesurée** (2026-11-04) : Lighthouse mobile 99/100/100/100 sur les 8 URL cibles; axe 0 violation sérieuse sur 68 pages; Pa11y 66/66; 152 tests Playwright + 12 tests unitaires verts
+- **Sept pages par langue** (ADR-012) : accueil (message complet, sections ancrées), diagnostic, réalisations, contact, confidentialité, accessibilité, mentions légales
+- **Qualité mesurée** : voir la section « Vérifications »; chaque PR relance Lighthouse (8 URL, mobile, ≥ 95 ×4), axe et Pa11y sur tout le plan du site
 - **Pour Claude Code** : lire `CLAUDE.md`. Brief : `docs/brief.md`. Décisions : `docs/decisions/`. À confirmer avant lancement : `docs/a-confirmer.md`
 
 ## Démarrer

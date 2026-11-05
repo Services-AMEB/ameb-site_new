@@ -50,6 +50,10 @@ const isConfirmed = (v: string) => !/CONFIRM/.test(v);
           </dl>
         </div>
         <div class="card card--white">
+          <h2 class="contact__h">{data.about.h2}</h2>
+          {data.about.paragraphs.map((p) => <p><Txt text={p} /></p>)}
+        </div>
+        <div class="card card--white">
           <h2 class="contact__h">{data.booking.title}</h2>
           <p>{data.booking.text}</p>
           {

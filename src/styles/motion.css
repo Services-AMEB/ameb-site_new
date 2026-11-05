@@ -80,17 +80,6 @@
         animation-range: entry 0% entry 60%;
       }
 
-      /* Étapes : ligne tracée au défilement */
-      .steps__line {
-        animation: draw-y linear both;
-        animation-duration: var(--dur-timeline);
-        animation-timeline: view();
-        animation-range: cover 0% cover 80%;
-
-        @media (min-width: 900px) {
-          animation-name: draw-x;
-        }
-      }
     }
   }
 
@@ -103,26 +92,6 @@
     to {
       opacity: 1;
       transform: none;
-    }
-  }
-
-  @keyframes draw-x {
-    from {
-      transform: scaleX(0);
-    }
-
-    to {
-      transform: scaleX(1);
-    }
-  }
-
-  @keyframes draw-y {
-    from {
-      transform: scaleY(0);
-    }
-
-    to {
-      transform: scaleY(1);
     }
   }
 
@@ -161,7 +130,7 @@
   }
 
   /*
-   * Interrupteurs globaux : mouvement réduit ou pause demandée par l'utilisateur.
+   * Mouvement réduit (réglage du système) : tout s'arrête, états finaux affichés.
    * !important dans la dernière couche : l'emporte sur toute déclaration normale.
    */
   @media (prefers-reduced-motion: reduce) {
@@ -172,13 +141,6 @@
       transition: none !important;
       scroll-behavior: auto !important;
     }
-  }
-
-  html[data-motion="paused"] *,
-  html[data-motion="paused"] *::before,
-  html[data-motion="paused"] *::after {
-    animation: none !important;
-    transition: none !important;
   }
 }
 

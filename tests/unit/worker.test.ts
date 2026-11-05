@@ -6,8 +6,8 @@ const assets = { fetch: async (r: Request) => new Response(`asset ${new URL(r.ur
 const env: Env = { ASSETS: assets };
 
 test('les pages sont servies par ASSETS', async () => {
-  const res = await worker.fetch(new Request('https://ameb.ca/approche/'), env);
-  assert.equal(await res.text(), 'asset /approche/');
+  const res = await worker.fetch(new Request('https://ameb.ca/diagnostic/'), env);
+  assert.equal(await res.text(), 'asset /diagnostic/');
 });
 
 test('/api/contact : 405 hors POST, 503 sans secrets', async () => {

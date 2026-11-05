@@ -17,7 +17,7 @@ Services AMEB inc. aims for level AA of the Web Content Accessibility Guidelines
 - **Contrast.** Body text has a contrast ratio of at least 4.5:1 with its background. No information is conveyed by colour alone.
 - **Keyboard.** All features can be used with a keyboard. The focus indicator remains visible and is never hidden by the header. A skip link leads directly to the main content.
 - **Reduced motion.** If your device asks to reduce motion, the website directly displays the final state of each animation.
-- **Animation pause.** On the home page, a “Pause the animation” button, accessible by keyboard, stops all animations on the page.
+- **Animations.** The home page animations loop continuously, with no sound or rapid flashing. They stop entirely when your device asks to reduce motion.
 - **Captions.** The website contains no video or audio content. Captions therefore do not apply for now.
 - **Text alternatives.** Meaningful images and diagrams have a text description. Decorative elements are ignored by screen readers.
 - **Forms.** Every field has a visible label. Errors are described in text and linked to the field concerned.

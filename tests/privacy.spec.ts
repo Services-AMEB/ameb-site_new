@@ -1,8 +1,8 @@
 /** Premier chargement : 0 témoin et 0 requête hors domaines autorisés (site, analytics, Turnstile sur pages formulaire). */
 import { test, expect } from '@playwright/test';
 
-const FORM_PAGES = ['/diagnostic/', '/contact/', '/outils/calculateur-ressaisie/', '/en/diagnostic/', '/en/contact/'];
-const PAGES = ['/', '/en/', '/services/ventes-crm/', '/secteurs/evenementiel-associations/', '/outils/autoevaluation/', ...FORM_PAGES];
+const FORM_PAGES = ['/diagnostic/', '/contact/', '/en/diagnostic/', '/en/contact/'];
+const PAGES = ['/', '/en/', '/realisations/', '/en/case-studies/', '/confidentialite/', ...FORM_PAGES];
 const analytics = process.env.PUBLIC_ANALYTICS_SRC ? new URL(process.env.PUBLIC_ANALYTICS_SRC).host : null;
 
 for (const path of PAGES) {

@@ -1,0 +1,434 @@
+---
+/**
+ * Hero de l'accueil : message + panneau « pilote automatique » (faisceaux animés et journal d'actions).
+ * Le H1 est visible immédiatement. Les boucles tournent en continu (ADR-012); elles s'arrêtent
+ * seulement si le système demande de réduire les animations.
+ */
+import Button from '../Button.astro';
+import Icon from '../Icon.astro';
+import type { IconName } from '../icons/lucide';
+import { homeUrl, url, type Lang } from '../../i18n/routes';
+import { t } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  hero: { eyebrow: string; h1: string; lead: string; leadStrong: string; leadEnd: string; ctaSecondary: string; proof: string[] };
+  panel: { label: string; note: string; sources: { icon: IconName; label: string }[]; outputs: { icon: IconName; label: string }[]; hub: string; feed: string[] };
+}
+
+const { lang, hero, panel } = Astro.props;
+/* Tracés (viewBox 520×300) : sources à gauche → hub → sorties à droite. */
+const left = [45, 114, 186, 255];
+const right = [75, 150, 225];
+const inPaths = left.map((y) => `M130 ${y}C180 ${y} 180 150 230 150`);
+const outPaths = right.map((y) => `M290 150C340 150 340 ${y} 390 ${y}`);
+const delays = ['0s', '-.7s', '-1.4s', '-2.1s', '-1.3s', '-2s', '-.4s'];
+---
+
+<section class="hero">
+  <div class="container hero__grid">
+    <div class="hero__text">
+      <span class="eyebrow">{hero.eyebrow}</span>
+      <h1>{hero.h1}</h1>
+      <p class="hero__lead">{hero.lead} <strong>{hero.leadStrong}</strong> {hero.leadEnd}</p>
+      <div class="cluster">
+        <Button href={url('diagnostic', lang)} icon="arrow-right" track="cta_diagnostic" placement="hero">{t(lang, 'cta.diagnostic')}</Button>
+        <Button href={homeUrl('methode', lang)} variant="secondary">{hero.ctaSecondary}</Button>
+      </div>
+      <ul class="hero__proof" role="list">
+        {hero.proof.map((p) => <li><Icon name="check" />{p}</li>)}
+      </ul>
+    </div>
+
+    <div class="panel" role="img" aria-label={t(lang, 'a11y.panel')}>
+      <div class="panel__head">
+        <span class="live"><i></i>{panel.label}</span>
+        <span class="panel__note">{panel.note}</span>
+      </div>
+      <div class="beam" aria-hidden="true">
+        <svg viewBox="0 0 520 300" preserveAspectRatio="none">
+          {
+            [...inPaths, ...outPaths].map((d, i) => (
+              <>
+                <path class="beam__base" d={d} />
+                <path class="beam__pulse" d={d} pathLength="100" style={`animation-delay: ${delays[i]}`} />
+              </>
+            ))
+          }
+        </svg>
+        {panel.sources.map((s, i) => <span class="node node--l" style={`top: ${[15, 38, 62, 85][i]}%`}><Icon name={s.icon} />{s.label}</span>)}
+        <div class="hub"><i></i></div>
+        <span class="hub__label">{panel.hub}</span>
+        {panel.outputs.map((o, i) => <span class="node node--r" style={`top: ${[25, 50, 75][i]}%`}><Icon name={o.icon} />{o.label}</span>)}
+      </div>
+      <div class="feed" data-feed aria-hidden="true">
+        {
+          panel.feed.slice(0, 4).map((item) => (
+            <div class="feed__item">
+              <span class="feed__icon"><Icon name="check" /></span>
+              <span>{item}</span>
+              <span class="feed__time" data-time></span>
+            </div>
+          ))
+        }
+      </div>
+      <template data-feed-items>{panel.feed.map((item) => <span>{item}</span>)}</template>
+    </div>
+  </div>
+</section>
+
+<style>
+  @layer components {
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding-block: var(--sp-12) var(--sp-12);
+
+      @media (min-width: 1024px) {
+        padding-block: var(--sp-24) var(--sp-16);
+      }
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(var(--dot) 1px, transparent 1.4px);
+        background-size: 22px 22px;
+        mask-image: radial-gradient(ellipse 75% 70% at 55% 35%, var(--white) 20%, transparent 72%);
+        pointer-events: none;
+      }
+    }
+
+    .hero__grid {
+      position: relative;
+      display: grid;
+      gap: var(--sp-8);
+
+      @media (min-width: 1024px) {
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+        align-items: center;
+        gap: var(--sp-12);
+      }
+    }
+
+    .hero__text {
+      display: grid;
+      gap: var(--sp-6);
+      justify-items: start;
+
+      & h1 {
+        max-inline-size: 14ch;
+        font-size: var(--fs-hero);
+        letter-spacing: -.03em;
+        line-height: 1.05;
+      }
+    }
+
+    .hero__lead {
+      font-size: var(--fs-md);
+      color: var(--color-text-2);
+      max-inline-size: 58ch;
+
+      @media (min-width: 768px) {
+        font-size: var(--fs-lg);
+      }
+
+      & strong {
+        color: var(--color-text);
+      }
+    }
+
+    .hero__proof {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-2) var(--sp-4);
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-medium);
+      color: var(--color-text-2);
+
+      & li {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-1);
+      }
+
+      & svg {
+        inline-size: var(--icon-sm);
+        block-size: var(--icon-sm);
+        color: var(--jade-600);
+      }
+    }
+
+    /* ---- Panneau ---- */
+    .panel {
+      background: var(--bg);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-2);
+      overflow: hidden;
+    }
+
+    .panel__head {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-4);
+      border-block-end: var(--border-w) solid var(--line);
+      font-size: var(--fs-xs);
+      font-weight: var(--fw-semibold);
+      color: var(--color-text-2);
+    }
+
+    .panel__note {
+      margin-inline-start: auto;
+      color: var(--color-muted);
+      font-weight: var(--fw-medium);
+    }
+
+    .live {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-2);
+
+      & i {
+        inline-size: var(--sp-2);
+        block-size: var(--sp-2);
+        border-radius: var(--radius-round);
+        background: var(--jade-600);
+      }
+    }
+
+    .beam {
+      position: relative;
+      aspect-ratio: 52 / 30;
+      container-type: inline-size;
+
+      & svg {
+        position: absolute;
+        inset: 0;
+        inline-size: 100%;
+        block-size: 100%;
+      }
+    }
+
+    .beam__base {
+      fill: none;
+      stroke: var(--line);
+      stroke-width: 2;
+    }
+
+    .beam__pulse {
+      fill: none;
+      stroke: var(--jade-600);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-dasharray: 12 88;
+      stroke-dashoffset: 0;
+    }
+
+    .node {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-1);
+      padding-inline: var(--sp-2);
+      block-size: clamp(26px, 7cqi, 36px);
+      border: var(--border-w) solid var(--line);
+      border-radius: var(--radius-round);
+      background: var(--bg);
+      font-size: clamp(var(--fs-2xs), 2.3cqi, var(--fs-xs));
+      font-weight: var(--fw-semibold);
+      color: var(--color-text-2);
+      white-space: nowrap;
+      transform: translateY(-50%);
+
+      & svg {
+        inline-size: 1.1em;
+        block-size: 1.1em;
+        color: var(--jade-600);
+        flex: none;
+      }
+    }
+
+    .node--l {
+      inset-inline-start: 3%;
+    }
+
+    .node--r {
+      inset-inline-end: 3%;
+      color: var(--color-text);
+    }
+
+    .hub {
+      position: absolute;
+      inset-inline-start: 50%;
+      inset-block-start: 50%;
+      transform: translate(-50%, -50%);
+      inline-size: clamp(44px, 13cqi, 68px);
+      aspect-ratio: 1;
+      border-radius: var(--radius-round);
+      background: var(--bg);
+      border: var(--border-w) solid var(--line);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 0 10px var(--glow), var(--shadow-2);
+
+      & i {
+        inline-size: 38%;
+        aspect-ratio: 1;
+        border-radius: var(--radius-round);
+        background: var(--jade-600);
+      }
+    }
+
+    .hub__label {
+      position: absolute;
+      inset-inline-start: 50%;
+      inset-block-start: calc(50% + clamp(var(--sp-8), 9cqi, var(--sp-12)));
+      transform: translateX(-50%);
+      font-size: clamp(var(--fs-2xs), 2.2cqi, var(--fs-xs));
+      font-weight: var(--fw-semibold);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      white-space: nowrap;
+    }
+
+    .feed {
+      border-block-start: var(--border-w) solid var(--line);
+      padding: var(--sp-3);
+      display: grid;
+      gap: var(--sp-2);
+      block-size: 218px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .feed__item {
+      display: grid;
+      grid-template-columns: var(--sp-6) 1fr auto;
+      gap: var(--sp-2);
+      align-items: center;
+      padding: var(--sp-2) var(--sp-3);
+      border-radius: var(--radius-md);
+      background: var(--bg);
+      border: var(--border-w) solid var(--line);
+      font-size: var(--fs-xs);
+      color: var(--color-text);
+      min-inline-size: 0;
+
+      & > span:nth-child(2) {
+        min-inline-size: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .feed__icon {
+      inline-size: var(--sp-6);
+      block-size: var(--sp-6);
+      border-radius: var(--radius-sm);
+      background: var(--color-badge);
+      color: var(--color-badge-fg);
+      display: grid;
+      place-items: center;
+
+      & svg {
+        inline-size: 14px;
+        block-size: 14px;
+      }
+    }
+
+    .feed__time {
+      font-size: var(--fs-2xs);
+      color: var(--color-muted);
+      white-space: nowrap;
+    }
+  }
+
+  @layer motion {
+    @media (prefers-reduced-motion: no-preference) {
+      .live i {
+        animation: pulse var(--dur-pulse) infinite;
+      }
+
+      .beam__pulse {
+        stroke-dashoffset: 100;
+        animation: beam var(--dur-beam) linear infinite;
+      }
+
+      .feed__item.is-new {
+        animation: feed-in var(--dur-feed) var(--ease-out);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 var(--glow);
+      }
+
+      70% {
+        box-shadow: 0 0 0 8px transparent;
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 transparent;
+      }
+    }
+
+    @keyframes beam {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes feed-in {
+      from {
+        opacity: 0;
+        transform: translateY(calc(-1 * var(--sp-3))) scale(.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  }
+</style>
+
+<script>
+  // Journal « pilote automatique » : une nouvelle ligne toutes les 2,6 s, en boucle.
+  const feed = document.querySelector<HTMLElement>('[data-feed]');
+  const tpl = document.querySelector<HTMLTemplateElement>('[data-feed-items]');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lang = document.documentElement.lang.startsWith('en') ? 'en' : 'fr';
+  const rel = (s: number) => (s < 3 ? (lang === 'fr' ? 'à l’instant' : 'just now') : lang === 'fr' ? `il y a ${s} s` : `${s} s ago`);
+
+  if (feed && tpl) {
+    const items = [...tpl.content.querySelectorAll('span')].map((s) => s.textContent ?? '');
+    const stamps = new WeakMap<Element, number>();
+    const children = () => [...feed.children];
+    children().forEach((el, i) => stamps.set(el, Date.now() - i * 6000));
+    const refresh = () => children().forEach((c) => {
+      const t = c.querySelector('[data-time]');
+      if (t) t.textContent = rel(Math.round((Date.now() - (stamps.get(c) ?? Date.now())) / 1000));
+    });
+    refresh();
+    if (!reduce) {
+      let n = 4;
+      const first = feed.firstElementChild as HTMLElement;
+      setInterval(() => {
+        const el = first.cloneNode(true) as HTMLElement;
+        el.classList.add('is-new');
+        const text = el.children[1];
+        if (text) text.textContent = items[n % items.length] ?? '';
+        n++;
+        stamps.set(el, Date.now());
+        feed.prepend(el);
+        while (feed.children.length > 4) feed.lastElementChild?.remove();
+        refresh();
+      }, 2600);
+    }
+  }
+</script>
