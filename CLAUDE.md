@@ -15,7 +15,7 @@ Référence : `docs/brief.md`, amendé par les décisions de `docs/decisions/` (
 - `npm run verify:dist` — liens, ancres, budgets gzip, H1 unique, parité H2, typographie FR
 - `npm run a-confirmer` — régénère `docs/a-confirmer.md` (la CI vérifie qu'il est à jour)
 - `npm run cf:dev` — build de préproduction + `wrangler dev` (runtime Cloudflare local; secrets dans `.dev.vars`)
-- `npm run deploy:dev` / `npm run deploy` — Worker « ameb-site-dev » (noindex) / « ameb-site » (production)
+- `npm run deploy:dev` / `npm run deploy` — Worker « ameb-site-new-dev » (noindex) / « ameb-site-new » (production)
 
 ## Règles absolues (brief §1)
 1. Jamais le nom de l'éditeur (voir `docs/interdits.txt`), aucun de ses produits, aucun nom de client ni de concurrent dans `src/` ou `public/`.

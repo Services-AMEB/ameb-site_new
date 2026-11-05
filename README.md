@@ -32,8 +32,8 @@ Le site se déploie comme **Worker à ressources statiques** : `dist/` est servi
 
 | Environnement | Worker | Indexation | Commande |
 |---|---|---|---|
-| dev (préproduction) | `ameb-site-dev` (`*.workers.dev`) | `noindex` + `robots.txt` « Disallow: / » | `npm run deploy:dev` |
-| production | `ameb-site` | normale | `npm run deploy` |
+| dev (préproduction) | `ameb-site-new-dev` (`*.workers.dev`) | `noindex` + `robots.txt` « Disallow: / » | `npm run deploy:dev` |
+| production | `ameb-site-new` | normale | `npm run deploy` |
 
 ### Mode dev, depuis votre poste
 
@@ -70,13 +70,13 @@ npm run cf:dev
 ### Mode dev, par Git (Workers Builds)
 
 Dans le tableau de bord Cloudflare, créer un Worker relié au dépôt GitHub :
-- nom du Worker : `ameb-site-dev` (doit correspondre à `env.dev.name`);
+- nom du Worker : `ameb-site-new-dev` (doit correspondre à `env.dev.name`);
 - commande de build : `npm run build:dev`;
 - commande de déploiement : `npx wrangler deploy --env dev`;
 - variables de build : `PUBLIC_TURNSTILE_SITEKEY` (et au besoin `PUBLIC_BOOKING_URL`, `PUBLIC_ANALYTICS_SRC`, `PUBLIC_ANALYTICS_ID`);
 - secrets du Worker : `TURNSTILE_SECRET`, `N8N_WEBHOOK_URL`, `N8N_WEBHOOK_SECRET`.
 
-Pour la production, même chose avec le Worker `ameb-site`, la commande de build `npm run build` et la commande de déploiement `npx wrangler deploy` (variable de build `SITE_URL` = domaine définitif).
+Pour la production, même chose avec le Worker `ameb-site-new` (le nom déclaré dans `wrangler.jsonc` doit être exactement celui du Worker dans le tableau de bord), la commande de build `npm run build` et la commande de déploiement `npx wrangler deploy` (variable de build `SITE_URL` = domaine définitif).
 
 ### Cloudflare Pages (autre option)
 

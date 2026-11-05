@@ -1,8 +1,8 @@
 // Configuration Cloudflare Workers (ressources statiques + API /api/contact).
 // Voir docs/decisions/ADR-011-cloudflare-workers.md et la section « Déployer » du README.
 //
-// Production : npm run deploy          → Worker « ameb-site »
-// Dev        : npm run deploy:dev      → Worker « ameb-site-dev » (workers.dev, noindex)
+// Production : npm run deploy          → Worker « ameb-site-new » (nom du Worker relié au dépôt)
+// Dev        : npm run deploy:dev      → Worker « ameb-site-new-dev » (workers.dev, noindex)
 // Local      : npm run cf:dev          → wrangler dev (même environnement que Cloudflare)
 //
 // Workers Builds (Git) : commande de build « npm run build » (ajouter la variable de build
@@ -13,7 +13,7 @@
 //                        npx wrangler secret put N8N_WEBHOOK_SECRET [--env dev]
 {
   "$schema": "https://unpkg.com/wrangler@4.151.3/config-schema.json",
-  "name": "ameb-site",
+  "name": "ameb-site-new",
   "main": "worker/index.ts",
   "compatibility_date": "2026-10-15",
   "minify": true,
@@ -35,7 +35,7 @@
   "observability": { "enabled": true },
   "env": {
     "dev": {
-      "name": "ameb-site-dev",
+      "name": "ameb-site-new-dev",
       "workers_dev": true,
       "preview_urls": true,
       "vars": {
